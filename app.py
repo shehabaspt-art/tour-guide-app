@@ -119,13 +119,14 @@ if password == "159753":
         st.success("Login Successful!")
         st.markdown("---")
         st.title("📊 Admin Dashboard & Notifications")
-        
+password = st.text_input("Enter Password", type="password")
+
 if password == "159753":
-        st.success("Login Successful!")
-        st.markdown("---")
-        st.title("📊 Admin Dashboard & Notifications")
-        
-if "submissions" in st.session_state and len(st.session_state["submissions"]) > 0:
+    st.success("Login Successful!")
+    st.markdown("---")
+    st.title("📊 Admin Dashboard & Notifications")
+
+    if "submissions" in st.session_state and len(st.session_state["submissions"]) > 0:
         sub_df = pd.DataFrame(st.session_state["submissions"])
         edited_sub_df = st.data_editor(
             sub_df,
@@ -133,16 +134,16 @@ if "submissions" in st.session_state and len(st.session_state["submissions"]) > 
             key="manager_submissions_editor",
             use_container_width=True,
         )
-        
         if st.button("Save Changes and Delete Selected Records"):
             st.session_state["submissions"] = edited_sub_df.to_dict("records")
             st.success("Records updated successfully!")
             st.rerun()
-else:
+    else:
         st.info("No new pending clearance requests at the moment.")
-st.markdown("---")
-st.markdown("### 📁 Guides Database & Associated Account Numbers")
-st.dataframe(guides_df, use_container_width=True)
+
+    st.markdown("---")
+    st.markdown("### 📁 Guides Database & Associated Account Numbers")
+    st.dataframe(guides_df, use_container_width=True)
 
 elif password:
     st.error("كلمة السر غير صحيحة، يرجى المحاولة مرة أخرى.")
