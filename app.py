@@ -32,8 +32,8 @@ st.markdown("""
 # Load guide data from Excel mapping
 @st.cache_data
 def load_guides():
-    df = pd.read_excel('C:/Users/GRAPHICS/Documents/guides.xlsx', sheet_name=0)
-    return df
+df = pd.read_excel('guides.xlsx', sheet_name=0)   
+return df
 guides_df = load_guides()
 
 # Sidebar Navigation
