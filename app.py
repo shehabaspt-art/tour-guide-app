@@ -112,13 +112,13 @@ if menu == "نموذج تصفية المرشد":
 st.success("Done successfully!")
 st.rerun()
 if menu == "Admin Dashboard":
-  st.title("Admin Login 🔒")
+    st.title("Admin Login 🔒")
     password = st.text_input("Enter Admin Password", type="password", key="admin_pass")
-        
-        if password == "159753":
-            st.success("Login Successful!")
-            st.markdown("---")
-            st.title("📊 Admin Dashboard & Notifications")
+
+    if password == "159753":
+        st.success("Login Successful!")
+        st.markdown("---")
+        st.title("📊 Admin Dashboard & Notifications")
             # You can place your custom dashboard content here
   if "submissions" in st.session_state and len(st.session_state["submissions"]) > 0:
         sub_df = pd.DataFrame(st.session_state["submissions"])
