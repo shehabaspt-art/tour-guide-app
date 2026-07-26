@@ -112,8 +112,8 @@ if menu == "نموذج تصفية المرشد":
 st.success("Done successfully!")
 st.rerun()
 if menu == "Admin Dashboard":
-      st.title("Admin Login 🔒")
-        password = st.text_input("Enter Admin Password", type="password", key="admin_pass")
+  st.title("Admin Login 🔒")
+    password = st.text_input("Enter Admin Password", type="password", key="admin_pass")
         
         if password == "159753":
             st.success("Login Successful!")
