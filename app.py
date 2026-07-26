@@ -117,7 +117,7 @@ elif menu == "لوحة تحكم المدير (الإشعارات والطلبا�
       "أدخل كلمة سر المدير:", type="password", key="admin_pass"
   )
 
-  if password == "1234":
+  if password == "159753":
     st.success("تم تسجيل الدخول بنجاح!")
     st.markdown("---")
     st.title("📊 لوحة تحكم المدير والإشعارات")
