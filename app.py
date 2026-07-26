@@ -120,9 +120,7 @@ st.success("تم تسجيل الدخول بنجاح!")
     st.markdown("---")
     st.title("📊 لوحة تحكم المدير والإشعارات")
     # هنا يمكنك وضع محتوى لوحة التحكم الخاص بك
-    if "submissions" in st.session_state:
-        and len(st.session_state["submissions"]) > 0
-    ):
+    if "submissions" in st.session_state and len(st.session_state["submissions"]) > 0:
       sub_df = pd.DataFrame(st.session_state["submissions"])
       edited_sub_df = st.data_editor(
           sub_df,
