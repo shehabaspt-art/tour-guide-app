@@ -111,20 +111,16 @@ if menu == "نموذج تصفية المرشد":
                 st.session_state['submissions'].append(submission_data)
 st.success("Done successfully!")
 st.rerun()
-elif menu == "لوحة تحكم المدير (الإشعارات والطلبات)":
-  st.title("🔐 تسجيل دخول المدير")
-  password = st.text_input(
-      "أدخل كلمة سر المدير:", type="password", key="admin_pass"
-  )
+elif menu == "Admin Dashboard":
+st.title("تسجيل دخول المدير 🔒")
+password = st.text_input("أدخل كلمة سر المدير", type="password", key="admin_pass")
 
-  if password == "159753":
-    st.success("تم تسجيل الدخول بنجاح!")
+if password == "159753":
+st.success("تم تسجيل الدخول بنجاح!")
     st.markdown("---")
     st.title("📊 لوحة تحكم المدير والإشعارات")
-
-    # هنا يمكنك وضع محتوى لوحة التحكم الخاص بك (جدول التصفيات والإشعارات القديم إذا أردت إظهاره بعد الدخول)
-    if (
-        "submissions" in st.session_state
+    # هنا يمكنك وضع محتوى لوحة التحكم الخاص بك
+    if "submissions" in st.session_state:
         and len(st.session_state["submissions"]) > 0
     ):
       sub_df = pd.DataFrame(st.session_state["submissions"])
