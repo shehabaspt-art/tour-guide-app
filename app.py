@@ -109,8 +109,8 @@ if menu == "نموذج تصفية المرشد":
                     "الحالة": "جديد 🔔"
                 }
                 st.session_state['submissions'].append(submission_data)
-                st.success(f"تم إرسال التصفية بنجاح! تم إشعار الإدارة باسم المرشد: {guide_name}")
-
+                st.success(f"تم إرسال التصفية بنجاح! تم إشعار الإدارة باسم المرشد: {guide_name}") 
+           st.rerun()
 elif menu == "لوحة تحكم المدير (الإشعارات والطلبات)":
   st.title("🔐 تسجيل دخول المدير")
   password = st.text_input(
