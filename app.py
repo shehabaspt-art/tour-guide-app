@@ -141,10 +141,10 @@ if "submissions" in st.session_state and len(st.session_state["submissions"]) > 
 else:
         st.info("No new pending clearance requests at the moment.")
 st.markdown("---")
-st.markdown("### 📁 Guides Database & Associated Account Numbers")
-st.dataframe(guides_df, use_container_width=True)
+    st.markdown("### 📁 Guides Database & Associated Account Numbers")
+    st.dataframe(guides_df, use_container_width=True)
 
-  elif password:
+elif password:
     st.error("كلمة السر غير صحيحة، يرجى المحاولة مرة أخرى.")
-  else:
+else:
     st.info("الرجاء إدخال كلمة السر لعرض لوحة التحكم وإدارة الطلبات.")
