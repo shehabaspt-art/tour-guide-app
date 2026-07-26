@@ -112,27 +112,41 @@ if menu == "نموذج تصفية المرشد":
                 st.success(f"تم إرسال التصفية بنجاح! تم إشعار الإدارة باسم المرشد: {guide_name}")
 
 elif menu == "لوحة تحكم المدير (الإشعارات والطلبات)":
-    st.markdown("## 📊 لوحة تحكم المدير والإشعارات")
-    st.markdown("متابعة التصفيات الواردة والربط الفوري بين أرقام الحسابات والأسماء الحقيقية.")
-    
-    if 'submissions' in st.session_state and len(st.session_state['submissions']) > 0:
-        sub_df = pd.DataFrame(st.session_state['submissions'])
-        
-        # جدول تفاعلي يدعم التعديل والحذف المباشر
-        edited_sub_df = st.data_editor(
-            sub_df, 
-            num_rows="dynamic", 
-            key="manager_submissions_editor",
-            use_container_width=True
-        )
-        
-        if st.button("💾 حفظ التعديلات وحذف السجلات المحددة"):
-            st.session_state['submissions'] = edited_sub_df.to_dict('records')
-            st.success("✅ تم تحديث السجلات بنجاح!")
-            st.rerun()
+  st.title("🔐 تسجيل دخول المدير")
+  password = st.text_input(
+      "أدخل كلمة سر المدير:", type="password", key="admin_pass"
+  )
+
+  if password == "1234":
+    st.success("تم تسجيل الدخول بنجاح!")
+    st.markdown("---")
+    st.title("📊 لوحة تحكم المدير والإشعارات")
+
+    # هنا يمكنك وضع محتوى لوحة التحكم الخاص بك (جدول التصفيات والإشعارات القديم إذا أردت إظهاره بعد الدخول)
+    if (
+        "submissions" in st.session_state
+        and len(st.session_state["submissions"]) > 0
+    ):
+      sub_df = pd.DataFrame(st.session_state["submissions"])
+      edited_sub_df = st.data_editor(
+          sub_df,
+          num_rows="dynamic",
+          key="manager_submissions_editor",
+          use_container_width=True,
+      )
+      if st.button("💾 حفظ التعديلات وحذف السجلات المحددة"):
+        st.session_state["submissions"] = edited_sub_df.to_dict("records")
+        st.success("تم تحديث السجلات بنجاح ✅!")
+        st.rerun()
     else:
-        st.info("لا توجد طلبات تصفية جديدة حتى الآن.")
+      st.info("لا توجد طلبات تصفية جديدة حتى الآن.")
 
     st.markdown("---")
-    st.markdown("### 🗂️ قاعدة بيانات المرشدين وأرقام الحسابات المرتبطة")
-    st.dataframe(guides_df, use_container_width=True)
+    st.markdown("### 📁 قاعدة بيانات المرشدين وأرقام الحسابات المرتبطة")
+    if guides_df is not None:
+      st.dataframe(guides_df, use_container_width=True)
+
+  elif password:
+    st.error("كلمة السر غير صحيحة، يرجى المحاولة مرة أخرى.")
+  else:
+    st.info("الرجاء إدخال كلمة السر لعرض لوحة التحكم وإدارة الطلبات.")
