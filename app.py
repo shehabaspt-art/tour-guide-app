@@ -112,32 +112,31 @@ if menu == "نموذج تصفية المرشد":
 st.success("Done successfully!")
 st.rerun()
 elif menu == "Admin Dashboard":
-st.title("تسجيل دخول المدير 🔒")
-    password = st.text_input("أدخل كلمة سر المدير", type="password", key="admin_pass")
-    
-    if password == "159753":
-        st.success("تم تسجيل الدخول بنجاح!")
-        st.markdown("---")
-        st.title("📊 لوحة تحكم المدير والإشعارات")
-        # هنا يمكنك وضع محتوى لوحة التحكم الخاص بك
-    if "submissions" in st.session_state and len(st.session_state["submissions"]) > 0:
-      sub_df = pd.DataFrame(st.session_state["submissions"])
-      edited_sub_df = st.data_editor(
-          sub_df,
-          num_rows="dynamic",
-          key="manager_submissions_editor",
-          use_container_width=True,
-      )
-      if st.button("💾 حفظ التعديلات وحذف السجلات المحددة"):
-        st.session_state["submissions"] = edited_sub_df.to_dict("records")
-        st.success("تم تحديث السجلات بنجاح ✅!")
-        st.rerun()
+      st.title("Admin Login 🔒")
+        password = st.text_input("Enter Admin Password", type="password", key="admin_pass")
+        
+        if password == "159753":
+            st.success("Login Successful!")
+            st.markdown("---")
+            st.title("📊 Admin Dashboard & Notifications")
+            # You can place your custom dashboard content here
+  if "submissions" in st.session_state and len(st.session_state["submissions"]) > 0:
+        sub_df = pd.DataFrame(st.session_state["submissions"])
+        edited_sub_df = st.data_editor(
+            sub_df,
+            num_rows="dynamic",
+            key="manager_submissions_editor",
+            use_container_width=True,
+        )
+if st.button("Save Changes and Delete Selected Records"):
+            st.session_state["submissions"] = edited_sub_df.to_dict("records")
+            st.success("Records updated successfully!")
+            st.rerun()
     else:
-      st.info("لا توجد طلبات تصفية جديدة حتى الآن.")
+        st.info("No new pending clearance requests at the moment.")
 
-    st.markdown("---")
-    st.markdown("### 📁 قاعدة بيانات المرشدين وأرقام الحسابات المرتبطة")
-    if guides_df is not None:
+st.markdown("---")
+st.markdown("### 📁 Guides Database & Associated Account Numbers")
       st.dataframe(guides_df, use_container_width=True)
 
   elif password:
