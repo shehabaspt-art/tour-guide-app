@@ -142,7 +142,7 @@ else:
         st.info("No new pending clearance requests at the moment.")
 st.markdown("---")
 st.markdown("### 📁 Guides Database & Associated Account Numbers")
-      st.dataframe(guides_df, use_container_width=True)
+st.dataframe(guides_df, use_container_width=True)
 
   elif password:
     st.error("كلمة السر غير صحيحة، يرجى المحاولة مرة أخرى.")
