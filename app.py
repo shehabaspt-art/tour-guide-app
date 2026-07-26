@@ -111,7 +111,7 @@ if menu == "نموذج تصفية المرشد":
                 st.session_state['submissions'].append(submission_data)
 st.success("Done successfully!")
 st.rerun()
-elif menu == "Admin Dashboard":
+if menu == "Admin Dashboard":
       st.title("Admin Login 🔒")
         password = st.text_input("Enter Admin Password", type="password", key="admin_pass")
         
