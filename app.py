@@ -144,8 +144,7 @@ if password == "159753":
     st.markdown("---")
     st.markdown("### 📁 Guides Database & Associated Account Numbers")
     st.dataframe(guides_df, use_container_width=True)
-
 elif password:
-    st.error("كلمة السر غير صحيحة، يرجى المحاولة مرة أخرى.")
+    st.error("Incorrect password, please try again.")
 else:
-    st.info("الرجاء إدخال كلمة السر لعرض لوحة التحكم وإدارة الطلبات.")
+    st.info("Please enter the password to view the dashboard and manage requests.")
