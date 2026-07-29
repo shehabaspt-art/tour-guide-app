@@ -154,7 +154,9 @@ elif page == "لوحة تحكم المدير":
         sub_df = load_submissions()
         if not sub_df.empty:
             st.markdown("### الطلبات الواردة")
-            st.dataframe(sub_df, use_container_width=True)
+            # إخفاء أعمدة مسارات الصور من الجدول الرئيسي ليكون نظيف واحترافي
+            cols_to_show = [c for c in sub_df.columns if c not in ["Lunch Receipt", "Shop Images"]]
+            st.dataframe(sub_df[cols_to_show], use_container_width=True)
             
             st.markdown("---")
             st.markdown("### 🔍 مراجعة فواتير وصور الطلبات")
