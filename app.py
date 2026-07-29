@@ -21,7 +21,7 @@ if page == "نموذج تصفية المرشد":
     
     with st.form("guide_form"):
     acc_column = guides_df.columns[1] if len(guides_df.columns) > 1 else guides_df.columns[0]
-account_no = st.selectbox("رقم الحساب الخاص بالمرشد", options=guides_df[acc_column].astype(str).tolist())
+    account_no = st.selectbox("رقم الحساب الخاص بالمرشد", options=guides_df[acc_column].astype(str).tolist())
         tip = st.number_input("إكرامية (Tip)", min_value=0.0, step=10.0)
         file_no = st.text_input("رقم الفايل (File Number)")
         
