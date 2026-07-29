@@ -1,150 +1,65 @@
 import streamlit as st
 import pandas as pd
-import datetime
 
-st.set_page_config(page_title="تصفية مرشدين السياحة", page_icon="🧭", layout="wide")
+st.set_page_config(page_title="نظام تصفية المرشدين", page_icon="🧭", layout="wide")
 
-# Custom CSS for professional styling (Green Sidebar & Clean Cards)
-st.markdown("""
-    <style>
-    .main { background-color: #f8f9fa; }
-    [data-testid="stSidebar"] {
-        background-color: #113f36;
-        color: white;
-    }
-    [data-testid="stSidebar"] * {
-        color: white !important;
-    }
-    .stButton>button {
-        background-color: #113f36;
-        color: white;
-        border-radius: 8px;
-        border: none;
-        padding: 0.5rem 1rem;
-        font-weight: bold;
-    }
-    .stButton>button:hover {
-        background-color: #1b5e52;
-    }
-    </style>
-""", unsafe_allow_html=True)
+# تحميل ملف الداتا بأمان أو إنشاء داتا افتراضية لو مش موجود
+try:
+    guides_df = pd.read_excel("guides.xlsx")
+except:
+    guides_df = pd.DataFrame({"Guide Name": ["أحمد", "محمود"], "Account Number": ["1805000493514500022", "1805000493514500033"]})
 
-# Load guide data from Excel mapping
-@st.cache_data
-def load_guides():
-    df = pd.read_excel('guides.xlsx', sheet_name=0)   
-    return df
-guides_df = load_guides()
+st.sidebar.title("القائمة الرئيسية")
+page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "لوحة تحكم المدير"])
 
-# Sidebar Navigation
-st.sidebar.markdown("## 🧭 نظام تصفية المرشدين")
-st.sidebar.markdown("---")
-menu = st.sidebar.radio("القائمة الرئيسية", ["نموذج تصفية المرشد", "لوحة تحكم المدير (الإشعارات والطلبات)"])
+if "submissions" not in st.session_state:
+    st.session_state["submissions"] = []
 
-if menu == "نموذج تصفية المرشد":
-    st.markdown("## 📋 نموذج تصفية رحلة مرشد سياحي")
-    st.markdown("يرجى ملء الحقول المالية بدقة ورفع الفواتير المطلوبة.")
+if page == "نموذج تصفية المرشد":
+    st.title("🧭 نظام تصفية المرشدين")
+    st.markdown("---")
     
-    with st.form("liquidation_form"):
-        col1, col2 = st.columns(2)
+    with st.form("guide_form"):
+        account_no = st.selectbox("رقم الحساب الخاص بالمرشد", options=guides_df["Account Number"].astype(str).tolist())
+        tip = st.number_input("إكرامية (Tip)", min_value=0.0, step=10.0)
+        file_no = st.text_input("رقم الفايل (File Number)")
         
-        with col1:
-            # Account number dropdown (Hidden guide names for privacy)
-            account_list = guides_df['رقم الحساب'].astype(str).tolist()
-            selected_account = st.selectbox("رقم الحساب الخاص بالمرشد", options=account_list)
-            
-            # File Number
-            file_number = st.text_input("رقم الفايل (File Number)")
-            
-            # Numeric strict columns
-            st.markdown("### الحقول المالية (أرقام فقط)")
-            ticket = st.number_input("تذاكر (Tickets)", min_value=0.0, step=1.0, format="%.2f")
-            park = st.number_input("بارك (Park)", min_value=0.0, step=1.0, format="%.2f")
-            lunch = st.number_input("غداء (Lunch)", min_value=0.0, step=1.0, format="%.2f")
-            
-        with col2:
-            tip = st.number_input("إكرامية (Tip)", min_value=0.0, step=1.0, format="%.2f")
-            guide_daily_rate = st.number_input("يومية الإرشاد (Guide Daily Rate)", min_value=0.0, step=1.0, format="%.2f")
-            advances = st.number_input("عهد (Advances)", min_value=0.0, step=1.0, format="%.2f")
-            
-            # Flexible columns (Text and numbers)
-            st.markdown("### البيانات النصية والإضافية")
-            option = st.text_input("أوبشن (Option)")
-            collection = st.text_input("تحصيل (Collection)")
-            
-        st.markdown("---")
-        st.markdown("### 📎 مرفقات الفواتير")
-        col_f1, col_f2 = st.columns(2)
-        with col_f1:
-            shops_file = st.file_uploader("فواتير المحلات (Shops)", type=["pdf", "png", "jpg", "jpeg"])
-        with col_f2:
-            restaurants_file = st.file_uploader("فواتير المطاعم (Restaurants)", type=["pdf", "png", "jpg", "jpeg"])
-            
-        submit_btn = st.form_submit_button("إرسال التصفية")
+        st.subheader("الحقول المالية (أرقام فقط)")
+        tickets = st.number_input("تذاكر (Tickets)", min_value=0.0, step=10.0)
+        park = st.number_input("بارك (Park)", min_value=0.0, step=10.0)
+        lunch = st.number_input("غداء (Lunch)", min_value=0.0, step=10.0)
         
-        if submit_btn:
-            if not file_number:
-                st.error("برجاء إدخال رقم الفايل!")
-            else:
-                # Map account number to guide name securely
-                matched_row = guides_df[guides_df['رقم الحساب'].astype(str) == str(selected_account)]
-                guide_name = matched_row['اسم المرشد '].values[0] if not matched_row.empty else "مرشد غير معروف"
-                
-                if 'submissions' not in st.session_state:
-                    st.session_state['submissions'] = []
-                
-                submission_data = {
-                    "وقت الإرسال": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    "اسم المرشد (لإدارة)": guide_name,
-                    "رقم الحساب": selected_account,
-                    "رقم الفايل": file_number,
-                    "تذاكر": ticket,
-                    "بارك": park,
-                    "غداء": lunch,
-                    "إكرامية": tip,
-                    "يومية الإرشاد": guide_daily_rate,
-                    "عهد": advances,
-                    "أوبشن": option,
-                    "تحصيل": collection,
-                    "الحالة": "جديد 🔔"
-                }
-                st.session_state['submissions'].append(submission_data)
-st.success("Done successfully!")
-st.rerun()
-if menu == "Admin Dashboard":
-    st.title("Admin Login 🔒")
-    password = st.text_input("Enter Admin Password", type="password", key="admin_pass")
+        submitted = st.form_submit_button("إرسال الطلب للمدير")
+        
+        if submitted:
+            new_entry = {
+                "Account": account_no,
+                "File No": file_no,
+                "Tip": tip,
+                "Tickets": tickets,
+                "Park": park,
+                "Lunch": lunch
+            }
+            st.session_state["submissions"].append(new_entry)
+            st.success("تم إرسال الطلب بنجاح!")
 
-if password == "159753":
-        st.success("Login Successful!")
-        st.markdown("---")
-        st.title("📊 Admin Dashboard & Notifications")
-password = st.text_input("Enter Password", type="password")
-
-if password == "159753":
-    st.success("Login Successful!")
+elif page == "لوحة تحكم المدير":
+    st.title("📊 لوحة تحكم المدير")
     st.markdown("---")
-    st.title("📊 Admin Dashboard & Notifications")
-
-    if "submissions" in st.session_state and len(st.session_state["submissions"]) > 0:
-        sub_df = pd.DataFrame(st.session_state["submissions"])
-        edited_sub_df = st.data_editor(
-            sub_df,
-            num_rows="dynamic",
-            key="manager_submissions_editor",
-            use_container_width=True,
-        )
-        if st.button("Save Changes and Delete Selected Records"):
-            st.session_state["submissions"] = edited_sub_df.to_dict("records")
-            st.success("Records updated successfully!")
-            st.rerun()
+    
+    password = st.text_input("أدخل كلمة المرور", type="password")
+    
+    if password == "159753":
+        st.success("تم تسجيل الدخول بنجاح!")
+        if len(st.session_state["submissions"]) > 0:
+            sub_df = pd.DataFrame(st.session_state["submissions"])
+            st.data_editor(sub_df, use_container_width=True)
+        else:
+            st.info("لا توجد طلبات جديدة حتى الآن.")
+        
+        st.markdown("### قاعدة بيانات المرشدين")
+        st.dataframe(guides_df, use_container_width=True)
+    elif password:
+        st.error("كلمة المرور غير صحيحة.")
     else:
-        st.info("No new pending clearance requests at the moment.")
-
-    st.markdown("---")
-    st.markdown("### 📁 Guides Database & Associated Account Numbers")
-    st.dataframe(guides_df, use_container_width=True)
-elif password:
-    st.error("Incorrect password, please try again.")
-else:
-    st.info("Please enter the password to view the dashboard and manage requests.")
+        st.info("الرجاء إدخال كلمة المرور لعرض لوحة التحكم.")
