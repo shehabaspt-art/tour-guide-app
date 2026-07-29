@@ -64,7 +64,13 @@ SUBMISSIONS_FILE = "submissions.xlsx"
 def load_submissions():
     if os.path.exists(SUBMISSIONS_FILE):
         try:
-            return pd.read_excel(SUBMISSIONS_FILE)
+            df = pd.read_excel(SUBMISSIONS_FILE)
+            # التأكد من وجود الأعمدة الأساسية لمنع أي خطأ KeyError
+            if "Guide Name" not in df.columns:
+                df["Guide Name"] = "غير معروف"
+            if "Timestamp" not in df.columns:
+                df["Timestamp"] = "غير محدد"
+            return df
         except:
             return pd.DataFrame()
     return pd.DataFrame()
@@ -168,13 +174,12 @@ elif page == "لوحة تحكم المدير":
         if not sub_df.empty:
             st.markdown("### 🔍 فلترة وعرض تصفيات المرشدين")
             
-            # فلترة حسب اسم المرشد
             all_guides_in_subs = sub_df["Guide Name"].dropna().unique().tolist()
             selected_guide_filter = st.selectbox("اختر اسم المرشد لعرض جميع تصفياته وسجلاته", options=["الكل (جميع المرشدين)"] + all_guides_in_subs)
             
             if selected_guide_filter != "الكل (جميع المرشدين)":
                 filtered_sub_df = sub_df[sub_df["Guide Name"] == selected_guide_filter]
-                st.info(text=f"عرض التصفيات الخاصة بالمرشد: **{selected_guide_filter}** (عدد الطلبات: {len(filtered_sub_df)})")
+                st.info(f"عرض التصفيات الخاصة بالمرشد: **{selected_guide_filter}** (عدد الطلبات: {len(filtered_sub_df)})")
             else:
                 filtered_sub_df = sub_df
             
