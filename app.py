@@ -20,24 +20,24 @@ if page == "نموذج تصفية المرشد":
     st.title("🧭 نظام تصفية المرشدين")
     st.markdown("---")
     
-    # الحقول الأساسية فوق فقط
     account_no = st.selectbox("رقم الحساب الخاص بالمرشد", options=guides_df[acc_column].astype(str).tolist())
     file_no = st.text_input("رقم الفايل (File Number)")
     
     st.markdown("---")
     st.subheader("الحقول المالية")
     
-    # نقل الإكرامية لتكون مع باقي الحقول المالية وتحت
     tip = st.number_input("إكرامية (Tip)", min_value=0.0, step=10.0)
     tickets = st.number_input("تذاكر (Tickets)", min_value=0.0, step=10.0)
     park = st.number_input("بارك (Park)", min_value=0.0, step=10.0)
     
-    # بند الغداء مع رفع صورة الفاتورة
+    # بند الغداء وتحته زرار رفع الصور الخاص به مباشرة
     lunch = st.number_input("غداء (Lunch)", min_value=0.0, step=10.0)
     lunch_image = st.file_uploader("رفع صورة فاتورة الغداء", type=["png", "jpg", "jpeg"], key="lunch_img")
     
     st.markdown("---")
-    shop_bills_amount = st.number_input("قيمة فواتير المحلات", min_value=0.0, step=10.0)
+    
+    # بند فواتير المحلات وتحته زرار رفع الصور الخاص به مباشرة
+    shop_bills_amount = st.number_input("فواتير المحلات", min_value=0.0, step=10.0)
     shop_images = st.file_uploader("رفع صور فواتير المحلات", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key="shop_imgs")
     
     if st.button("إرسال الطلب للمدير", type="primary"):
@@ -53,7 +53,7 @@ if page == "نموذج تصفية المرشد":
             "Shop Images Count": len(shop_images) if shop_images else 0
         }
         st.session_state["submissions"].append(new_entry)
-        st.success("تم إرسال الطلب بنجاح مع الصور والمرفقات!")
+        st.success("تم إرسال الطلب بنجاح!")
 
 elif page == "لوحة تحكم المدير":
     st.title("📊 لوحة تحكم المدير")
