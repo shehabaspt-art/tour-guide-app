@@ -62,10 +62,11 @@ if page == "نموذج تصفية المرشد":
     st.title("🧭 نظام تصفية المرشدين")
     st.markdown("---")
     
-    # استخدام الفورم (Form) لضمان حفظ البيانات وإرسالها بشكل صحيح للمدير دون تداخل
     with st.form("guide_form", clear_on_submit=True):
         account_no = st.selectbox("رقم الحساب الخاص بالمرشد", options=guides_df[acc_column].astype(str).tolist())
-        file_no = st.text_input("رقم الفايل (File Number)")
+        
+        # حقل رقم الفايل مع تنبيه بأنه إلزامي
+        file_no = st.text_input("رقم الفايل (File Number) *إلزامي*")
         
         st.markdown("---")
         st.subheader("الحقول المالية والبنود")
@@ -88,22 +89,26 @@ if page == "نموذج تصفية المرشد":
         submitted = st.form_submit_button("إرسال الطلب للمدير", type="primary")
         
         if submitted:
-            new_entry = {
-                "Account": account_no,
-                "File No": file_no,
-                "Advances": advances,
-                "Collection": collection,
-                "Option": option_item,
-                "Tip": tip,
-                "Tickets": tickets,
-                "Park": park,
-                "Lunch": lunch,
-                "Lunch Receipt": lunch_image.name if lunch_image else "لا توجد صورة",
-                "Shop Bills": shop_bills_amount,
-                "Shop Images Count": len(shop_images) if shop_images else 0
-            }
-            st.session_state["submissions"].append(new_entry)
-            st.success("تم إرسال الطلب بنجاح وتم تفريغ الحقول لتسجيل طلب جديد!")
+            # التحقق من أن رقم الفايل ليس فارغاً
+            if not file_no.strip():
+                st.error("⚠️ عذراً، لا يمكن إرسال الطلب. يرجى إدخال (رقم الفايل) أولاً بشكل إلزامي!")
+            else:
+                new_entry = {
+                    "Account": account_no,
+                    "File No": file_no,
+                    "Advances": advances,
+                    "Collection": collection,
+                    "Option": option_item,
+                    "Tip": tip,
+                    "Tickets": tickets,
+                    "Park": park,
+                    "Lunch": lunch,
+                    "Lunch Receipt": lunch_image.name if lunch_image else "لا توجد صورة",
+                    "Shop Bills": shop_bills_amount,
+                    "Shop Images Count": len(shop_images) if shop_images else 0
+                }
+                st.session_state["submissions"].append(new_entry)
+                st.success("تم إرسال الطلب للمدير بنجاح، وتفريغ الحقول لطلب جديد!")
 
 elif page == "لوحة تحكم المدير":
     st.title("📊 لوحة تحكم المدير")
