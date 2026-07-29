@@ -3,44 +3,55 @@ import pandas as pd
 
 st.set_page_config(page_title="نظام تصفية المرشدين", page_icon="🧭", layout="wide")
 
-# لمسات سحرية لـ CSS لتجميل القائمة الجانبية باللون الأخضر وتأثيرات المربع البارز
+# لمسات CSS احترافية لفصل الخيارات في مربعات مستقلة مع تأثير البروز عند المرور (Hover)
 st.markdown("""
     <style>
-    /* تحسين شكل الشريط الجانبي وخلفيته */
+    /* خلفية الشريط الجانبي */
     [data-testid="stSidebar"] {
         background-color: #f4f9f4;
         border-left: 2px solid #e0e0e0;
     }
     
-    /* تنسيق عنوان القائمة الرئيسية */
+    /* عنوان القائمة الرئيسية */
     [data-testid="stSidebar"] h1 {
         color: #1b5e20;
         font-weight: 800;
         font-size: 1.6rem;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
     }
     
-    /* عمل مربع فخم يحيط باختيارات القائمة مع تأثير بارز عند الوقوف عليها */
-    [data-testid="stSidebar"] .stRadio {
-        background-color: #ffffff;
-        padding: 20px 15px;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        border: 1px solid #c8e6c9;
-        transition: all 0.3s ease-in-out;
+    /* إخفاء العنوان الافتراضي للـ radio لتخصيصه بشكل احترافي */
+    [data-testid="stSidebar"] .stRadio > label {
+        display: none !important;
     }
     
-    [data-testid="stSidebar"] .stRadio:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(27, 94, 32, 0.15);
-        border-color: #2e7d32;
+    /* تحويل كل خيار في القائمة إلى مربع منفصل (Card) بخط عريض وتأثير بارز */
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label {
+        background-color: #ffffff !important;
+        padding: 14px 18px !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04) !important;
+        border: 1px solid #c8e6c9 !important;
+        margin-bottom: 12px !important;
+        transition: all 0.3s ease-in-out !important;
+        display: flex !important;
+        align-items: center !important;
     }
     
-    /* جعل نص 'اختر الصفحة' والاختيارات بخط عريض ولون أخضر جذاب */
-    [data-testid="stSidebar"] label {
+    /* تأثير البارز والبروز عند الوقوف بالماوس على المربع */
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 20px rgba(27, 94, 32, 0.15) !important;
+        border-color: #2e7d32 !important;
+        background-color: #f1f8f1 !important;
+    }
+    
+    /* جعل النص عريض وواضح وجذاب داخل المربعات */
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label p {
         font-weight: 700 !important;
-        color: #2e7d32 !important;
+        color: #1b5e20 !important;
         font-size: 1.05rem !important;
+        margin: 0 !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -53,7 +64,11 @@ except:
 acc_column = guides_df.columns[1] if len(guides_df.columns) > 1 else guides_df.columns[0]
 
 st.sidebar.title("🧭 القائمة الرئيسية")
-page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "لوحة تحكم المدير"])
+
+# عنوان "اختر الصفحة" بشكل عريض وبارز لوحده فوق الخيارات
+st.sidebar.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1.15rem; margin-bottom: 10px;'>اختر الصفحة</p>", unsafe_allow_html=True)
+
+page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "لوحة تحكم المدير"], label_visibility="collapsed")
 
 if "submissions" not in st.session_state:
     st.session_state["submissions"] = []
