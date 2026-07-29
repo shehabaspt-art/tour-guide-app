@@ -21,25 +21,36 @@ if page == "نموذج تصفية المرشد":
     st.markdown("---")
     
     account_no = st.selectbox("رقم الحساب الخاص بالمرشد", options=guides_df[acc_column].astype(str).tolist())
-    tip = st.number_input("إكرامية (Tip)", min_value=0.0, step=10.0)
     file_no = st.text_input("رقم الفايل (File Number)")
     
-    st.subheader("الحقول المالية (أرقام فقط)")
-    tickets = st.number_input("تذاكر (Tickets)", min_value=0.0, step=10.0)
-    park = st.number_input("بارك (Park)", min_value=0.0, step=10.0)
-    lunch = st.number_input("غداء (Lunch)", min_value=0.0, step=10.0)
+    st.subheader("📋 بنود المصروفات والإيرادات")
     
-    if st.button("إرسال الطلب للمدير"):
+    col1, col2 = st.columns(2)
+    with col1:
+        tip = st.number_input("إكرامية (Tip)", min_value=0.0, step=10.0)
+        tickets = st.number_input("تذاكر (Tickets)", min_value=0.0, step=10.0)
+        park = st.number_input("بارك (Park)", min_value=0.0, step=10.0)
+    with col2:
+        lunch = st.number_input("غداء (Lunch)", min_value=0.0, step=10.0)
+        water = st.number_input("مياه / إضافات أخرى (Water/Extras)", min_value=0.0, step=10.0)
+        other_expenses = st.number_input("مصروفات أخرى (Other)", min_value=0.0, step=10.0)
+    
+    notes = st.text_area("ملاحظات إضافية")
+    
+    if st.button("إرسال الطلب للمدير", type="primary"):
         new_entry = {
             "Account": account_no,
             "File No": file_no,
             "Tip": tip,
             "Tickets": tickets,
             "Park": park,
-            "Lunch": lunch
+            "Lunch": lunch,
+            "Water": water,
+            "Other": other_expenses,
+            "Notes": notes
         }
         st.session_state["submissions"].append(new_entry)
-        st.success("تم إرسال الطلب بنجاح!")
+        st.success("تم إرسال الطلب بنجاح وتجهيزه للمراجعة!")
 
 elif page == "لوحة تحكم المدير":
     st.title("📊 لوحة تحكم المدير")
@@ -51,11 +62,12 @@ elif page == "لوحة تحكم المدير":
         st.success("تم تسجيل الدخول بنجاح!")
         if len(st.session_state["submissions"]) > 0:
             sub_df = pd.DataFrame(st.session_state["submissions"])
+            st.markdown("### الطلبات المقدمة من المرشدين")
             st.data_editor(sub_df, use_container_width=True)
         else:
             st.info("لا توجد طلبات جديدة حتى الآن.")
         
-        st.markdown("### قاعدة بيانات المرشدين")
+        st.markdown("### قاعدة بيانات المرشدين الأساسية")
         st.dataframe(guides_df, use_container_width=True)
     elif password:
         st.error("كلمة المرور غير صحيحة.")
