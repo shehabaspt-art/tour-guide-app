@@ -5,7 +5,6 @@ import time
 
 st.set_page_config(page_title="نظام تصفية المرشدين", page_icon="🧭", layout="wide")
 
-# إنشاء مجلد لحفظ الصور المرفوعة لو مش موجود
 UPLOAD_DIR = "uploads"
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
@@ -110,14 +109,12 @@ if page == "نموذج تصفية المرشد":
             if not file_no.strip():
                 st.error("⚠️ عذراً، لا يمكن إرسال الطلب. يرجى إدخال (رقم الفايل) أولاً بشكل إلزامي!")
             else:
-                # حفظ صور الغداء
                 lunch_path = ""
                 if lunch_image is not None:
                     lunch_path = os.path.join(UPLOAD_DIR, f"{time.time()}_{lunch_image.name}")
                     with open(lunch_path, "wb") as f:
                         f.write(lunch_image.getbuffer())
                 
-                # حفظ صور المحلات المتعددة
                 shop_paths = []
                 if shop_images:
                     for img in shop_images:
@@ -162,7 +159,6 @@ elif page == "لوحة تحكم المدير":
             st.markdown("---")
             st.markdown("### 🔍 مراجعة فواتير وصور الطلبات")
             
-            # اختيار رقم الفايل أو الطلب لعرض تفاصيله وصوره بوضوح
             selected_file = st.selectbox("اختر رقم الفايل لعرض الفواتير والصور الخاصة به", options=sub_df["File No"].astype(str).tolist())
             
             if selected_file:
@@ -173,7 +169,7 @@ elif page == "لوحة تحكم المدير":
                 with col1:
                     st.markdown("#### 🥗 صورة فاتورة الغداء")
                     l_path = req_row.get("Lunch Receipt", "")
-                    if pd.notna(l_path) and l_path != "" and os.path.exists(str(l_path)):
+                    if pd.notna(l_path) and str(l_path).strip() != "" and os.path.exists(str(l_path)):
                         st.image(str(l_path), caption=f"فاتورة غداء - فايل: {selected_file}", use_container_width=True)
                     else:
                         st.info("لا توجد صورة لفاتورة الغداء لهذا الطلب.")
@@ -181,11 +177,11 @@ elif page == "لوحة تحكم المدير":
                 with col2:
                     st.markdown("#### 🛍️ صور فواتير المحلات")
                     s_paths = req_row.get("Shop Images", "")
-                    if pd.notna(s_paths) and s_paths != "":
+                    if pd.notna(s_paths) and str(s_paths).strip() != "":
                         paths_list = str(s_paths).split(",")
                         for idx, p in enumerate(paths_list):
                             if os.path.exists(p):
-                                st.image(p, caption=عصورة محلات رقم {idx+1} - فايل: {selected_file}, use_container_width=True)
+                                st.image(p, caption=f"صورة محلات رقم {idx+1} - فايل: {selected_file}", use_container_width=True)
                     else:
                         st.info("لا توجد صور لفواتير المحلات لهذا الطلب.")
         else:
