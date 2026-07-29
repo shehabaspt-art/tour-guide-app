@@ -1,8 +1,14 @@
 import streamlit as st
 import pandas as pd
 import os
+import time
 
 st.set_page_config(page_title="نظام تصفية المرشدين", page_icon="🧭", layout="wide")
+
+# إنشاء مجلد لحفظ الصور المرفوعة لو مش موجود
+UPLOAD_DIR = "uploads"
+if not os.path.exists(UPLOAD_DIR):
+    os.makedirs(UPLOAD_DIR)
 
 st.markdown("""
     <style>
@@ -52,7 +58,6 @@ except:
 
 acc_column = guides_df.columns[1] if len(guides_df.columns) > 1 else guides_df.columns[0]
 
-# ملف حفظ الطلبات بشكل دائم
 SUBMISSIONS_FILE = "submissions.xlsx"
 
 def load_submissions():
@@ -105,6 +110,22 @@ if page == "نموذج تصفية المرشد":
             if not file_no.strip():
                 st.error("⚠️ عذراً، لا يمكن إرسال الطلب. يرجى إدخال (رقم الفايل) أولاً بشكل إلزامي!")
             else:
+                # حفظ صور الغداء
+                lunch_path = ""
+                if lunch_image is not None:
+                    lunch_path = os.path.join(UPLOAD_DIR, f"{time.time()}_{lunch_image.name}")
+                    with open(lunch_path, "wb") as f:
+                        f.write(lunch_image.getbuffer())
+                
+                # حفظ صور المحلات المتعددة
+                shop_paths = []
+                if shop_images:
+                    for img in shop_images:
+                        s_path = os.path.join(UPLOAD_DIR, f"{time.time()}_{img.name}")
+                        with open(s_path, "wb") as f:
+                            f.write(img.getbuffer())
+                        shop_paths.append(s_path)
+                
                 new_entry = {
                     "Account": account_no,
                     "File No": file_no,
@@ -115,12 +136,15 @@ if page == "نموذج تصفية المرشد":
                     "Tickets": tickets,
                     "Park": park,
                     "Lunch": lunch,
-                    "Lunch Receipt": lunch_image.name if lunch_image else "لا توجد صورة",
+                    "Lunch Receipt": lunch_path,
                     "Shop Bills": shop_bills_amount,
-                    "Shop Images Count": len(shop_images) if shop_images else 0
+                    "Shop Images": ",".join(shop_paths) if shop_paths else ""
                 }
                 save_submission(new_entry)
-                st.success("تم إرسال الطلب للمدير بنجاح، وتفريغ الحقول لطلب جديد!")
+                
+                st.success("✅ تم إرسال الطلب للمدير بنجاح! جاهز لتسجيل تصفية جديدة...")
+                time.sleep(5)
+                st.rerun()
 
 elif page == "لوحة تحكم المدير":
     st.title("📊 لوحة تحكم المدير")
@@ -133,10 +157,41 @@ elif page == "لوحة تحكم المدير":
         sub_df = load_submissions()
         if not sub_df.empty:
             st.markdown("### الطلبات الواردة")
-            st.data_editor(sub_df, use_container_width=True)
+            st.dataframe(sub_df, use_container_width=True)
+            
+            st.markdown("---")
+            st.markdown("### 🔍 مراجعة فواتير وصور الطلبات")
+            
+            # اختيار رقم الفايل أو الطلب لعرض تفاصيله وصوره بوضوح
+            selected_file = st.selectbox("اختر رقم الفايل لعرض الفواتير والصور الخاصة به", options=sub_df["File No"].astype(str).tolist())
+            
+            if selected_file:
+                req_row = sub_df[sub_df["File No"].astype(str) == selected_file].iloc[0]
+                
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.markdown("#### 🥗 صورة فاتورة الغداء")
+                    l_path = req_row.get("Lunch Receipt", "")
+                    if pd.notna(l_path) and l_path != "" and os.path.exists(str(l_path)):
+                        st.image(str(l_path), caption=f"فاتورة غداء - فايل: {selected_file}", use_container_width=True)
+                    else:
+                        st.info("لا توجد صورة لفاتورة الغداء لهذا الطلب.")
+                
+                with col2:
+                    st.markdown("#### 🛍️ صور فواتير المحلات")
+                    s_paths = req_row.get("Shop Images", "")
+                    if pd.notna(s_paths) and s_paths != "":
+                        paths_list = str(s_paths).split(",")
+                        for idx, p in enumerate(paths_list):
+                            if os.path.exists(p):
+                                st.image(p, caption=عصورة محلات رقم {idx+1} - فايل: {selected_file}, use_container_width=True)
+                    else:
+                        st.info("لا توجد صور لفواتير المحلات لهذا الطلب.")
         else:
             st.info("لا توجد طلبات جديدة حتى الآن.")
         
+        st.markdown("---")
         st.markdown("### قاعدة بيانات المرشدين")
         st.dataframe(guides_df, use_container_width=True)
     elif password:
