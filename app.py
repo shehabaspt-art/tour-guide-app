@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import os
 
 st.set_page_config(page_title="نظام تصفية المرشدين", page_icon="🧭", layout="wide")
 
@@ -51,12 +52,26 @@ except:
 
 acc_column = guides_df.columns[1] if len(guides_df.columns) > 1 else guides_df.columns[0]
 
+# ملف حفظ الطلبات بشكل دائم
+SUBMISSIONS_FILE = "submissions.xlsx"
+
+def load_submissions():
+    if os.path.exists(SUBMISSIONS_FILE):
+        try:
+            return pd.read_excel(SUBMISSIONS_FILE)
+        except:
+            return pd.DataFrame()
+    return pd.DataFrame()
+
+def save_submission(new_data):
+    df = load_submissions()
+    new_df = pd.DataFrame([new_data])
+    df = pd.concat([df, new_df], ignore_index=True)
+    df.to_excel(SUBMISSIONS_FILE, index=False)
+
 st.sidebar.title("🧭 القائمة الرئيسية")
 st.sidebar.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1.15rem; margin-bottom: 10px;'>اختر الصفحة</p>", unsafe_allow_html=True)
 page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "لوحة تحكم المدير"], label_visibility="collapsed")
-
-if "submissions" not in st.session_state:
-    st.session_state["submissions"] = []
 
 if page == "نموذج تصفية المرشد":
     st.title("🧭 نظام تصفية المرشدين")
@@ -64,8 +79,6 @@ if page == "نموذج تصفية المرشد":
     
     with st.form("guide_form", clear_on_submit=True):
         account_no = st.selectbox("رقم الحساب الخاص بالمرشد", options=guides_df[acc_column].astype(str).tolist())
-        
-        # حقل رقم الفايل مع تنبيه بأنه إلزامي
         file_no = st.text_input("رقم الفايل (File Number) *إلزامي*")
         
         st.markdown("---")
@@ -89,7 +102,6 @@ if page == "نموذج تصفية المرشد":
         submitted = st.form_submit_button("إرسال الطلب للمدير", type="primary")
         
         if submitted:
-            # التحقق من أن رقم الفايل ليس فارغاً
             if not file_no.strip():
                 st.error("⚠️ عذراً، لا يمكن إرسال الطلب. يرجى إدخال (رقم الفايل) أولاً بشكل إلزامي!")
             else:
@@ -107,7 +119,7 @@ if page == "نموذج تصفية المرشد":
                     "Shop Bills": shop_bills_amount,
                     "Shop Images Count": len(shop_images) if shop_images else 0
                 }
-                st.session_state["submissions"].append(new_entry)
+                save_submission(new_entry)
                 st.success("تم إرسال الطلب للمدير بنجاح، وتفريغ الحقول لطلب جديد!")
 
 elif page == "لوحة تحكم المدير":
@@ -118,8 +130,8 @@ elif page == "لوحة تحكم المدير":
     
     if password == "159753":
         st.success("تم تسجيل الدخول بنجاح!")
-        if len(st.session_state["submissions"]) > 0:
-            sub_df = pd.DataFrame(st.session_state["submissions"])
+        sub_df = load_submissions()
+        if not sub_df.empty:
             st.markdown("### الطلبات الواردة")
             st.data_editor(sub_df, use_container_width=True)
         else:
