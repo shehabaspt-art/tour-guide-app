@@ -26,14 +26,15 @@ if page == "نموذج تصفية المرشد":
     st.markdown("---")
     st.subheader("الحقول المالية والبنود")
     
-    tip = st.number_input("إكرامية (Tip)", min_value=0.0, step=10.0)
-    tickets = st.number_input("تذاكر (Tickets)", min_value=0.0, step=10.0)
-    park = st.number_input("بارك (Park)", min_value=0.0, step=10.0)
-    
-    # بند العهد والتحصيل والأوبشن
+    # الترتيب المطلوب: العهد أولاً، التحصيل ثانياً، الأوبشن ثالثاً
     advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0)
     collection = st.number_input("التحصيل (Collection)", min_value=0.0, step=10.0)
     option_item = st.number_input("الأوبشن (Option)", min_value=0.0, step=10.0)
+    
+    # باقي الحقول المالية
+    tip = st.number_input("إكرامية (Tip)", min_value=0.0, step=10.0)
+    tickets = st.number_input("تذاكر (Tickets)", min_value=0.0, step=10.0)
+    park = st.number_input("بارك (Park)", min_value=0.0, step=10.0)
     
     # بند الغداء مع رفع صورة الفاتورة
     lunch = st.number_input("غداء (Lunch)", min_value=0.0, step=10.0)
@@ -49,19 +50,19 @@ if page == "نموذج تصفية المرشد":
         new_entry = {
             "Account": account_no,
             "File No": file_no,
-            "Tip": tip,
-            "Tickets": tickets,
-            "Park": park,
             "Advances": advances,
             "Collection": collection,
             "Option": option_item,
+            "Tip": tip,
+            "Tickets": tickets,
+            "Park": park,
             "Lunch": lunch,
             "Lunch Receipt": lunch_image.name if lunch_image else "لا توجد صورة",
             "Shop Bills": shop_bills_amount,
             "Shop Images Count": len(shop_images) if shop_images else 0
         }
         st.session_state["submissions"].append(new_entry)
-        st.success("تم إرسال الطلب بنجاح وبكل البنود المطلوبة!")
+        st.success("تم إرسال الطلب بنجاح وبترتيب البنود المطلوب!")
 
 elif page == "لوحة تحكم المدير":
     st.title("📊 لوحة تحكم المدير")
