@@ -3,6 +3,48 @@ import pandas as pd
 
 st.set_page_config(page_title="نظام تصفية المرشدين", page_icon="🧭", layout="wide")
 
+# لمسات سحرية لـ CSS لتجميل القائمة الجانبية باللون الأخضر وتأثيرات المربع البارز
+st.markdown("""
+    <style>
+    /* تحسين شكل الشريط الجانبي وخلفيته */
+    [data-testid="stSidebar"] {
+        background-color: #f4f9f4;
+        border-left: 2px solid #e0e0e0;
+    }
+    
+    /* تنسيق عنوان القائمة الرئيسية */
+    [data-testid="stSidebar"] h1 {
+        color: #1b5e20;
+        font-weight: 800;
+        font-size: 1.6rem;
+        margin-bottom: 10px;
+    }
+    
+    /* عمل مربع فخم يحيط باختيارات القائمة مع تأثير بارز عند الوقوف عليها */
+    [data-testid="stSidebar"] .stRadio {
+        background-color: #ffffff;
+        padding: 20px 15px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border: 1px solid #c8e6c9;
+        transition: all 0.3s ease-in-out;
+    }
+    
+    [data-testid="stSidebar"] .stRadio:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(27, 94, 32, 0.15);
+        border-color: #2e7d32;
+    }
+    
+    /* جعل نص 'اختر الصفحة' والاختيارات بخط عريض ولون أخضر جذاب */
+    [data-testid="stSidebar"] label {
+        font-weight: 700 !important;
+        color: #2e7d32 !important;
+        font-size: 1.05rem !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 try:
     guides_df = pd.read_excel("guides.xlsx")
 except:
@@ -10,7 +52,7 @@ except:
 
 acc_column = guides_df.columns[1] if len(guides_df.columns) > 1 else guides_df.columns[0]
 
-st.sidebar.title("القائمة الرئيسية")
+st.sidebar.title("🧭 القائمة الرئيسية")
 page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "لوحة تحكم المدير"])
 
 if "submissions" not in st.session_state:
@@ -26,23 +68,18 @@ if page == "نموذج تصفية المرشد":
     st.markdown("---")
     st.subheader("الحقول المالية والبنود")
     
-    # الترتيب المطلوب: العهد أولاً، التحصيل ثانياً، الأوبشن ثالثاً
     advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0)
     collection = st.number_input("التحصيل (Collection)", min_value=0.0, step=10.0)
     option_item = st.number_input("الأوبشن (Option)", min_value=0.0, step=10.0)
     
-    # باقي الحقول المالية
     tip = st.number_input("إكرامية (Tip)", min_value=0.0, step=10.0)
     tickets = st.number_input("تذاكر (Tickets)", min_value=0.0, step=10.0)
     park = st.number_input("بارك (Park)", min_value=0.0, step=10.0)
     
-    # بند الغداء مع رفع صورة الفاتورة
     lunch = st.number_input("غداء (Lunch)", min_value=0.0, step=10.0)
     lunch_image = st.file_uploader("رفع صورة فاتورة الغداء", type=["png", "jpg", "jpeg"], key="lunch_img")
     
     st.markdown("---")
-    
-    # بند فواتير المحلات مع رفع صور
     shop_bills_amount = st.number_input("فواتير المحلات", min_value=0.0, step=10.0)
     shop_images = st.file_uploader("رفع صور فواتير المحلات", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key="shop_imgs")
     
@@ -62,7 +99,7 @@ if page == "نموذج تصفية المرشد":
             "Shop Images Count": len(shop_images) if shop_images else 0
         }
         st.session_state["submissions"].append(new_entry)
-        st.success("تم إرسال الطلب بنجاح وبترتيب البنود المطلوب!")
+        st.success("تم إرسال الطلب بنجاح!")
 
 elif page == "لوحة تحكم المدير":
     st.title("📊 لوحة تحكم المدير")
