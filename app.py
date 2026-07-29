@@ -3,11 +3,14 @@ import pandas as pd
 
 st.set_page_config(page_title="نظام تصفية المرشدين", page_icon="🧭", layout="wide")
 
-# تحميل ملف الداتا بأمان أو إنشاء داتا افتراضية لو مش موجود
+# تحميل ملف الداتا بأمان
 try:
     guides_df = pd.read_excel("guides.xlsx")
 except:
     guides_df = pd.DataFrame({"Guide Name": ["أحمد", "محمود"], "Account Number": ["1805000493514500022", "1805000493514500033"]})
+
+# تجهيز اسم عمود الحسابات بذكاء بره الفورم لتجنب أي أخطاء مسافات
+acc_column = guides_df.columns[1] if len(guides_df.columns) > 1 else guides_df.columns[0]
 
 st.sidebar.title("القائمة الرئيسية")
 page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "لوحة تحكم المدير"])
@@ -20,7 +23,6 @@ if page == "نموذج تصفية المرشد":
     st.markdown("---")
     
     with st.form("guide_form"):
-        acc_column = guides_df.columns[1] if len(guides_df.columns) > 1 else guides_df.columns[0]
         account_no = st.selectbox("رقم الحساب الخاص بالمرشد", options=guides_df[acc_column].astype(str).tolist())
         tip = st.number_input("إكرامية (Tip)", min_value=0.0, step=10.0)
         file_no = st.text_input("رقم الفايل (File Number)")
