@@ -20,11 +20,15 @@ if page == "نموذج تصفية المرشد":
     st.title("🧭 نظام تصفية المرشدين")
     st.markdown("---")
     
+    # الحقول الأساسية فوق فقط
     account_no = st.selectbox("رقم الحساب الخاص بالمرشد", options=guides_df[acc_column].astype(str).tolist())
-    tip = st.number_input("إكرامية (Tip)", min_value=0.0, step=10.0)
     file_no = st.text_input("رقم الفايل (File Number)")
     
+    st.markdown("---")
     st.subheader("الحقول المالية")
+    
+    # نقل الإكرامية لتكون مع باقي الحقول المالية وتحت
+    tip = st.number_input("إكرامية (Tip)", min_value=0.0, step=10.0)
     tickets = st.number_input("تذاكر (Tickets)", min_value=0.0, step=10.0)
     park = st.number_input("بارك (Park)", min_value=0.0, step=10.0)
     
@@ -32,7 +36,6 @@ if page == "نموذج تصفية المرشد":
     lunch = st.number_input("غداء (Lunch)", min_value=0.0, step=10.0)
     lunch_image = st.file_uploader("رفع صورة فاتورة الغداء", type=["png", "jpg", "jpeg"], key="lunch_img")
     
-    # بند فواتير المحلات مع رفع صور
     st.markdown("---")
     shop_bills_amount = st.number_input("قيمة فواتير المحلات", min_value=0.0, step=10.0)
     shop_images = st.file_uploader("رفع صور فواتير المحلات", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key="shop_imgs")
