@@ -44,7 +44,7 @@ def get_logo_file():
             return f
     return None
 
-# حساب عدد الطلبات المعلقة للإشعارات بناءً على الملف الحقيقي
+# حساب عدد الطلبات المعلقة للإشعارات بدقة من ملف الإكسيل
 sub_df_initial = load_data(SUBMISSIONS_FILE)
 pending_count = len(sub_df_initial)
 
@@ -55,27 +55,27 @@ logo_html = ""
 if logo_path and os.path.exists(logo_path):
     with open(logo_path, "rb") as img_file:
         encoded_img = base64.b64encode(img_file.read()).decode()
-        logo_html = f'<img src="data:image/png;base64,{encoded_img}" style="height: 38px; object-fit: contain;" />'
+        logo_html = f'<img src="data:image/png;base64,{encoded_img}" style="height: 42px; object-fit: contain;" />'
 else:
     logo_html = '<h3 style="color: #1b5e20; margin: 0; font-size: 1.1rem;">Sun Pyramids Tours</h3>'
 
-# تصميم الشريط العلوي الثابت بنفس الشكل الاحترافي المطلوب
+# تصميم الشريط العلوي الاحترافي تماماً مثل الصورة المطلوبة
 st.markdown(f"""
     <style>
     header {{visibility: hidden;}}
     
-    /* تثبيت المسافة العلوية للشاشة والقائمة الجانبية */
+    /* ترك مسافة بيضاء علوية للشاشة بالكامل */
     .stApp {{
-        margin-top: 60px;
+        margin-top: 65px;
     }}
     
-    /* تصميم الـ Topbar الثابت فوق خالص */
+    /* تصميم الشريط العلوي الثابت */
     .custom-topbar {{
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
-        height: 55px;
+        height: 60px;
         background-color: #ffffff;
         border-bottom: 1px solid #e0e0e0;
         display: flex;
@@ -83,38 +83,44 @@ st.markdown(f"""
         justify-content: space-between;
         padding: 0 30px;
         z-index: 99999;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.03);
     }}
-    .topbar-right-side {{
+    .topbar-left-group {{
         display: flex;
         align-items: center;
+        gap: 15px;
     }}
-    .topbar-left-side {{
+    .sidebar-arrow-icon {{
+        font-size: 1.2rem;
+        color: #777777;
+        font-weight: bold;
+    }}
+    .topbar-right-group {{
         display: flex;
         align-items: center;
-        gap: 20px;
+        gap: 25px;
     }}
-    .notification-box {{
+    .notification-container {{
         position: relative;
         display: inline-flex;
         align-items: center;
         cursor: pointer;
     }}
-    .notification-number {{
+    .notification-badge {{
         position: absolute;
         top: -8px;
-        right: -14px;
+        right: -15px;
         background-color: #e8f5e9;
         color: #2e7d32;
         border: 1px solid #a5d6a7;
-        font-size: 0.72rem;
+        font-size: 0.75rem;
         font-weight: 700;
-        padding: 1px 5px;
-        border-radius: 10px;
+        padding: 1px 6px;
+        border-radius: 12px;
     }}
-    .user-avatar {{
-        width: 35px;
-        height: 35px;
+    .user-profile-badge {{
+        width: 36px;
+        height: 36px;
         background-color: #111111;
         color: #ffffff;
         border-radius: 50%;
@@ -122,15 +128,16 @@ st.markdown(f"""
         align-items: center;
         justify-content: center;
         font-weight: bold;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }}
     
-    /* ضبط القائمة الجانبية لتنزل تحت الشريط العلوي مباشرة */
+    /* ضبط القائمة الجانبية لتنزل تحت الشريط العلوي تماماً */
     [data-testid="stSidebar"] {{
         background-color: #f4f9f4;
         border-left: 2px solid #e0e0e0;
         padding-top: 1rem;
-        margin-top: 55px;
+        margin-top: 60px;
         border-radius: 8px;
     }}
     [data-testid="stSidebar"] .stRadio > label {{
@@ -162,15 +169,16 @@ st.markdown(f"""
     </style>
 
     <div class="custom-topbar">
-        <div class="topbar-right-side">
+        <div class="topbar-left-group">
             {logo_html}
+            <span class="sidebar-arrow-icon" title="القائمة الجانبية">‹</span>
         </div>
-        <div class="topbar-left-side">
-            <div class="notification-box" title="عدد التصفيات المعلقة">
-                <span style="font-size: 1.25rem;">🔔</span>
-                <span class="notification-number">{pending_count}</span>
+        <div class="topbar-right-group">
+            <div class="notification-container" title="عدد التصفيات والطلبات المعلقة">
+                <span style="font-size: 1.3rem;">🔔</span>
+                <span class="notification-badge">{pending_count}</span>
             </div>
-            <div class="user-avatar" title="حساب المدير">
+            <div class="user-profile-badge" title="حساب المدير">
                 SA
             </div>
         </div>
