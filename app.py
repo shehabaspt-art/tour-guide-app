@@ -239,9 +239,9 @@ if page == "نموذج تصفية المرشد":
         st.subheader("مصاريف (Expenses)")
         col_tkt1, col_tkt2 = st.columns(2)
         with col_tkt1:
-            ticket_value = st.number_input("قيمة مصاريف", min_value=0.0, step=10.0, key="tkt_val")
+            ticket_value = st.number_input("قيمة التذاكر (Tickets Value)", min_value=0.0, step=10.0, key="tkt_val")
         with col_tkt2:
-            ticket_type = st.text_input("نوع مصاريف")
+            ticket_type = st.text_input("نوع التذاكر (Tickets Type)")
             
         st.markdown("---")
         
@@ -299,7 +299,7 @@ if page == "نموذج تصفية المرشد":
                     "Collection": f"{collection_val} {collection_curr}",
                     "Option Type": option_type,
                     "Option": f"{option_value} {option_curr} ({option_pay})",
-                    "Expenses": f"{ticket_value} - {ticket_type}",
+                    "Tickets": f"{ticket_value} - {ticket_type}",
                     "Tip": tip,
                     "Park": park,
                     "Lunch": lunch,
@@ -343,7 +343,7 @@ elif page == "لوحة تحكم المدير":
                 st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
                 st.write(f"**التحصيل (Collection):** {req_row.get('Collection', 0)}")
                 st.write(f"**الأوبشن (Option):** {req_row.get('Option', '')} | **النوع:** {req_row.get('Option Type', '')}")
-                st.write(f"**مصاريف (Expenses):** {req_row.get('Expenses', req_row.get('Tickets', ''))}")
+                st.write(f"**التذاكر (Tickets):** {req_row.get('Tickets', '')}")
                 st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
                 st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
                 st.write(f"**غداء (Lunch):** {req_row.get('Lunch', 0)}")
