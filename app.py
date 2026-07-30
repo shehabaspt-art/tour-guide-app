@@ -369,6 +369,8 @@ elif page == "لوحة تحكم المدير":
             st.session_state.confirming_del_sub = None
         if "confirming_edit_guide" not in st.session_state:
             st.session_state.confirming_edit_guide = None
+        if "confirming_del_guide" not in st.session_state:
+            st.session_state.confirming_del_guide = None
         if "confirming_add_guide" not in st.session_state:
             st.session_state.confirming_add_guide = None
 
@@ -497,20 +499,28 @@ elif page == "لوحة تحكم المدير":
             st.markdown("### قاعدة بيانات المرشدين (إدارة وتعديل أرقام الحسابات)")
             st.dataframe(guides_df, use_container_width=True)
             
-            st.markdown("#### تعديل رقم حساب مرشد:")
+            st.markdown("#### تعديل أو حذف رقم حساب مرشد:")
             guide_names_list = guides_df[name_column].astype(str).tolist()
-            selected_guide_to_edit = st.selectbox("اختر اسم المرشد لتعديل رقمه", options=guide_names_list, key="sel_guide_edit")
+            selected_guide_to_edit = st.selectbox("اختر اسم المرشد", options=guide_names_list, key="sel_guide_edit")
             
             # جلب وعرض رقم الحساب الحالي للمرشد المختار تلقائياً
             current_acc_val = guides_df.loc[guides_df[name_column].astype(str) == selected_guide_to_edit, acc_column].values[0] if selected_guide_to_edit and not guides_df[guides_df[name_column].astype(str) == selected_guide_to_edit].empty else ""
             new_acc_input = st.text_input("رقم الحساب الجديد", value=str(current_acc_val), key="new_acc_val_input")
             
-            if st.button("💾 حفظ تعديل رقم الحساب", type="primary"):
-                st.session_state.confirming_edit_guide = {
-                    "name": selected_guide_to_edit,
-                    "new_acc": new_acc_input
-                }
-                st.rerun()
+            col_act1, col_act2 = st.columns(2)
+            with col_act1:
+                if st.button("💾 حفظ تعديل رقم الحساب", type="primary"):
+                    st.session_state.confirming_edit_guide = {
+                        "name": selected_guide_to_edit,
+                        "new_acc": new_acc_input
+                    }
+                    st.rerun()
+            with col_act2:
+                if st.button("🗑️ حذف هذا المرشد", type="secondary"):
+                    st.session_state.confirming_del_guide = {
+                        "name": selected_guide_to_edit
+                    }
+                    st.rerun()
             
             if st.session_state.confirming_edit_guide is not None:
                 g_to_edit = st.session_state.confirming_edit_guide["name"]
@@ -530,6 +540,26 @@ elif page == "لوحة تحكم المدير":
                     if st.button("❌ إلغاء", key="cancel_save_guide_acc"):
                         st.session_state.confirming_edit_guide = None
                         st.info("تم إلغاء التعديل ولم يتم حفظ أي تغييرات.")
+                        time.sleep(1)
+                        st.rerun()
+
+            if st.session_state.confirming_del_guide is not None:
+                g_to_del = st.session_state.confirming_del_guide["name"]
+                
+                st.warning(f"⚠️ هل أنت متأكد تماماً من رغبتك في حذف المرشد (**{g_to_del}**) من قاعدة البيانات؟")
+                dc1, dc2 = st.columns(2)
+                with dc1:
+                    if st.button("✔️ تأكيد الحذف النهائي", type="primary", key="confirm_del_guide_btn"):
+                        guides_df = guides_df[guides_df[name_column].astype(str) != g_to_del].reset_index(drop=True)
+                        overwrite_data(GUIDES_FILE, guides_df)
+                        st.session_state.confirming_del_guide = None
+                        st.success("✅ تم حذف المرشد من قاعدة البيانات بنجاح!")
+                        time.sleep(1)
+                        st.rerun()
+                with dc2:
+                    if st.button("❌ إلغاء الحذف", key="cancel_del_guide_btn"):
+                        st.session_state.confirming_del_guide = None
+                        st.info("تم إلغاء عملية الحذف.")
                         time.sleep(1)
                         st.rerun()
 
