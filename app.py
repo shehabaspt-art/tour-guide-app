@@ -4,7 +4,7 @@ import os
 import time
 from datetime import datetime
 
-st.set_page_config(page_title="نظام تصفية المرشدين", page_icon="🧭", layout="wide")
+st.set_page_config(page_title="Sun Pyramids Tours", page_icon="🧭", layout="wide")
 
 UPLOAD_DIR = "uploads"
 if not os.path.exists(UPLOAD_DIR):
@@ -90,6 +90,10 @@ def save_to_file(file_path, new_data):
 
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
+
+# إضافة اللوجو في القائمة الجانبية (Sidebar) ليظهر في جميع الصفحات
+st.sidebar.image("image_0c53c2.png", use_container_width=True)
+st.sidebar.markdown("---")
 
 st.sidebar.title("🧭 القائمة الرئيسية")
 st.sidebar.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1.15rem; margin-bottom: 10px;'>اختر الصفحة</p>", unsafe_allow_html=True)
