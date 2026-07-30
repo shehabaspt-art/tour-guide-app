@@ -453,15 +453,11 @@ elif page == "لوحة تحكم المدير":
                         overwrite_data(SUBMISSIONS_FILE, sub_df)
                         
                         st.session_state.viewing_file = None
-                        st.success("تم نقل الطلب إلى صفحة التصفيات (الأرشيف) بنجاح!")
-                        time.sleep(1)
                         st.rerun()
                 
                 with col_btn2:
                     if st.button("🔄 متابعة", use_container_width=True):
                         st.session_state.viewing_file = None
-                        st.info("تم إبقاء الطلب في لوحة التحكم لمتابعة الإجراءات.")
-                        time.sleep(1)
                         st.rerun()
             else:
                 st.session_state.viewing_file = None
@@ -509,8 +505,6 @@ elif page == "لوحة تحكم المدير":
                                 sub_df = sub_df.drop(idx).reset_index(drop=True)
                                 overwrite_data(SUBMISSIONS_FILE, sub_df)
                                 st.session_state.confirming_del_sub = None
-                                st.success("تم حذف الطلب بنجاح!")
-                                time.sleep(1)
                                 st.rerun()
                         with c_col2:
                             if st.button("❌ رجوع (إلغاء)", key=f"cancel_del_sub_{idx}", type="primary"):
@@ -571,14 +565,10 @@ elif page == "لوحة تحكم المدير":
                                 overwrite_data(GUIDES_FILE, guides_df)
                                 st.session_state.confirming_edit_guide = None
                                 st.session_state.clear_edit_input = True
-                                st.success("✅ تم تحديث رقم حساب المرشد وحفظه بنجاح!")
-                                time.sleep(1)
                                 st.rerun()
                         with ec2:
                             if st.button("❌ إلغاء", key="cancel_save_guide_acc", type="primary"):
                                 st.session_state.confirming_edit_guide = None
-                                st.info("تم إلغاء التعديل ولم يتم حفظ أي تغييرات.")
-                                time.sleep(1)
                                 st.rerun()
 
                 if st.session_state.confirming_del_guide is not None:
@@ -591,14 +581,10 @@ elif page == "لوحة تحكم المدير":
                             guides_df = guides_df[guides_df[name_column].astype(str) != g_to_del].reset_index(drop=True)
                             overwrite_data(GUIDES_FILE, guides_df)
                             st.session_state.confirming_del_guide = None
-                            st.success("✅ تم حذف المرشد من قاعدة البيانات بنجاح!")
-                            time.sleep(1)
                             st.rerun()
                     with dc2:
                         if st.button("❌ إلغاء الحذف", key="cancel_del_guide_btn", type="primary"):
                             st.session_state.confirming_del_guide = None
-                            st.info("تم إلغاء عملية الحذف.")
-                            time.sleep(1)
                             st.rerun()
 
             with col_section_right:
@@ -638,14 +624,10 @@ elif page == "لوحة تحكم المدير":
                                 overwrite_data(GUIDES_FILE, guides_df)
                                 st.session_state.confirming_add_guide = None
                                 st.session_state.clear_add_inputs = True
-                                st.success("✅ تم إضافة المرشد الجديد بنجاح!")
-                                time.sleep(2)
                                 st.rerun()
                         with ac2:
                             if st.button("❌ إلغاء الإضافة", key="cancel_add_guide_btn", type="primary"):
                                 st.session_state.confirming_add_guide = None
-                                st.info("تم إلغاء إضافة المرشد.")
-                                time.sleep(1)
                                 st.rerun()
             
     elif password:
@@ -752,8 +734,6 @@ elif page == "التصفيات (الأرشيف)":
                                 archive_df = archive_df.drop(idx).reset_index(drop=True)
                                 overwrite_data(ARCHIVE_FILE, archive_df)
                                 st.session_state.confirming_del_arch = None
-                                st.success("تم حذف التصفية من الأرشيف بنجاح!")
-                                time.sleep(1)
                                 st.rerun()
                         with ca_col2:
                             if st.button("❌ رجوع (إلغاء)", key=f"cancel_del_arch_{idx}", type="primary"):
@@ -768,6 +748,3 @@ elif page == "التصفيات (الأرشيف)":
         st.error("كلمة المرور غير صحيحة.")
     else:
         st.info("الرجاء إدخال كلمة المرور لعرض صفحة التصفيات (الأرشيف).")
-
-time.sleep(15)
-st.rerun()
