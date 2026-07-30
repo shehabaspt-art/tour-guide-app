@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import os
-import time
 import base64
 from datetime import datetime
 
@@ -252,7 +251,7 @@ SHOPS_LIST = [
 
 st.sidebar.markdown("<h2 style='color: #1b5e20; margin-bottom: 5px; font-size: 1.5rem;'>🧭 القائمة الرئيسية</h2>", unsafe_allow_html=True)
 st.sidebar.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1.15rem; margin-top: 15px; margin-bottom: 20px;'>اختر الصفحة</p>", unsafe_allow_html=True)
-page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "لوحة تحكم المدير", "التصفيات (الأرشيف)"], label_visibility="collapsed")
+page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "إدارة التصفيات", "التصفيات (الأرشيف)"], label_visibility="collapsed")
 
 if page == "نموذج تصفية المرشد":
     st.title("🧭 نظام تصفية المرشدين")
@@ -375,8 +374,8 @@ if page == "نموذج تصفية المرشد":
                     </script>
                 """, unsafe_allow_html=True)
 
-elif page == "لوحة تحكم المدير":
-    st.title("📊 لوحة تحكم المدير")
+elif page == "إدارة التصفيات":
+    st.title("📊 إدارة التصفيات")
     st.markdown("---")
     
     password = st.text_input("أدخل كلمة المرور", type="password", key="mgr_pass")
@@ -405,7 +404,7 @@ elif page == "لوحة تحكم المدير":
             if req_idx in sub_df.index:
                 req_row = sub_df.loc[req_idx]
                 
-                if st.button("⬅️ رجوع إلى لوحة التحكم"):
+                if st.button("⬅️ رجوع إلى إدارة التصفيات"):
                     st.session_state.viewing_file = None
                     st.rerun()
                 
@@ -633,7 +632,7 @@ elif page == "لوحة تحكم المدير":
     elif password:
         st.error("كلمة المرور غير صحيحة.")
     else:
-        st.info("الرجاء إدخال كلمة المرور لعرض لوحة التحكم.")
+        st.info("الرجاء إدخال كلمة المرور لعرض إدارة التصفيات.")
 
 elif page == "التصفيات (الأرشيف)":
     st.title("📁 أرشيف التصفيات المنتهية (تم)")
