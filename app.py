@@ -91,8 +91,19 @@ def save_to_file(file_path, new_data):
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
 
-# إضافة اللوجو في القائمة الجانبية (Sidebar) ليظهر في جميع الصفحات
-st.sidebar.image("image_0c53c2.png", use_container_width=True)
+# دالة ذكية للبحث عن أي صورة لوجو بغض النظر عن اسمها أو امتدادها في المشروع
+def get_logo_file():
+    for f in os.listdir("."):
+        if f.startswith("image_0c53c2") or "0c53c2" in f:
+            return f
+    return None
+
+logo_path = get_logo_file()
+if logo_path and os.path.exists(logo_path):
+    st.sidebar.image(logo_path, use_container_width=True)
+else:
+    st.sidebar.markdown("<h2 style='text-align: center; color: #1b5e20;'>Sun Pyramids Tours</h2>", unsafe_allow_html=True)
+
 st.sidebar.markdown("---")
 
 st.sidebar.title("🧭 القائمة الرئيسية")
