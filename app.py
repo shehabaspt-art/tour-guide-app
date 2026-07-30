@@ -13,6 +13,7 @@ if not os.path.exists(UPLOAD_DIR):
 
 SUBMISSIONS_FILE = "submissions.xlsx"
 ARCHIVE_FILE = "archive.xlsx"
+SAVED_LOGO_PATH = os.path.join(UPLOAD_DIR, "custom_saved_logo.png")
 
 def load_data(file_path):
     if os.path.exists(file_path):
@@ -36,39 +37,35 @@ def save_to_file(file_path, new_data):
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
 
-def get_logo_file():
-    # البحث عن صورة اللوجو الحقيقية بناءً على الصورة اللي بعتها (image_d905fa.png أو أي صورة مشابهة)
-    for f in os.listdir("."):
-        if f.startswith("image_") and f.endswith(('.png', '.jpg', '.jpeg', '.webp')):
-            return f
-    return None
-
-# حساب عدد الطلبات المعلقة للإشعارات بدقة من ملف الإكسيل
+# حساب عدد الطلبات المعلقة للإشعارات
 sub_df_initial = load_data(SUBMISSIONS_FILE)
 pending_count = len(sub_df_initial)
 
-# قراءة صورة اللوجو الأصلية بالكامل وتحويلها لـ Base64 لعرضها كصورة متكاملة تماماً
-logo_path = get_logo_file()
+# التحقق من وجود لوجو محفوظ مسبقاً، وإلا استخدام اللوجو المتاح في المجلد أو الافتراضي
+active_logo_to_show = None
+if os.path.exists(SAVED_LOGO_PATH):
+    active_logo_to_show = SAVED_LOGO_PATH
+else:
+    for f in os.listdir("."):
+        if f.startswith("image_") and f.endswith(('.png', '.jpg', '.jpeg', '.webp')):
+            active_logo_to_show = f
+            break
+
 logo_html = ""
-if logo_path and os.path.exists(logo_path):
-    with open(logo_path, "rb") as img_file:
+if active_logo_to_show and os.path.exists(active_logo_to_show):
+    with open(active_logo_to_show, "rb") as img_file:
         encoded_img = base64.b64encode(img_file.read()).decode()
-        # عرض الصورة كاملة بنفس الأبعاد الأصلية والدقة المطلوبة
         logo_html = f'<img src="data:image/png;base64,{encoded_img}" style="height: 48px; object-fit: contain;" />'
 else:
     logo_html = '<span style="color: #1b5e20; font-weight: bold; font-size: 1.1rem;">Sun Pyramids Tours</span>'
 
-# تصميم الشريط العلوي الثابت مع صورة اللوجو الأصلية والسهم وجرس الإشعارات ودائرة المدير
+# تصميم الشريط العلوي الثابت
 st.markdown(f"""
     <style>
     header {{visibility: hidden;}}
-    
-    /* ترك مسافة بيضاء علوية للشاشة بالكامل لعدم تداخل المحتوى مع الشريط الثابت */
     .stApp {{
         margin-top: 65px;
     }}
-    
-    /* تصميم الشريط العلوي الثابت */
     .custom-topbar {{
         position: fixed;
         top: 0;
@@ -131,8 +128,6 @@ st.markdown(f"""
         font-size: 0.9rem;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }}
-    
-    /* ضبط القائمة الجانبية لتنزل تحت الشريط العلوي تماماً */
     [data-testid="stSidebar"] {{
         background-color: #f4f9f4;
         border-left: 2px solid #e0e0e0;
@@ -202,9 +197,39 @@ SHOPS_LIST = [
 
 st.sidebar.title("🧭 القائمة الرئيسية")
 st.sidebar.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1.15rem; margin-bottom: 10px;'>اختر الصفحة</p>", unsafe_allow_html=True)
-page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "لوحة تحكم المدير", "التصفيات (الأرشيف)"], label_visibility="collapsed")
+page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "لوحة تحكم المدير", "التصفيات (الأرشيف)", "إدارة اللوجو 🖼️"], label_visibility="collapsed")
 
-if page == "نموذج تصفية المرشد":
+if page == "إدارة اللوجو 🖼️":
+    st.title("🖼️ لوحة التحكم في شعار الموقع (Logo)")
+    st.markdown("---")
+    
+    col_l1, col_l2 = st.columns(2)
+    with col_l1:
+        st.subheader("الشعار الحالي المعروض:")
+        if os.path.exists(SAVED_LOGO_PATH):
+            st.image(SAVED_LOGO_PATH, width=250, caption="الشعار المستخدم حالياً")
+            if st.button("🗑️ حذف الشعار الحالي العودة للافتراضي", type="secondary"):
+                os.remove(SAVED_LOGO_PATH)
+                st.success("تم حذف الشعار بنجاح!")
+                time.sleep(1)
+                st.rerun()
+        else:
+            st.info("لا يوجد شعار مخصص محفوظ حالياً، يتم استخدام الشعار الافتراضي.")
+
+    with col_l2:
+        st.subheader("رفع وتحديث الشعار:")
+        uploaded_new_logo = st.file_uploader("اختر صورة الشعار الجديدة (PNG / JPG)", type=["png", "jpg", "jpeg"])
+        
+        if uploaded_new_logo is not None:
+            st.image(uploaded_new_logo, width=200, caption="معاينة الشعار الجديد")
+            if st.button("💾 Save (حفظ الشعار)", type="primary"):
+                with open(SAVED_LOGO_PATH, "wb") as f:
+                    f.write(uploaded_new_logo.getbuffer())
+                st.success("✅ تم حفظ الشعار الجديد بنجاح وتحديثه في الموقع!")
+                time.sleep(1.5)
+                st.rerun()
+
+elif page == "نموذج تصفية المرشد":
     st.title("🧭 نظام تصفية المرشدين")
     st.markdown("---")
     
@@ -427,7 +452,7 @@ elif page == "لوحة تحكم المدير":
             
             st.markdown("---")
             st.markdown("### قاعدة بيانات المرشدين")
-            st.dataframe(guides_df, use_container_width=True)
+            st.dataframe(guides_df, use_container_width=`True`)
             
     elif password:
         st.error("كلمة المرور غير صحيحة.")
