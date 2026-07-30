@@ -37,6 +37,16 @@ def save_to_file(file_path, new_data):
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
 
+# تنظيف تلقائي للطلبات المحددة بناءً على طلبك الفوري
+if os.path.exists(SUBMISSIONS_FILE):
+    try:
+        init_sub_df = pd.read_excel(SUBMISSIONS_FILE)
+        if not init_sub_df.empty and "File No" in init_sub_df.columns:
+            init_sub_df = init_sub_df[~init_sub_df["File No"].astype(str).isin(["51515", "99999"])].reset_index(drop=True)
+            init_sub_df.to_excel(SUBMISSIONS_FILE, index=False)
+    except:
+        pass
+
 if "last_pending_count" not in st.session_state:
     sub_df_init = load_data(SUBMISSIONS_FILE)
     st.session_state.last_pending_count = len(sub_df_init)
@@ -425,6 +435,7 @@ elif page == "لوحة تحكم المدير":
                 st.rerun()
         
         else:
+            # أولاً: عرض الطلبات الواردة في الأعلى
             if not sub_df.empty:
                 st.markdown("### 🔍 فلترة وعرض تصفيات المرشدين")
                 
@@ -479,6 +490,7 @@ elif page == "لوحة تحكم المدير":
                 st.info("لا توجد طلبات جديدة حتى الآن.")
             
             st.markdown("---")
+            # ثانياً: عرض قاعدة بيانات المرشدين في الأسفل
             st.markdown("### قاعدة بيانات المرشدين")
             st.dataframe(guides_df, use_container_width=True)
             
