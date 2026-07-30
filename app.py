@@ -48,7 +48,7 @@ def get_logo_file():
 sub_df_initial = load_data(SUBMISSIONS_FILE)
 pending_count = len(sub_df_initial)
 
-# قراءة اللوجو لتحويله لعرضه مباشرة داخل الـ HTML الهيدر الواحد
+# قراءة اللوجو لتحويله لعرضه مباشرة داخل الـ HTML الهيدر الواحد بدون أي زوائد
 logo_path = get_logo_file()
 import base64
 logo_html = ""
@@ -59,17 +59,17 @@ if logo_path and os.path.exists(logo_path):
 else:
     logo_html = '<h3 style="color: #1b5e20; margin: 0;">Sun Pyramids Tours</h3>'
 
-# تنسيقات CSS مع ترك مسافة بيضاء علوية إضافية (إجمالي حوالي 3 سم أو 45 بكسل) للشاشة بالكامل
+# تنسيقات CSS مع الحفاظ على المسافة البيضاء العلوية وإزالة أي خطوط أو زوائد نهائياً
 st.markdown(f"""
     <style>
     header {{visibility: hidden;}}
     
-    /* ترك مسافة بيضاء علوية للشاشة بالكامل (حوالي 3 سم) */
+    /* ترك مسافة بيضاء علوية للشاشة بالكامل وللقائمة الجانبية */
     .stApp {{
         margin-top: 45px;
     }}
     
-    /* شريط علوي موحد */
+    /* شريط علوي موحد نظيف وخالي من أي خطوط أو زوائد */
     .topbar-container {{
         display: flex;
         align-items: center;
@@ -122,7 +122,7 @@ st.markdown(f"""
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }}
     
-    /* ضبط القائمة الجانبية (الشمال) لتأخذ نفس المسافة العلوية الإضافية */
+    /* ضبط القائمة الجانبية (الشمال) لتأخذ نفس المسافة العلوية */
     [data-testid="stSidebar"] {{
         background-color: #f4f9f4;
         border-left: 2px solid #e0e0e0;
