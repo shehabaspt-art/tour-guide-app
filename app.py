@@ -59,14 +59,14 @@ if logo_path and os.path.exists(logo_path):
 else:
     logo_html = '<h3 style="color: #1b5e20; margin: 0;">Sun Pyramids Tours</h3>'
 
-# تنسيقات CSS مع ترك مسافة بيضاء علوية حوالي 1 سم (تطبيقها على الشاشة بالكامل بما فيها القائمة الجانبية)
+# تنسيقات CSS مع ترك مسافة بيضاء علوية إضافية (إجمالي حوالي 3 سم أو 45 بكسل) للشاشة بالكامل
 st.markdown(f"""
     <style>
     header {{visibility: hidden;}}
     
-    /* ترك مسافة بيضاء علوية للشاشة بالكامل (حوالي 1 سم) */
+    /* ترك مسافة بيضاء علوية للشاشة بالكامل (حوالي 3 سم) */
     .stApp {{
-        margin-top: 15px;
+        margin-top: 45px;
     }}
     
     /* شريط علوي موحد */
@@ -122,12 +122,12 @@ st.markdown(f"""
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }}
     
-    /* ضبط القائمة الجانبية (الشمال) لتأخذ نفس المسافة العلوية */
+    /* ضبط القائمة الجانبية (الشمال) لتأخذ نفس المسافة العلوية الإضافية */
     [data-testid="stSidebar"] {{
         background-color: #f4f9f4;
         border-left: 2px solid #e0e0e0;
         padding-top: 1rem;
-        margin-top: 15px;
+        margin-top: 45px;
         border-radius: 8px;
     }}
     [data-testid="stSidebar"] .stRadio > label {{
