@@ -251,7 +251,7 @@ SHOPS_LIST = [
 
 st.sidebar.markdown("<h2 style='color: #1b5e20; margin-bottom: 5px; font-size: 1.5rem;'>🧭 القائمة الرئيسية</h2>", unsafe_allow_html=True)
 st.sidebar.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1.15rem; margin-top: 15px; margin-bottom: 20px;'>اختر الصفحة</p>", unsafe_allow_html=True)
-page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "إدارة التصفيات", "التصفيات (الأرشيف)"], label_visibility="collapsed")
+page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف"], label_visibility="collapsed")
 
 if page == "نموذج تصفية المرشد":
     st.title("🧭 نظام تصفية المرشدين")
@@ -634,7 +634,7 @@ elif page == "إدارة التصفيات":
     else:
         st.info("الرجاء إدخال كلمة المرور لعرض إدارة التصفيات.")
 
-elif page == "التصفيات (الأرشيف)":
+elif page == "الأرشيف":
     st.title("📁 أرشيف التصفيات المنتهية (تم)")
     st.markdown("---")
     
@@ -746,4 +746,4 @@ elif page == "التصفيات (الأرشيف)":
     elif password_archive:
         st.error("كلمة المرور غير صحيحة.")
     else:
-        st.info("الرجاء إدخال كلمة المرور لعرض صفحة التصفيات (الأرشيف).")
+        st.info("الرجاء إدخال كلمة المرور لعرض صفحة الأرشيف.")
