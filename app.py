@@ -37,7 +37,7 @@ def overwrite_data(file_path, df):
 
 def get_logo_file():
     for f in os.listdir("."):
-        if any(k in f for k in ["d9f5c2", "d9fd40", "0c53c2", "d9ee9b", "d9e6ba"]):
+        if any(k in f for k in ["d9f5c2", "d9fd40", "0c53c2", "d9ee9b", "d9e6ba", "d9df36"]):
             return f
     for f in os.listdir("."):
         if f.startswith("image_") and f.endswith(('.png', '.jpg', '.jpeg')):
@@ -48,39 +48,51 @@ def get_logo_file():
 sub_df_initial = load_data(SUBMISSIONS_FILE)
 pending_count = len(sub_df_initial)
 
-# تنسيقات CSS لشريط الهيدر العلوي الاحترافي والشكل العام
+# قراءة اللوجو لتحويله لعرضه مباشرة داخل الـ HTML الهيدر الواحد
+logo_path = get_logo_file()
+import base64
+logo_html = ""
+if logo_path and os.path.exists(logo_path):
+    with open(logo_path, "rb") as img_file:
+        encoded_img = base64.b64encode(img_file.read()).decode()
+        logo_html = f'<img src="data:image/png;base64,{encoded_img}" style="height: 45px; object-fit: contain;" />'
+else:
+    logo_html = '<h3 style="color: #1b5e20; margin: 0;">Sun Pyramids Tours</h3>'
+
+# تنسيقات CSS لشريط الهيدر العلوي المدمج تماماً في سطر واحد
 st.markdown(f"""
     <style>
     header {{visibility: hidden;}}
     
-    /* تصميم الشريط العلوي الاحترافي Topbar */
-    .top-header-bar {{
+    /* شريط علوي موحد يجمع اللوجو والجرس والأفاتار في نفس السطر */
+    .topbar-container {{
         display: flex;
         align-items: center;
         justify-content: space-between;
         background-color: #ffffff;
-        padding: 8px 20px;
+        padding: 10px 25px;
         border-bottom: 2px solid #e0e0e0;
-        margin-top: -30px;
+        margin-top: -35px;
         margin-bottom: 25px;
-        border-radius: 6px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
     }}
-    .top-logo-container {{
+    .topbar-right {{
         display: flex;
         align-items: center;
     }}
-    .top-user-section {{
+    .topbar-left {{
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 18px;
     }}
-    .notification-badge-container {{
+    .notification-badge-wrapper {{
         position: relative;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
         cursor: pointer;
     }}
-    .notification-count {{
+    .notification-counter {{
         position: absolute;
         top: -8px;
         right: -12px;
@@ -92,7 +104,7 @@ st.markdown(f"""
         padding: 1px 6px;
         border-radius: 10px;
     }}
-    .user-avatar-circle {{
+    .user-profile-circle {{
         width: 38px;
         height: 38px;
         background-color: #111111;
@@ -139,29 +151,21 @@ st.markdown(f"""
     }}
     </style>
 
-    <div class="top-header-bar">
-        <div class="top-logo-container">
-            <!-- سيتم وضع صورة اللوجو هنا بجوار الهيدر -->
+    <div class="topbar-container">
+        <div class="topbar-right">
+            {logo_html}
         </div>
-        <div class="top-user-section">
-            <div class="notification-badge-container" title="الطلبات الجديدة المعلقة">
-                <span style="font-size: 1.3rem;">🔔</span>
-                <span class="notification-count">{pending_count}</span>
+        <div class="topbar-left">
+            <div class="notification-badge-wrapper" title="عدد التصفيات والطلبات الجديدة">
+                <span style="font-size: 1.35rem;">🔔</span>
+                <span class="notification-counter">{pending_count}</span>
             </div>
-            <div class="user-avatar-circle" title="حساب المستخدم">
+            <div class="user-profile-circle" title="الحساب الشخصي">
                 SA
             </div>
         </div>
     </div>
 """, unsafe_allow_html=True)
-
-# عرض صورة اللوجو في المكان المخصص بالشريط العلوي
-logo_path = get_logo_file()
-if logo_path and os.path.exists(logo_path):
-    # وضع اللوجو في أقصى اليمين أو اليسار داخل الشريط العلوي
-    col_l1, col_l2 = st.columns([2, 5])
-    with col_l1:
-        st.image(logo_path, width=260)
 
 try:
     guides_df = pd.read_excel("guides.xlsx")
