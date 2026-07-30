@@ -68,14 +68,11 @@ if active_logo_to_show and os.path.exists(active_logo_to_show):
 else:
     logo_html = '<span style="color: #1b5e20; font-weight: bold; font-size: 1.1rem;">Sun Pyramids Tours</span>'
 
-# تنبيه صوتي وتغيير عنوان التبويب في المتصفح تلقائياً لو جه طلب جديد
 alert_script = ""
 if new_order_arrived:
     alert_script = """
     <script>
-        // تغيير عنوان التبويب فوق عشان تلفت انتباهك فوراً
         document.title = "🚨 (طلب جديد!) Sun Pyramids Tours";
-        // تشغيل صوت تنبيه واضح
         var audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
         audio.play().catch(e => console.log("Audio play blocked"));
     </script>
@@ -336,7 +333,6 @@ if page == "نموذج تصفية المرشد":
                 }
                 save_to_file(SUBMISSIONS_FILE, new_entry)
                 
-                # إظهار رسالة النجاح وجعلها تختفي تلقائياً بعد 4 ثواني ونظافة الصفحة من غير ما تعلق
                 st.success("✅ تم إرسال الطلب للمدير بنجاح! جاهز لتسجيل تصفية جديدة...")
                 st.markdown("""
                     <script>
@@ -499,7 +495,7 @@ elif page == "التصفيات (الأرشيف)":
                 st.write(f"**الأوبشن (Option):** {req_row.get('Option', '')} | **النوع:** {req_row.get('Option Type', '')}")
                 st.write(f"**التذاكر (Tickets):** {req_row.get('Tickets', '')}")
                 st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
-                st.write(f"**بارك (Park):} {req_row.get('Park', 0)}")
+                st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
                 st.write(f"**غداء (Lunch):** {req_row.get('Lunch', 0)}")
                 
                 l_path = req_row.get("Lunch Receipt", "")
@@ -564,6 +560,5 @@ elif page == "التصفيات (الأرشيف)":
     else:
         st.info("الرجاء إدخال كلمة المرور لعرض صفحة التصفيات (الأرشيف).")
 
-# تحديث تلقائي كل 15 ثانية للتنبيه الفوري في الخلفية
 time.sleep(15)
 st.rerun()
