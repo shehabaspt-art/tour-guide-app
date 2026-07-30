@@ -246,7 +246,7 @@ SHOPS_LIST = [
     "وجية بردى", "اخناتون سجاد", "مينا للبرديات", "رويال سجاد", 
     "اولد كايرو", "رويال للعطور", "خان الحلو للقطن", "فلور قطن", 
     "طيبة للقطن", "فيلة بازار", "جولدن بيرد", "مملوك", 
-    "ريحانة توابل", "كنور توابل", "سقاره سجاد", "قصر العطور", "لازوريت"
+    "ريحانة توابل", "كنور توابل", "قصر العطور", "لازوريت"
 ]
 
 st.sidebar.markdown("<h2 style='color: #1b5e20; margin-bottom: 5px; font-size: 1.5rem;'>🧭 القائمة الرئيسية</h2>", unsafe_allow_html=True)
@@ -257,6 +257,9 @@ if page == "نموذج تصفية المرشد":
     st.title("🧭 نظام تصفية المرشدين")
     st.markdown("---")
     
+    if "option_rows_count" not in st.session_state:
+        st.session_state.option_rows_count = 1
+
     with st.form("guide_form", clear_on_submit=True):
         st.subheader("بيانات المرشد")
         col_top1, col_top2, col_top3 = st.columns(3)
@@ -280,22 +283,31 @@ if page == "نموذج تصفية المرشد":
         st.markdown("---")
         st.subheader("الأوبشن (Option)")
         
-        col_opt1, col_opt2, col_opt3, col_opt4, col_opt5 = st.columns(5)
-        with col_opt1:
-            option_type = st.text_input("نوع الاوبشن")
-        with col_opt2:
-            option_value = st.number_input("قيمة الاوبشن", min_value=0.0, step=10.0, key="opt_val")
-        with col_opt3:
-            option_curr = st.selectbox("عملة الاوبشن", options=["مصري", "دولار", "يورو"], key="opt_curr")
-        with col_opt4:
-            option_pay = st.selectbox("طريقة الدفع", options=["كاش", "لينك"])
-        with col_opt5:
-            cash_holder = ""
-            if option_pay == "كاش":
-                cash_holder = st.selectbox("المبلغ", options=[None, "مع المرشد", "مع السواق"])
-            else:
-                st.markdown("") # للمحاذاة التامة مع باقي الأعمدة في حال لم يكن كاش
+        option_data_list = []
+        for i in range(st.session_state.option_rows_count):
+            st.markdown(f"**أوبشن رقم ({i+1})**")
+            col_opt1, col_opt2, col_opt3, col_opt4, col_opt5 = st.columns(5)
+            with col_opt1:
+                opt_type = st.text_input("نوع الاوبشن", key=f"opt_type_{i}")
+            with col_opt2:
+                opt_val = st.number_input("قيمة الاوبشن", min_value=0.0, step=10.0, key=f"opt_val_{i}")
+            with col_opt3:
+                opt_curr = st.selectbox("عملة الاوبشن", options=["مصري", "دولار", "يورو"], key=f"opt_curr_{i}")
+            with col_opt4:
+                opt_pay = st.selectbox("طريقة الدفع", options=["كاش", "لينك"], key=f"opt_pay_{i}")
+            with col_opt5:
+                cash_h = ""
+                if opt_pay == "كاش":
+                    cash_h = st.selectbox("المبلغ", options=[None, "مع المرشد", "مع السواق"], key=f"cash_h_{i}")
+                else:
+                    st.markdown("")
+            
+            option_data_list.log = {"type": opt_type, "value": opt_val, "curr": opt_curr, "pay": opt_pay, "holder": cash_h}
+            if i < st.session_state.option_rows_count - 1:
+                st.markdown("---")
 
+        add_more_option = st.form_submit_button("➕ إضافة أوبشن آخر")
+        
         st.markdown("---")
         
         st.subheader("مصاريف (Expenses)")
@@ -325,13 +337,26 @@ if page == "نموذج تصفية المرشد":
         
         submitted = st.form_submit_button("إرسال الطلب للمدير", type="primary")
         
+        if add_more_option:
+            st.session_state.option_rows_count += 1
+            st.rerun()
+
         if submitted:
+            # التحقق من صحة بيانات الأوبشنز المضافة
+            validation_error = False
+            for i in range(st.session_state.option_rows_count):
+                p_val = st.session_state.get(f"opt_pay_{i}", "كاش")
+                c_h = st.session_state.get(f"cash_h_{i}", None)
+                if p_val == "كاش" and not c_h:
+                    validation_error = True
+                    break
+
             if not account_no:
                 st.error("⚠️ عذراً، يجب اختيار (رقم الحساب) الخاص بك أولاً!")
             elif not file_no.strip():
                 st.error("⚠️ عذراً، لا يمكن إرسال الطلب. يرجى إدخال (رقم الفايل) أولاً بشكل إلزامي!")
-            elif option_pay == "كاش" and not cash_holder:
-                st.error("⚠️ عذراً، نظراً لاختيار طريقة الدفع (كاش)، يجب اختيار (المبلغ) [مع المرشد / مع السواق] بشكل إلزامي!")
+            elif validation_error:
+                st.error("⚠️ عذراً، نظراً لاختيار طريقة الدفع (كاش) في أحد الأوبشنز، يجب اختيار (المبلغ) [مع المرشد / مع السواق] بشكل إلزامي لكل أوبشن كاش!")
             elif shop_images and not selected_shops and not other_shops.strip():
                 st.error("⚠️ عذراً، نظراً لرفع صور فواتير المحلات، يجب اختيار (اسم المحل) من القائمة أو كتابته في (محلات أخري) بشكل إلزامي!")
             else:
@@ -354,9 +379,23 @@ if page == "نموذج تصفية المرشد":
                             f.write(img.getbuffer())
                         shop_paths.append(s_path)
                 
-                option_details = f"{option_value} {option_curr} ({option_pay})"
-                if option_pay == "كاش" and cash_holder:
-                    option_details += f" - [{cash_holder}]"
+                options_summary_list = []
+                option_types_list = []
+                for i in range(st.session_state.option_rows_count):
+                    o_type = st.session_state.get(f"opt_type_{i}", "")
+                    o_val = st.session_state.get(f"opt_val_{i}", 0.0)
+                    o_curr = st.session_state.get(f"opt_curr_{i}", "مصري")
+                    o_pay = st.session_state.get(f"opt_pay_{i}", "كاش")
+                    o_holder = st.session_state.get(f"cash_h_{i}", "")
+                    
+                    if o_type.strip() or o_val > 0:
+                        option_types_list.append(o_type)
+                        detail_str = f"{o_val} {o_curr} ({o_pay})"
+                        if o_pay == "كاش" and o_holder:
+                            detail_str += f" - [{o_holder}]"
+                        if o_type:
+                            detail_str = f"{o_type}: " + detail_str
+                        options_summary_list.append(detail_str)
 
                 new_entry = {
                     "Timestamp": current_time_str,
@@ -365,8 +404,8 @@ if page == "نموذج تصفية المرشد":
                     "File No": file_no,
                     "Advances": advances,
                     "Collection": f"{collection_val} {collection_curr}",
-                    "Option Type": option_type,
-                    "Option": option_details,
+                    "Option Type": ", ".join(option_types_list),
+                    "Option": " | ".join(options_summary_list),
                     "Tickets": f"{ticket_value} - {ticket_type}",
                     "Tip": tip,
                     "Park": park,
@@ -378,6 +417,7 @@ if page == "نموذج تصفية المرشد":
                 }
                 save_to_file(SUBMISSIONS_FILE, new_entry)
                 
+                st.session_state.option_rows_count = 1 # إعادة تعيين العداد
                 st.success("✅ تم إرسال الطلب للمدير بنجاح! جاهز لتسجيل تصفية جديدة...")
                 st.markdown("""
                     <script>
@@ -427,7 +467,7 @@ elif page == "إدارة التصفيات":
                 
                 st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
                 st.write(f"**التحصيل (Collection):** {req_row.get('Collection', 0)}")
-                st.write(f"**الأوبشن (Option):** {req_row.get('Option', '')} | **النوع:** {req_row.get('Option Type', '')}")
+                st.write(f"**الأوبشن (Option):** {req_row.get('Option', '')}")
                 st.write(f"**التذاكر (Tickets):** {req_row.get('Tickets', '')}")
                 st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
                 st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
@@ -542,7 +582,7 @@ elif page == "إدارة التصفيات":
                     st.session_state.clear_edit_input = False
                     st.session_state.new_acc_val_input = ""
 
-                new_acc_input = st.text_input("رقم الحساب الجديد دايماً فاضي", key="new_acc_val_input", value="")
+                new_acc_input = st.text_input("رقم الحساب الجديد", key="new_acc_val_input", value="")
                 
                 col_act1, col_act2 = st.columns(2)
                 with col_act1:
@@ -677,7 +717,7 @@ elif page == "الأرشيف":
                 
                 st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
                 st.write(f"**التحصيل (Collection):** {req_row.get('Collection', 0)}")
-                st.write(f"**الأوبشن (Option):** {req_row.get('Option', '')} | **النوع:** {req_row.get('Option Type', '')}")
+                st.write(f"**الأوبشن (Option):** {req_row.get('Option', '')}")
                 st.write(f"**التذاكر (Tickets):** {req_row.get('Tickets', '')}")
                 st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
                 st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
