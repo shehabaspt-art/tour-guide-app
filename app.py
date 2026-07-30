@@ -59,7 +59,7 @@ if active_logo_to_show and os.path.exists(active_logo_to_show):
 else:
     logo_html = '<span style="color: #1b5e20; font-weight: bold; font-size: 1.1rem;">Sun Pyramids Tours</span>'
 
-# تصميم الشريط العلوي وتعديل درجة لون القائمة الجانبية لتكون أثقل
+# تصميم الشريط العلوي وإلغاء المسافة الفاصلة تماماً للأعلى
 st.markdown(f"""
     <style>
     header {{visibility: hidden;}}
@@ -134,8 +134,12 @@ st.markdown(f"""
     [data-testid="stSidebar"] {{
         background-color: #d8ebd8;
         border-left: 2px solid #c2e0c2;
-        margin-top: 60px;
-        border-radius: 8px;
+        margin-top: 0px !important;
+        padding-top: 0px !important;
+        border-radius: 0px 8px 8px 0px;
+    }}
+    [data-testid="stSidebar"] > div:first-child {{
+        padding-top: 1rem !important;
     }}
     [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {{
         gap: 0rem !important;
