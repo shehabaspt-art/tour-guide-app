@@ -10,12 +10,24 @@ UPLOAD_DIR = "uploads"
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
 
-# تنسيقات CSS احترافية للقائمة الجانبية وشكل الهيدر
+# تنسيقات CSS احترافية للقائمة الجانبية وتنسيق اللوجو بشكل عريض ومحترم في مكانه
 st.markdown("""
     <style>
     [data-testid="stSidebar"] {
         background-color: #f4f9f4;
         border-left: 2px solid #e0e0e0;
+        padding-top: 1rem;
+    }
+    /* ستايل عريض واحترافي للوجو في القائمة الجانبية */
+    .sidebar-logo {
+        width: 100%;
+        max-height: 120px;
+        object-fit: contain;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        background-color: #ffffff;
+        padding: 5px;
     }
     [data-testid="stSidebar"] h1 {
         color: #1b5e20;
@@ -99,23 +111,20 @@ def get_logo_file():
             return f
     return None
 
-# القائمة الجانبية تحتوي فقط على التنقل بشكل نظيف
+# عرض اللوجو عريض واحترافي في أعلى القائمة الجانبية في مكانه الصحيح
+logo_path = get_logo_file()
+if logo_path and os.path.exists(logo_path):
+    st.sidebar.image(logo_path, use_container_width=True)
+else:
+    st.sidebar.markdown("<h2 style='text-align: center; color: #1b5e20; background-color: #ffffff; padding: 10px; border-radius: 8px;'>Sun Pyramids Tours</h2>", unsafe_allow_html=True)
+
+st.sidebar.markdown("---")
+
 st.sidebar.title("🧭 القائمة الرئيسية")
 st.sidebar.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1.15rem; margin-bottom: 10px;'>اختر الصفحة</p>", unsafe_allow_html=True)
 page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "لوحة تحكم المدير", "التصفيات (الأرشيف)"], label_visibility="collapsed")
 
-# دالة مساعدة لعرض الهيدر العريض والاحترافي في بداية كل صفحة رئيسية
-def render_header():
-    logo_path = get_logo_file()
-    if logo_path and os.path.exists(logo_path):
-        # عرض اللوجو بعرض كبير واحترافي في أعلى الصفحة الرئيسية
-        st.image(logo_path, use_container_width=True)
-    else:
-        st.markdown("<h1 style='text-align: center; color: #1b5e20; padding: 10px;'>Sun Pyramids Tours</h1>", unsafe_allow_html=True)
-    st.markdown("---")
-
 if page == "نموذج تصفية المرشد":
-    render_header()
     st.title("🧭 نظام تصفية المرشدين")
     st.markdown("---")
     
@@ -224,7 +233,6 @@ if page == "نموذج تصفية المرشد":
                 st.rerun()
 
 elif page == "لوحة تحكم المدير":
-    render_header()
     st.title("📊 لوحة تحكم المدير")
     st.markdown("---")
     
@@ -347,7 +355,6 @@ elif page == "لوحة تحكم المدير":
         st.info("الرجاء إدخال كلمة المرور لعرض لوحة التحكم.")
 
 elif page == "التصفيات (الأرشيف)":
-    render_header()
     st.title("📁 أرشيف التصفيات المنتهية (تم)")
     st.markdown("---")
     
