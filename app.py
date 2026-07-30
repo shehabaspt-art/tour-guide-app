@@ -215,6 +215,7 @@ if page == "نموذج تصفية المرشد":
             advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0)
         
         st.markdown("---")
+        st.subheader("التحصيل")
         
         col_c1, col_c2 = st.columns([2, 1])
         with col_c1:
@@ -223,6 +224,7 @@ if page == "نموذج تصفية المرشد":
             collection_curr = st.selectbox("عملة التحصيل", options=["جنية", "يورو", "دولار"])
         
         st.markdown("---")
+        st.subheader("الأوبشن")
         col_opt1, col_opt2, col_opt3, col_opt4 = st.columns(4)
         with col_opt1:
             option_type = st.text_input("نوع الاوبشن")
@@ -235,6 +237,7 @@ if page == "نموذج تصفية المرشد":
         
         st.markdown("---")
         
+        st.subheader("مصاريف")
         col_tkt1, col_tkt2 = st.columns(2)
         with col_tkt1:
             ticket_value = st.number_input("قيمة التذاكر", min_value=0.0, step=10.0, key="tkt_val")
