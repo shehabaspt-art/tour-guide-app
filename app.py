@@ -13,6 +13,7 @@ if not os.path.exists(UPLOAD_DIR):
 
 SUBMISSIONS_FILE = "submissions.xlsx"
 ARCHIVE_FILE = "archive.xlsx"
+GUIDES_FILE = "guides.xlsx"
 SAVED_LOGO_PATH = os.path.join(UPLOAD_DIR, "custom_saved_logo.png")
 
 def load_data(file_path):
@@ -37,7 +38,7 @@ def save_to_file(file_path, new_data):
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
 
-# تنظيف تلقائي للطلبات المحددة بناءً على طلبك الفوري
+# تنظيف تلقائي للطلبات المحددة بناءً على طلبك السابق
 if os.path.exists(SUBMISSIONS_FILE):
     try:
         init_sub_df = pd.read_excel(SUBMISSIONS_FILE)
@@ -213,9 +214,10 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 try:
-    guides_df = pd.read_excel("guides.xlsx")
+    guides_df = pd.read_excel(GUIDES_FILE)
 except:
     guides_df = pd.DataFrame({"Guide Name": ["أحمد", "محمود"], "Account Number": ["1805000493514500022", "1805000493514500033"]})
+    guides_df.to_excel(GUIDES_FILE, index=False)
 
 name_column = guides_df.columns[0] if len(guides_df.columns) > 0 else "Guide Name"
 acc_column = guides_df.columns[1] if len(guides_df.columns) > 1 else guides_df.columns[0]
@@ -366,6 +368,10 @@ elif page == "لوحة تحكم المدير":
             st.session_state.viewing_file = None
         if "confirming_del_sub" not in st.session_state:
             st.session_state.confirming_del_sub = None
+        if "editing_guide_idx" not in st.session_state:
+            st.session_state.editing_guide_idx = None
+        if "confirming_edit_guide" not in st.session_state:
+            st.session_state.confirming_edit_guide = None
 
         if st.session_state.viewing_file is not None:
             req_idx = st.session_state.viewing_file
@@ -490,9 +496,44 @@ elif page == "لوحة تحكم المدير":
                 st.info("لا توجد طلبات جديدة حتى الآن.")
             
             st.markdown("---")
-            # ثانياً: عرض قاعدة بيانات المرشدين في الأسفل
-            st.markdown("### قاعدة بيانات المرشدين")
+            # ثانياً: عرض وتعديل قاعدة بيانات المرشدين في الأسفل
+            st.markdown("### قاعدة بيانات المرشدين (إدارة وتعديل أرقام الحسابات)")
             st.dataframe(guides_df, use_container_width=True)
+            
+            st.markdown("#### تعديل رقم حساب مرشد:")
+            guide_names_list = guides_df[name_column].astype(str).tolist()
+            selected_guide_to_edit = st.selectbox("اختر اسم المرشد لتعديل رقمه", options=guide_names_list, key="sel_guide_edit")
+            
+            current_acc_val = guides_df.loc[guides_df[name_column].astype(str) == selected_guide_to_edit, acc_column].values[0] if selected_guide_to_edit else ""
+            new_acc_input = st.text_input("رقم الحساب الجديد", value=str(current_acc_val), key="new_acc_val_input")
+            
+            if st.button("💾 حفظ تعديل رقم الحساب", type="primary"):
+                st.session_state.confirming_edit_guide = {
+                    "name": selected_guide_to_edit,
+                    "new_acc": new_acc_input
+                }
+                st.rerun()
+            
+            if st.session_state.confirming_edit_guide is not None:
+                g_to_edit = st.session_state.confirming_edit_guide["name"]
+                n_acc = st.session_state.confirming_edit_guide["new_acc"]
+                
+                st.warning(f"⚠️ هل أنت متأكد من رغبتك في تغيير رقم حساب المرشد (**{g_to_edit}**) إلى الرقم الجديد: **{n_acc}**؟")
+                ec1, ec2 = st.columns(2)
+                with ec1:
+                    if st.button("✔️ تأكيد وحفظ التعديل", type="primary", key="confirm_save_guide_acc"):
+                        guides_df.loc[guides_df[name_column].astype(str) == g_to_edit, acc_column] = n_acc
+                        overwrite_data(GUIDES_FILE, guides_df)
+                        st.session_state.confirming_edit_guide = None
+                        st.success("✅ تم تحديث رقم حساب المرشد وحفظه بنجاح!")
+                        time.sleep(1)
+                        st.rerun()
+                with ec2:
+                    if st.button("❌ إلغاء", key="cancel_save_guide_acc"):
+                        st.session_state.confirming_edit_guide = None
+                        st.info("تم إلغاء التعديل ولم يتم حفظ أي تغييرات.")
+                        time.sleep(1)
+                        st.rerun()
             
     elif password:
         st.error("كلمة المرور غير صحيحة.")
