@@ -59,7 +59,6 @@ else:
 
 st.markdown(f"""
     <style>
-    /* زيادة مسافة الأمان فوق الصفحة عشان العناوين والأيقونات متبقاش مقصوصة تحت الهيدر */
     .stApp {{
         margin-top: 70px !important;
     }}
@@ -205,10 +204,13 @@ if page == "نموذج تصفية المرشد":
     st.markdown("---")
     
     with st.form("guide_form", clear_on_submit=True):
-        account_options = [None] + guides_df[acc_column].astype(str).tolist()
-        account_no = st.selectbox("رقم الحساب الخاص بالمرشد", options=account_options, index=0)
-        
-        file_no = st.text_input("رقم الفايل (File Number) *إلزامي*")
+        # وضع رقم الحساب ورقم الفايل جنب بعض في عمودين
+        col_top1, col_top2 = st.columns(2)
+        with col_top1:
+            account_options = [None] + guides_df[acc_column].astype(str).tolist()
+            account_no = st.selectbox("رقم الحساب الخاص بالمرشد", options=account_options, index=0)
+        with col_top2:
+            file_no = st.text_input("رقم الفايل (File Number) *إلزامي*")
         
         st.markdown("---")
         st.subheader("الحقول المالية والبنود")
