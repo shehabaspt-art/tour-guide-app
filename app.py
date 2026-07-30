@@ -153,13 +153,14 @@ st.markdown(f"""
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }}
     
-    button[kind="secondary"], div.stButton > button {{
-        border-radius: 8px;
+    /* فرض اللون الأخضر الصريح على زرار إضافة أوبشن آخر وكل الزراير */
+    div.stFormSubmitButton > button, div.stButton > button {{
+        border-radius: 8px !important;
         background-color: #28a745 !important;
         color: white !important;
         border: none !important;
     }}
-    div.stButton > button:hover {{
+    div.stFormSubmitButton > button:hover, div.stButton > button:hover {{
         background-color: #218838 !important;
         color: white !important;
     }}
