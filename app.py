@@ -218,7 +218,7 @@ if page == "نموذج تصفية المرشد":
         
         col_c1, col_c2 = st.columns([2, 1])
         with col_c1:
-            collection_val = st.number_input("قيمة التحصيل (Collection)", min_value=0.0, step=10.0)
+            collection_val = st.number_input("قيمة التحصيل", min_value=0.0, step=10.0)
         with col_c2:
             collection_curr = st.selectbox("عملة التحصيل", options=["جنية", "يورو", "دولار"])
         
@@ -239,19 +239,19 @@ if page == "نموذج تصفية المرشد":
         st.subheader("مصاريف (Expenses)")
         col_tkt1, col_tkt2 = st.columns(2)
         with col_tkt1:
-            ticket_value = st.number_input("قيمة التذاكر (Tickets Value)", min_value=0.0, step=10.0, key="tkt_val")
+            ticket_value = st.number_input("قيمة التذاكر", min_value=0.0, step=10.0, key="tkt_val")
         with col_tkt2:
-            ticket_type = st.text_input("نوع التذاكر (Tickets Type)")
+            ticket_type = st.text_input("نوع التذاكر")
             
         st.markdown("---")
         
         col_misc1, col_misc2, col_misc3 = st.columns(3)
         with col_misc1:
-            tip = st.number_input("إكرامية (Tip)", min_value=0.0, step=10.0)
+            tip = st.number_input("إكرامية", min_value=0.0, step=10.0)
         with col_misc2:
-            park = st.number_input("بارك (Park)", min_value=0.0, step=10.0)
+            park = st.number_input("بارك", min_value=0.0, step=10.0)
         with col_misc3:
-            lunch = st.number_input("غداء (Lunch)", min_value=0.0, step=10.0)
+            lunch = st.number_input("غداء", min_value=0.0, step=10.0)
             
         lunch_image = st.file_uploader("رفع صورة فاتورة الغداء", type=["png", "jpg", "jpeg"], key="lunch_img")
         
