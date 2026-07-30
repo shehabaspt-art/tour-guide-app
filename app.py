@@ -57,21 +57,21 @@ if active_logo_to_show and os.path.exists(active_logo_to_show):
 else:
     logo_html = '<span style="color: #1b5e20; font-weight: bold; font-size: 1.1rem;">Sun Pyramids Tours</span>'
 
-# جزء اللوجو الأصلي الثابت فوق تماماً زي ما هو طلبته حرفياً بدون أي تعديل فيه
 st.markdown(f"""
     <style>
+    /* زيادة مسافة الأمان فوق الصفحة عشان العناوين والأيقونات متبقاش مقصوصة تحت الهيدر */
     .stApp {{
-        margin-top: 55px !important;
+        margin-top: 70px !important;
     }}
     .block-container {{
-        padding-top: 1rem !important;
+        padding-top: 2rem !important;
     }}
     .custom-topbar {{
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
-        height: 60px;
+        height: 65px;
         background-color: #ffffff;
         border-bottom: 1px solid #e0e0e0;
         display: flex;
@@ -123,7 +123,6 @@ st.markdown(f"""
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }}
     
-    /* تنسيق القائمة الجانبية لتنزيل محتويات القائمة لتبدأ تحت اللوجو تماماً */
     [data-testid="stSidebar"] {{
         background-color: #d8ebd8;
         border-left: 2px solid #c2e0c2;
@@ -132,7 +131,7 @@ st.markdown(f"""
         border-radius: 0px 8px 8px 0px;
     }}
     [data-testid="stSidebar"] > div:first-child {{
-        padding-top: 75px !important; /* مسافة لتبدأ القائمة من تحت اللوجو الثابت بالظبط */
+        padding-top: 75px !important;
     }}
     [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {{
         gap: 0rem !important;
@@ -197,7 +196,6 @@ SHOPS_LIST = [
     "ريحانة توابل", "كنور توابل", "سقاره سجاد", "قصر العطور", "لازوريت"
 ]
 
-# القائمة الجانبية تبدأ تحت اللوجو مباشرة بفضل الـ padding-top المخصص
 st.sidebar.title("🧭 القائمة الرئيسية")
 st.sidebar.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1.15rem; margin-bottom: 10px;'>اختر الصفحة</p>", unsafe_allow_html=True)
 page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "لوحة تحكم المدير", "التصفيات (الأرشيف)"], label_visibility="collapsed")
