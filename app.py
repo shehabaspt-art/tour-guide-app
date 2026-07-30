@@ -60,12 +60,19 @@ name_column = guides_df.columns[0] if len(guides_df.columns) > 0 else "Guide Nam
 acc_column = guides_df.columns[1] if len(guides_df.columns) > 1 else guides_df.columns[0]
 
 SUBMISSIONS_FILE = "submissions.xlsx"
+ARCHIVE_FILE = "archive.xlsx"
 
-def load_submissions():
-    if os.path.exists(SUBMISSIONS_FILE):
+SHOPS_LIST = [
+    "وجية بردى", "اخناتون سجاد", "مينا للبرديات", "رويال سجاد", 
+    "اولد كايرو", "رويال للعطور", "خان الحلو للقطن", "فلور قطن", 
+    "طيبة للقطن", "فيلة بازار", "جولدن بيرد", "مملوك", 
+    "ريحانة توابل", "كنور توابل", "سقاره سجاد", "قصر العطور", "لازوريت"
+]
+
+def load_data(file_path):
+    if os.path.exists(file_path):
         try:
-            df = pd.read_excel(SUBMISSIONS_FILE)
-            # التأكد من وجود الأعمدة الأساسية لمنع أي خطأ KeyError
+            df = pd.read_excel(file_path)
             if "Guide Name" not in df.columns:
                 df["Guide Name"] = "غير معروف"
             if "Timestamp" not in df.columns:
@@ -75,15 +82,18 @@ def load_submissions():
             return pd.DataFrame()
     return pd.DataFrame()
 
-def save_submission(new_data):
-    df = load_submissions()
+def save_to_file(file_path, new_data):
+    df = load_data(file_path)
     new_df = pd.DataFrame([new_data])
     df = pd.concat([df, new_df], ignore_index=True)
-    df.to_excel(SUBMISSIONS_FILE, index=False)
+    df.to_excel(file_path, index=False)
+
+def overwrite_data(file_path, df):
+    df.to_excel(file_path, index=False)
 
 st.sidebar.title("🧭 القائمة الرئيسية")
 st.sidebar.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1.15rem; margin-bottom: 10px;'>اختر الصفحة</p>", unsafe_allow_html=True)
-page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "لوحة تحكم المدير"], label_visibility="collapsed")
+page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "لوحة تحكم المدير", "التصفيات (الأرشيف)"], label_visibility="collapsed")
 
 if page == "نموذج تصفية المرشد":
     st.title("🧭 نظام تصفية المرشدين")
@@ -99,18 +109,28 @@ if page == "نموذج تصفية المرشد":
         st.subheader("الحقول المالية والبنود")
         
         advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0)
-        collection = st.number_input("التحصيل (Collection)", min_value=0.0, step=10.0)
-        option_item = st.number_input("الأوبشن (Option)", min_value=0.0, step=10.0)
+        
+        # خانة التحصيل مع اختيار العملة
+        col_c1, col_c2 = st.columns([2, 1])
+        with col_c1:
+            collection_val = st.number_input("التحصيل (Collection)", min_value=0.0, step=10.0)
+        with col_c2:
+            collection_curr = st.selectbox("العملة", options=["جنية", "يورو", "دولار"])
+        
+        option_item = st.text_input("الأوبشن (Option)")
         
         tip = st.number_input("إكرامية (Tip)", min_value=0.0, step=10.0)
-        tickets = st.number_input("تذاكر (Tickets)", min_value=0.0, step=10.0)
+        tickets = st.text_input("تذاكر (Tickets)")
         park = st.number_input("بارك (Park)", min_value=0.0, step=10.0)
         
         lunch = st.number_input("غداء (Lunch)", min_value=0.0, step=10.0)
         lunch_image = st.file_uploader("رفع صورة فاتورة الغداء", type=["png", "jpg", "jpeg"], key="lunch_img")
         
         st.markdown("---")
-        shop_bills_amount = st.number_input("فواتير المحلات", min_value=0.0, step=10.0)
+        st.subheader("فواتير ومحلات التسوق")
+        selected_shops = st.multiselect("اسم المحل (اختر من القائمة)", options=SHOPS_LIST)
+        other_shops = st.text_input("محلات أخري (اكتبها يدوياً إن وجدت)")
+        shop_bills_amount = st.number_input("قيمة فواتير المحلات", min_value=0.0, step=10.0)
         shop_images = st.file_uploader("رفع صور فواتير المحلات", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key="shop_imgs")
         
         submitted = st.form_submit_button("إرسال الطلب للمدير", type="primary")
@@ -120,6 +140,8 @@ if page == "نموذج تصفية المرشد":
                 st.error("⚠️ عذراً، يجب اختيار (رقم الحساب) الخاص بك أولاً!")
             elif not file_no.strip():
                 st.error("⚠️ عذراً، لا يمكن إرسال الطلب. يرجى إدخال (رقم الفايل) أولاً بشكل إلزامي!")
+            elif shop_images and not selected_shops and not other_shops.strip():
+                st.error("⚠️ عذراً، نظراً لرفع صور فواتير المحلات، يجب اختيار (اسم المحل) من القائمة أو كتابته في (محلات أخري) بشكل إلزامي!")
             else:
                 matched_guide = guides_df[guides_df[acc_column].astype(str) == str(account_no)]
                 guide_name = matched_guide[name_column].values[0] if not matched_guide.empty else "غير معروف"
@@ -146,17 +168,19 @@ if page == "نموذج تصفية المرشد":
                     "Account": account_no,
                     "File No": file_no,
                     "Advances": advances,
-                    "Collection": collection,
+                    "Collection": f"{collection_val} {collection_curr}",
                     "Option": option_item,
                     "Tip": tip,
                     "Tickets": tickets,
                     "Park": park,
                     "Lunch": lunch,
                     "Lunch Receipt": lunch_path,
+                    "Shop Names": ", ".join(selected_shops),
+                    "Other Shops": other_shops,
                     "Shop Bills": shop_bills_amount,
                     "Shop Images": ",".join(shop_paths) if shop_paths else ""
                 }
-                save_submission(new_entry)
+                save_to_file(SUBMISSIONS_FILE, new_entry)
                 
                 st.success("✅ تم إرسال الطلب للمدير بنجاح! جاهز لتسجيل تصفية جديدة...")
                 time.sleep(5)
@@ -170,62 +194,137 @@ elif page == "لوحة تحكم المدير":
     
     if password == "159753":
         st.success("تم تسجيل الدخول بنجاح!")
-        sub_df = load_submissions()
-        if not sub_df.empty:
-            st.markdown("### 🔍 فلترة وعرض تصفيات المرشدين")
-            
-            all_guides_in_subs = sub_df["Guide Name"].dropna().unique().tolist()
-            selected_guide_filter = st.selectbox("اختر اسم المرشد لعرض جميع تصفياته وسجلاته", options=["الكل (جميع المرشدين)"] + all_guides_in_subs)
-            
-            if selected_guide_filter != "الكل (جميع المرشدين)":
-                filtered_sub_df = sub_df[sub_df["Guide Name"] == selected_guide_filter]
-                st.info(f"عرض التصفيات الخاصة بالمرشد: **{selected_guide_filter}** (عدد الطلبات: {len(filtered_sub_df)})")
+        sub_df = load_data(SUBMISSIONS_FILE)
+        
+        # استخدام Session State لمعرفة هل المدير ضغط "عرض" لتفاصيل طلب معين
+        if "viewing_file" not in st.session_state:
+            st.session_state.viewing_file = None
+
+        if st.session_state.viewing_file is not None:
+            # صفحة عرض تفاصيل الطلب تماماً كنموذج المرشد
+            req_idx = st.session_state.viewing_file
+            if req_idx in sub_df.index:
+                req_row = sub_df.loc[req_idx]
+                
+                if st.button("⬅️ رجوع إلى لوحة التحكم"):
+                    st.session_state.viewing_file = None
+                    st.rerun()
+                
+                st.markdown(f"### 📄 تفاصيل تصفية الفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
+                st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {req_row.get('Account', '')}")
+                st.markdown("---")
+                
+                st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
+                st.write(f"**التحصيل (Collection):** {req_row.get('Collection', 0)}")
+                st.write(f"**الأوبشن (Option):** {req_row.get('Option', '')}")
+                st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
+                st.write(f"**تذاكر (Tickets):** {req_row.get('Tickets', '')}")
+                st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
+                st.write(f"**غداء (Lunch):** {req_row.get('Lunch', 0)}")
+                
+                l_path = req_row.get("Lunch Receipt", "")
+                if pd.notna(l_path) and str(l_path).strip() != "" and os.path.exists(str(l_path)):
+                    st.image(str(l_path), caption="صورة فاتورة الغداء", width=300)
+                else:
+                    st.info("لا توجد صورة لفاتورة الغداء.")
+                
+                st.markdown("---")
+                st.write(f"**أسماء المحلات المختارة:** {req_row.get('Shop Names', 'لا يوجد')}")
+                st.write(f"**محلات أخري:** {req_row.get('Other Shops', 'لا يوجد')}")
+                st.write(f"**قيمة فواتير المحلات:** {req_row.get('Shop Bills', 0)}")
+                
+                s_paths = req_row.get("Shop Images", "")
+                if pd.notna(s_paths) and str(s_paths).strip() != "":
+                    paths_list = str(s_paths).split(",")
+                    for idx, p in enumerate(paths_list):
+                        if os.path.exists(p):
+                            st.image(p, caption=f"صورة محلات رقم {idx+1}", width=300)
+                else:
+                    st.info("لا توجد صور لفواتير المحلات.")
+                
+                st.markdown("---")
+                st.markdown("### اتخاذ القرار بشأن الطلب:")
+                col_btn1, col_btn2 = st.columns(2)
+                
+                with col_btn1:
+                    if st.button("✅ تم", type="primary", use_container_width=True):
+                        # نقل الطلب للأرشيف وحذفه من لوحة التحكم الأساسية
+                        archive_entry = req_row.to_dict()
+                        save_to_file(ARCHIVE_FILE, archive_entry)
+                        
+                        sub_df = sub_df.drop(req_idx).reset_index(drop=True)
+                        overwrite_data(SUBMISSIONS_FILE, sub_df)
+                        
+                        st.session_state.viewing_file = None
+                        st.success("تم نقل الطلب إلى صفحة التصفيات (الأرشيف) بنجاح!")
+                        time.sleep(1)
+                        st.rerun()
+                
+                with col_btn2:
+                    if st.button("🔄 متابعة", use_container_width=True):
+                        # البقاء في لوحة التحكم بدون نقل
+                        st.session_state.viewing_file = None
+                        st.info("تم إبقاء الطلب في لوحة التحكم لمتابعة الإجراءات.")
+                        time.sleep(1)
+                        st.rerun()
             else:
-                filtered_sub_df = sub_df
-            
-            st.markdown("### الطلبات الواردة")
-            cols_to_show = [c for c in filtered_sub_df.columns if c not in ["Lunch Receipt", "Shop Images"]]
-            st.dataframe(filtered_sub_df[cols_to_show], use_container_width=True)
+                st.session_state.viewing_file = None
+                st.rerun()
+        
+        else:
+            if not sub_df.empty:
+                st.markdown("### 🔍 فلترة وعرض تصفيات المرشدين")
+                
+                all_guides_in_subs = sub_df["Guide Name"].dropna().unique().tolist()
+                selected_guide_filter = st.selectbox("اختر اسم المرشد لعرض جميع تصفياته وسجلاته", options=["الكل (جميع المرشدين)"] + all_guides_in_subs)
+                
+                if selected_guide_filter != "الكل (جميع المرشدين)":
+                    filtered_sub_df = sub_df[sub_df["Guide Name"] == selected_guide_filter]
+                    st.info(f"عرض التصفيات الخاصة بالمرشد: **{selected_guide_filter}** (عدد الطلبات: {len(filtered_sub_df)})")
+                else:
+                    filtered_sub_df = sub_df
+                
+                st.markdown("### الطلبات الواردة")
+                
+                # عرض الطلبات في جدول شيك مع زر "عرض" لكل صف
+                for idx, row in filtered_sub_df.iterrows():
+                    cols = st.columns([1, 2, 2, 2, 1.5])
+                    with cols[0]:
+                        st.write(f"**#{idx+1}**")
+                    with cols[1]:
+                        st.write(f"الفايل: {row.get('File No', '')}")
+                    with cols[2]:
+                        st.write(f"المرشد: {row.get('Guide Name', '')}")
+                    with cols[3]:
+                        st.write(f"الوقت: {row.get('Timestamp', '')}")
+                    with cols[4]:
+                        if st.button("عرض", key=f"view_btn_{idx}", type="primary"):
+                            st.session_state.viewing_file = idx
+                            st.rerun()
+                    st.markdown("---")
+            else:
+                st.info("لا توجد طلبات جديدة حتى الآن.")
             
             st.markdown("---")
-            st.markdown("### 🔍 مراجعة فواتير وصور الطلبات")
+            st.markdown("### قاعدة بيانات المرشدين")
+            st.dataframe(guides_df, use_container_width=True)
             
-            file_options = filtered_sub_df["File No"].astype(str).tolist() if not filtered_sub_df.empty else []
-            if file_options:
-                selected_file = st.selectbox("اختر رقم الفايل لعرض الفواتير والصور الخاصة به", options=file_options)
-                
-                if selected_file:
-                    req_row = filtered_sub_df[filtered_sub_df["File No"].astype(str) == selected_file].iloc[0]
-                    
-                    col1, col2 = st.columns(2)
-                    
-                    with col1:
-                        st.markdown("#### 🥗 صورة فاتورة الغداء")
-                        l_path = req_row.get("Lunch Receipt", "")
-                        if pd.notna(l_path) and str(l_path).strip() != "" and os.path.exists(str(l_path)):
-                            st.image(str(l_path), caption=f"فاتورة غداء - فايل: {selected_file}", use_container_width=True)
-                        else:
-                            st.info("لا توجد صورة لفاتورة الغداء لهذا الطلب.")
-                    
-                    with col2:
-                        st.markdown("#### 🛍️ صور فواتير المحلات")
-                        s_paths = req_row.get("Shop Images", "")
-                        if pd.notna(s_paths) and str(s_paths).strip() != "":
-                            paths_list = str(s_paths).split(",")
-                            for idx, p in enumerate(paths_list):
-                                if os.path.exists(p):
-                                    st.image(p, caption=f"صورة محلات رقم {idx+1} - فايل: {selected_file}", use_container_width=True)
-                        else:
-                            st.info("لا توجد صور لفواتير المحلات لهذا الطلب.")
-            else:
-                st.warning("لا توجد فايلات متاحة للفلترة الحالية.")
-        else:
-            st.info("لا توجد طلبات جديدة حتى الآن.")
-        
-        st.markdown("---")
-        st.markdown("### قاعدة بيانات المرشدين")
-        st.dataframe(guides_df, use_container_width=True)
     elif password:
         st.error("كلمة المرور غير صحيحة.")
     else:
         st.info("الرجاء إدخال كلمة المرور لعرض لوحة التحكم.")
+
+elif page == "التصفيات (الأرشيف)":
+    st.title("📁 أرشيف التصفيات المنتهية (تم)")
+    st.markdown("---")
+    
+    archive_df = load_data(ARCHIVE_FILE)
+    if not archive_df.empty:
+        cols_to_show = [c for c in archive_df.columns if c not in ["Lunch Receipt", "Shop Images"]]
+        st.dataframe(archive_df[cols_to_show], use_container_width=True)
+    else:
+        st.info("لا توجد تصفيات مؤرشفة حتى الآن.")
+
+    st.markdown("---")
+    st.markdown("### قاعدة بيانات المرشدين")
+    st.dataframe(guides_df, use_container_width=True)
