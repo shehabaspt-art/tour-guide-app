@@ -37,8 +37,21 @@ def save_to_file(file_path, new_data):
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
 
+if "last_pending_count" not in st.session_state:
+    sub_df_init = load_data(SUBMISSIONS_FILE)
+    st.session_state.last_pending_count = len(sub_df_init)
+
 sub_df_initial = load_data(SUBMISSIONS_FILE)
 pending_count = len(sub_df_initial)
+
+# متغير لجافاسكريبت عشان نعرف لو فيه طلب جديد جه فيحصل تنبيه براني
+trigger_desktop_notification = False
+if pending_count > st.session_state.last_pending_count:
+    trigger_desktop_notification = True
+    st.session_state.last_pending_count = pending_count
+    st.rerun()
+elif pending_count < st.session_state.last_pending_count:
+    st.session_state.last_pending_count = pending_count
 
 active_logo_to_show = None
 if os.path.exists(SAVED_LOGO_PATH):
@@ -56,6 +69,23 @@ if active_logo_to_show and os.path.exists(active_logo_to_show):
         logo_html = f'<img src="data:image/png;base64,{encoded_img}" style="height: 48px; object-fit: contain;" />'
 else:
     logo_html = '<span style="color: #1b5e20; font-weight: bold; font-size: 1.1rem;">Sun Pyramids Tours</span>'
+
+# كود تفعيل إشعارات سطح المكتب وصوت التنبيه من المتصفح
+notif_script = ""
+if trigger_desktop_notification:
+    notif_script = """
+    <script>
+    if (Notification.permission === "granted") {
+        new Notification("Sun Pyramids Tours", {
+            body: "تم استلام تصفية جديدة من أحد المرشدين!",
+            icon: "🧭"
+        });
+    }
+    // صوت تنبيه خفيف
+    var audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+    audio.play().catch(e => console.log(e));
+    </script>
+    """
 
 st.markdown(f"""
     <style>
@@ -178,6 +208,14 @@ st.markdown(f"""
             </div>
         </div>
     </div>
+    
+    <script>
+    // طلب إذن الإشعارات من المتصفح عند أول فتح
+    if (Notification.permission !== "granted" && Notification.permission !== "denied") {{
+        Notification.requestPermission();
+    }}
+    </script>
+    {notif_script}
 """, unsafe_allow_html=True)
 
 try:
@@ -532,3 +570,7 @@ elif page == "التصفيات (الأرشيف)":
         st.error("كلمة المرور غير صحيحة.")
     else:
         st.info("الرجاء إدخال كلمة المرور لعرض صفحة التصفيات (الأرشيف).")
+
+# تحديث تلقائي كل 15 ثانية للتشييك على الطلبات الجديدة
+time.sleep(15)
+st.rerun()
