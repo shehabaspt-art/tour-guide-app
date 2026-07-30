@@ -130,7 +130,7 @@ st.markdown(f"""
         border-radius: 0px 8px 8px 0px;
     }}
     [data-testid="stSidebar"] > div:first-child {{
-        padding-top: 75px !important;
+        padding-top: 10px !important;
     }}
     [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {{
         gap: 0rem !important;
@@ -195,8 +195,8 @@ SHOPS_LIST = [
     "ريحانة توابل", "كنور توابل", "سقاره سجاد", "قصر العطور", "لازوريت"
 ]
 
-st.sidebar.title("🧭 القائمة الرئيسية")
-st.sidebar.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1.15rem; margin-bottom: 10px;'>اختر الصفحة</p>", unsafe_allow_html=True)
+st.sidebar.markdown("<h2 style='color: #1b5e20; margin-bottom: 5px; font-size: 1.5rem;'>🧭 القائمة الرئيسية</h2>", unsafe_allow_html=True)
+st.sidebar.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1.15rem; margin-top: 15px; margin-bottom: 20px;'>اختر الصفحة</p>", unsafe_allow_html=True)
 page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "لوحة تحكم المدير", "التصفيات (الأرشيف)"], label_visibility="collapsed")
 
 if page == "نموذج تصفية المرشد":
