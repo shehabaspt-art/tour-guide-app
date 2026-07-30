@@ -375,6 +375,8 @@ elif page == "لوحة تحكم المدير":
             st.session_state.confirming_add_guide = None
         if "clear_add_inputs" not in st.session_state:
             st.session_state.clear_add_inputs = False
+        if "clear_edit_input" not in st.session_state:
+            st.session_state.clear_edit_input = False
 
         if st.session_state.viewing_file is not None:
             req_idx = st.session_state.viewing_file
@@ -505,8 +507,11 @@ elif page == "لوحة تحكم المدير":
             guide_names_list = guides_df[name_column].astype(str).tolist()
             selected_guide_to_edit = st.selectbox("اختر اسم المرشد", options=guide_names_list, key="sel_guide_edit")
             
-            current_acc_val = guides_df.loc[guides_df[name_column].astype(str) == selected_guide_to_edit, acc_column].values[0] if selected_guide_to_edit and not guides_df[guides_df[name_column].astype(str) == selected_guide_to_edit].empty else ""
-            new_acc_input = st.text_input("رقم الحساب الجديد", value=str(current_acc_val), key="new_acc_val_input")
+            if st.session_state.clear_edit_input:
+                st.session_state.clear_edit_input = False
+                st.session_state.new_acc_val_input = ""
+
+            new_acc_input = st.text_input("رقم الحساب الجديد", key="new_acc_val_input")
             
             col_act1, col_act2 = st.columns(2)
             with col_act1:
@@ -527,22 +532,29 @@ elif page == "لوحة تحكم المدير":
                 g_to_edit = st.session_state.confirming_edit_guide["name"]
                 n_acc = st.session_state.confirming_edit_guide["new_acc"]
                 
-                st.warning(f"⚠️ هل أنت متأكد من رغبتك في تغيير رقم حساب المرشد (**{g_to_edit}**) إلى الرقم الجديد: **{n_acc}**؟")
-                ec1, ec2 = st.columns(2)
-                with ec1:
-                    if st.button("✔️ تأكيد وحفظ التعديل", type="primary", key="confirm_save_guide_acc"):
-                        guides_df.loc[guides_df[name_column].astype(str) == g_to_edit, acc_column] = n_acc
-                        overwrite_data(GUIDES_FILE, guides_df)
+                if not n_acc.strip():
+                    st.error("⚠️ يرجى كتابة رقم الحساب الجديد أولاً قبل الحفظ!")
+                    if st.button("❌ رجوع"):
                         st.session_state.confirming_edit_guide = None
-                        st.success("✅ تم تحديث رقم حساب المرشد وحفظه بنجاح!")
-                        time.sleep(1)
                         st.rerun()
-                with ec2:
-                    if st.button("❌ إلغاء", key="cancel_save_guide_acc"):
-                        st.session_state.confirming_edit_guide = None
-                        st.info("تم إلغاء التعديل ولم يتم حفظ أي تغييرات.")
-                        time.sleep(1)
-                        st.rerun()
+                else:
+                    st.warning(f"⚠️ هل أنت متأكد من رغبتك في تغيير رقم حساب المرشد (**{g_to_edit}**) إلى الرقم الجديد: **{n_acc}**؟")
+                    ec1, ec2 = st.columns(2)
+                    with ec1:
+                        if st.button("✔️ تأكيد وحفظ التعديل", type="primary", key="confirm_save_guide_acc"):
+                            guides_df.loc[guides_df[name_column].astype(str) == g_to_edit, acc_column] = n_acc
+                            overwrite_data(GUIDES_FILE, guides_df)
+                            st.session_state.confirming_edit_guide = None
+                            st.session_state.clear_edit_input = True
+                            st.success("✅ تم تحديث رقم حساب المرشد وحفظه بنجاح!")
+                            time.sleep(1)
+                            st.rerun()
+                    with ec2:
+                        if st.button("❌ إلغاء", key="cancel_save_guide_acc"):
+                            st.session_state.confirming_edit_guide = None
+                            st.info("تم إلغاء التعديل ولم يتم حفظ أي تغييرات.")
+                            time.sleep(1)
+                            st.rerun()
 
             if st.session_state.confirming_del_guide is not None:
                 g_to_del = st.session_state.confirming_del_guide["name"]
