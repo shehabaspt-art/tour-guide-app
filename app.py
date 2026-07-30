@@ -115,12 +115,31 @@ if page == "نموذج تصفية المرشد":
         with col_c1:
             collection_val = st.number_input("التحصيل (Collection)", min_value=0.0, step=10.0)
         with col_c2:
-            collection_curr = st.selectbox("العملة", options=["جنية", "يورو", "دولار"])
+            collection_curr = st.selectbox("عملة التحصيل", options=["جنية", "يورو", "دولار"])
         
-        option_item = st.text_input("الأوبشن (Option)")
+        st.markdown("---")
+        st.subheader("الأوبشن (Option)")
+        col_opt1, col_opt2, col_opt3, col_opt4 = st.columns(4)
+        with col_opt1:
+            option_type = st.text_input("نوع الاوبشن")
+        with col_opt2:
+            option_value = st.number_input("قيمة الاوبشن", min_value=0.0, step=10.0, key="opt_val")
+        with col_opt3:
+            option_curr = st.selectbox("عملة الاوبشن", options=["مصري", "دولار", "يورو"], key="opt_curr")
+        with col_opt4:
+            option_pay = st.selectbox("طريقة الدفع", options=["كاش", "لينك"])
         
+        st.markdown("---")
         tip = st.number_input("إكرامية (Tip)", min_value=0.0, step=10.0)
-        tickets = st.text_input("تذاكر (Tickets)")
+        
+        st.subheader("التذاكر (Tickets)")
+        col_tkt1, col_tkt2 = st.columns(2)
+        with col_tkt1:
+            ticket_value = st.number_input("قيمة التذاكر", min_value=0.0, step=10.0, key="tkt_val")
+        with col_tkt2:
+            ticket_type = st.text_input("نوع التذاكر")
+            
+        st.markdown("---")
         park = st.number_input("بارك (Park)", min_value=0.0, step=10.0)
         
         lunch = st.number_input("غداء (Lunch)", min_value=0.0, step=10.0)
@@ -169,9 +188,10 @@ if page == "نموذج تصفية المرشد":
                     "File No": file_no,
                     "Advances": advances,
                     "Collection": f"{collection_val} {collection_curr}",
-                    "Option": option_item,
+                    "Option Type": option_type,
+                    "Option": f"{option_value} {option_curr} ({option_pay})",
                     "Tip": tip,
-                    "Tickets": tickets,
+                    "Tickets": f"{ticket_value} - {ticket_type}",
                     "Park": park,
                     "Lunch": lunch,
                     "Lunch Receipt": lunch_path,
@@ -196,12 +216,10 @@ elif page == "لوحة تحكم المدير":
         st.success("تم تسجيل الدخول بنجاح!")
         sub_df = load_data(SUBMISSIONS_FILE)
         
-        # استخدام Session State لمعرفة هل المدير ضغط "عرض" لتفاصيل طلب معين
         if "viewing_file" not in st.session_state:
             st.session_state.viewing_file = None
 
         if st.session_state.viewing_file is not None:
-            # صفحة عرض تفاصيل الطلب تماماً كنموذج المرشد
             req_idx = st.session_state.viewing_file
             if req_idx in sub_df.index:
                 req_row = sub_df.loc[req_idx]
@@ -216,7 +234,7 @@ elif page == "لوحة تحكم المدير":
                 
                 st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
                 st.write(f"**التحصيل (Collection):** {req_row.get('Collection', 0)}")
-                st.write(f"**الأوبشن (Option):** {req_row.get('Option', '')}")
+                st.write(f"**الأوبشن (Option):** {req_row.get('Option', '')} | **النوع:** {req_row.get('Option Type', '')}")
                 st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
                 st.write(f"**تذاكر (Tickets):** {req_row.get('Tickets', '')}")
                 st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
@@ -248,7 +266,6 @@ elif page == "لوحة تحكم المدير":
                 
                 with col_btn1:
                     if st.button("✅ تم", type="primary", use_container_width=True):
-                        # نقل الطلب للأرشيف وحذفه من لوحة التحكم الأساسية
                         archive_entry = req_row.to_dict()
                         save_to_file(ARCHIVE_FILE, archive_entry)
                         
@@ -262,7 +279,6 @@ elif page == "لوحة تحكم المدير":
                 
                 with col_btn2:
                     if st.button("🔄 متابعة", use_container_width=True):
-                        # البقاء في لوحة التحكم بدون نقل
                         st.session_state.viewing_file = None
                         st.info("تم إبقاء الطلب في لوحة التحكم لمتابعة الإجراءات.")
                         time.sleep(1)
@@ -286,7 +302,6 @@ elif page == "لوحة تحكم المدير":
                 
                 st.markdown("### الطلبات الواردة")
                 
-                # عرض الطلبات في جدول شيك مع زر "عرض" لكل صف
                 for idx, row in filtered_sub_df.iterrows():
                     cols = st.columns([1, 2, 2, 2, 1.5])
                     with cols[0]:
