@@ -37,7 +37,7 @@ def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
 
 def get_logo_file():
-    # البحث عن أحدث صورة لوجو مرفوعة أو ملف صورة في المجلد
+    # البحث عن صورة اللوجو الحقيقية بناءً على الصورة اللي بعتها (image_d905fa.png أو أي صورة مشابهة)
     for f in os.listdir("."):
         if f.startswith("image_") and f.endswith(('.png', '.jpg', '.jpeg', '.webp')):
             return f
@@ -47,23 +47,23 @@ def get_logo_file():
 sub_df_initial = load_data(SUBMISSIONS_FILE)
 pending_count = len(sub_df_initial)
 
-# قراءة صورة اللوجو الحقيقية وتحويلها لـ Base64 لعرضها كما هي تماماً
+# قراءة صورة اللوجو الأصلية بالكامل وتحويلها لـ Base64 لعرضها كصورة متكاملة تماماً
 logo_path = get_logo_file()
 logo_html = ""
 if logo_path and os.path.exists(logo_path):
     with open(logo_path, "rb") as img_file:
         encoded_img = base64.b64encode(img_file.read()).decode()
-        # تحديد ارتفاع مناسب ليظهر اللوجو بالكامل وبنفس تفاصيله الدقيقة
-        logo_html = f'<img src="data:image/png;base64,{encoded_img}" style="height: 45px; object-fit: contain;" />'
+        # عرض الصورة كاملة بنفس الأبعاد الأصلية والدقة المطلوبة
+        logo_html = f'<img src="data:image/png;base64,{encoded_img}" style="height: 48px; object-fit: contain;" />'
 else:
     logo_html = '<span style="color: #1b5e20; font-weight: bold; font-size: 1.1rem;">Sun Pyramids Tours</span>'
 
-# تصميم الشريط العلوي الثابت مع اللوجو الأصلي والسهم والرسائل
+# تصميم الشريط العلوي الثابت مع صورة اللوجو الأصلية والسهم وجرس الإشعارات ودائرة المدير
 st.markdown(f"""
     <style>
     header {{visibility: hidden;}}
     
-    /* ترك مسافة بيضاء علوية للشاشة بالكامل */
+    /* ترك مسافة بيضاء علوية للشاشة بالكامل لعدم تداخل المحتوى مع الشريط الثابت */
     .stApp {{
         margin-top: 65px;
     }}
