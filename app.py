@@ -452,7 +452,7 @@ elif page == "لوحة تحكم المدير":
             
             st.markdown("---")
             st.markdown("### قاعدة بيانات المرشدين")
-            st.dataframe(guides_df, use_container_width=`True`)
+            st.dataframe(guides_df, use_container_width=True)
             
     elif password:
         st.error("كلمة المرور غير صحيحة.")
