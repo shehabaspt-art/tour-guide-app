@@ -354,6 +354,8 @@ elif page == "لوحة تحكم المدير":
         
         if "viewing_file" not in st.session_state:
             st.session_state.viewing_file = None
+        if "confirming_del_sub" not in st.session_state:
+            st.session_state.confirming_del_sub = None
 
         if st.session_state.viewing_file is not None:
             req_idx = st.session_state.viewing_file
@@ -438,7 +440,7 @@ elif page == "لوحة تحكم المدير":
                 st.markdown("### الطلبات الواردة")
                 
                 for idx, row in filtered_sub_df.iterrows():
-                    cols = st.columns([1, 2, 2, 2, 1.5])
+                    cols = st.columns([1, 2, 2, 2, 1.5, 1.5])
                     with cols[0]:
                         st.write(f"**#{idx+1}**")
                     with cols[1]:
@@ -451,6 +453,28 @@ elif page == "لوحة تحكم المدير":
                         if st.button("عرض", key=f"view_btn_{idx}", type="primary"):
                             st.session_state.viewing_file = idx
                             st.rerun()
+                    with cols[5]:
+                        if st.button("🗑️ حذف", key=f"del_sub_btn_{idx}"):
+                            st.session_state.confirming_del_sub = idx
+                            st.rerun()
+                    
+                    # نافذة تأكيد الحذف للطلبات المعلقة
+                    if st.session_state.confirming_del_sub == idx:
+                        st.warning(f"⚠️ هل أنت متأكد من رغبتك في حذف طلب الفايل رقم ({row.get('File No', '')})؟")
+                        c_col1, c_col2 = st.columns(2)
+                        with c_col1:
+                            if st.button("✔️ تأكيد الحذف النهائي", key=f"confirm_del_sub_{idx}", type="primary"):
+                                sub_df = sub_df.drop(idx).reset_index(drop=True)
+                                overwrite_data(SUBMISSIONS_FILE, sub_df)
+                                st.session_state.confirming_del_sub = None
+                                st.success("تم حذف الطلب بنجاح!")
+                                time.sleep(1)
+                                st.rerun()
+                        with c_col2:
+                            if st.button("❌ رجوع (إلغاء)", key=f"cancel_del_sub_{idx}"):
+                                st.session_state.confirming_del_sub = None
+                                st.rerun()
+                    
                     st.markdown("---")
             else:
                 st.info("لا توجد طلبات جديدة حتى الآن.")
@@ -476,6 +500,8 @@ elif page == "التصفيات (الأرشيف)":
         
         if "viewing_archive_file" not in st.session_state:
             st.session_state.viewing_archive_file = None
+        if "confirming_del_arch" not in st.session_state:
+            st.session_state.confirming_del_arch = None
 
         if st.session_state.viewing_archive_file is not None:
             req_idx = st.session_state.viewing_archive_file
@@ -535,7 +561,7 @@ elif page == "التصفيات (الأرشيف)":
                 st.markdown("### التصفيات المنتهية")
                 
                 for idx, row in filtered_arch_df.iterrows():
-                    cols = st.columns([1, 2, 2, 2, 1.5])
+                    cols = st.columns([1, 2, 2, 2, 1.5, 1.5])
                     with cols[0]:
                         st.write(f"**#{idx+1}**")
                     with cols[1]:
@@ -548,6 +574,28 @@ elif page == "التصفيات (الأرشيف)":
                         if st.button("عرض", key=f"view_arch_btn_{idx}", type="primary"):
                             st.session_state.viewing_archive_file = idx
                             st.rerun()
+                    with cols[5]:
+                        if st.button("🗑️ حذف", key=f"del_arch_btn_{idx}"):
+                            st.session_state.confirming_del_arch = idx
+                            st.rerun()
+                    
+                    # نافذة تأكيد الحذف للأرشيف
+                    if st.session_state.confirming_del_arch == idx:
+                        st.warning(f"⚠️ هل أنت متأكد من رغبتك في حذف تصفية الأرشيف للفايل رقم ({row.get('File No', '')})؟")
+                        ca_col1, ca_col2 = st.columns(2)
+                        with ca_col1:
+                            if st.button("✔️ تأكيد الحذف النهائي", key=f"confirm_del_arch_{idx}", type="primary"):
+                                archive_df = archive_df.drop(idx).reset_index(drop=True)
+                                overwrite_data(ARCHIVE_FILE, archive_df)
+                                st.session_state.confirming_del_arch = None
+                                st.success("تم حذف التصفية من الأرشيف بنجاح!")
+                                time.sleep(1)
+                                st.rerun()
+                        with ca_col2:
+                            if st.button("❌ رجوع (إلغاء)", key=f"cancel_del_arch_{idx}"):
+                                st.session_state.confirming_del_arch = None
+                                st.rerun()
+                    
                     st.markdown("---")
             else:
                 st.info("لا توجد تصفيات مؤرشفة حتى الآن.")
