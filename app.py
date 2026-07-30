@@ -10,16 +10,13 @@ UPLOAD_DIR = "uploads"
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
 
-# تنسيقات CSS لجعل الهيدر واللوجو في أعلى الصفحة بشكل احترافي
+# تنسيقات CSS للقائمة الجانبية والشكل العام
 st.markdown("""
     <style>
-    /* إخفاء الهيدر الافتراضي لستريمليت التحكم في المساحة */
-    header {visibility: hidden;}
-    
     [data-testid="stSidebar"] {
         background-color: #f4f9f4;
         border-left: 2px solid #e0e0e0;
-        padding-top: 1rem;
+        padding-top: 0.5rem;
     }
     [data-testid="stSidebar"] .stRadio > label {
         display: none !important;
@@ -46,17 +43,6 @@ st.markdown("""
         color: #1b5e20 !important;
         font-size: 1.05rem !important;
         margin: 0 !important;
-    }
-    /* ستايل شريط الهيدر العلوي للوجو */
-    .top-header-container {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 10px 20px;
-        background-color: #ffffff;
-        border-bottom: 2px solid #e0e0e0;
-        margin-bottom: 20px;
-        border-radius: 8px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -103,20 +89,21 @@ def overwrite_data(file_path, df):
 
 def get_logo_file():
     for f in os.listdir("."):
-        if "d9f5c2" in f or "d9fd40" in f or "0c53c2" in f:
+        if "d9f5c2" in f or "d9fd40" in f or "0c53c2" in f or "d9ee9b" in f:
             return f
     for f in os.listdir("."):
         if f.startswith("image_") and f.endswith(('.png', '.jpg', '.jpeg')):
             return f
     return None
 
-# وضع اللوجو في أعلى الصفحة (Top Bar) بشكل احترافي وعريض
+# وضع اللوجو في أعلى القائمة الجانبية (Sidebar Top) مباشرة بالشكل المطلوب
 logo_path = get_logo_file()
 if logo_path and os.path.exists(logo_path):
-    col_logo, col_space = st.columns([2, 5])
-    with col_logo:
-        st.image(logo_path, width=280)
-    st.markdown("<hr style='margin-top: 0px; margin-bottom: 20px;'>", unsafe_allow_html=True)
+    st.sidebar.image(logo_path, use_container_width=True)
+else:
+    st.sidebar.markdown("<h2 style='text-align: center; color: #1b5e20;'>Sun Pyramids Tours</h2>", unsafe_allow_html=True)
+
+st.sidebar.markdown("---")
 
 st.sidebar.title("🧭 القائمة الرئيسية")
 st.sidebar.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1.15rem; margin-bottom: 10px;'>اختر الصفحة</p>", unsafe_allow_html=True)
