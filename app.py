@@ -37,7 +37,7 @@ def overwrite_data(file_path, df):
 
 def get_logo_file():
     for f in os.listdir("."):
-        if any(k in f for k in ["d9f5c2", "d9fd40", "0c53c2", "d9ee9b", "d9e6ba", "d9df36"]):
+        if any(k in f for k in ["d9f5c2", "d9fd40", "0c53c2", "d9ee9b", "d9e6ba", "d9df36", "d9893e"]):
             return f
     for f in os.listdir("."):
         if f.startswith("image_") and f.endswith(('.png', '.jpg', '.jpeg')):
@@ -59,20 +59,20 @@ if logo_path and os.path.exists(logo_path):
 else:
     logo_html = '<h3 style="color: #1b5e20; margin: 0;">Sun Pyramids Tours</h3>'
 
-# تنسيقات CSS لشريط الهيدر العلوي المدمج تماماً في سطر واحد
+# تنسيقات CSS مع ترك مسافة بيضاء علوية حوالي 1 سم (تخفيف الهامش السالب القديم)
 st.markdown(f"""
     <style>
     header {{visibility: hidden;}}
     
-    /* شريط علوي موحد يجمع اللوجو والجرس والأفاتار في نفس السطر */
+    /* شريط علوي موحد مع ترك مسافة بيضاء علوية حوالي 1 سم (15 بكسل) */
     .topbar-container {{
         display: flex;
         align-items: center;
         justify-content: space-between;
         background-color: #ffffff;
         padding: 10px 25px;
-        border-bottom: 2px solid #e0e0e0;
-        margin-top: -35px;
+        border: 1px solid #e0e0e0;
+        margin-top: 15px;
         margin-bottom: 25px;
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.03);
