@@ -204,7 +204,6 @@ if page == "نموذج تصفية المرشد":
     st.markdown("---")
     
     with st.form("guide_form", clear_on_submit=True):
-        # وضع رقم الحساب، رقم الفايل، والعهد في 3 أعمدة جنب بعض
         col_top1, col_top2, col_top3 = st.columns(3)
         with col_top1:
             account_options = [None] + guides_df[acc_column].astype(str).tolist()
@@ -215,11 +214,11 @@ if page == "نموذج تصفية المرشد":
             advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0)
         
         st.markdown("---")
-        st.subheader("الحقول المالية والبنود")
+        st.subheader("التحصيل")
         
         col_c1, col_c2 = st.columns([2, 1])
         with col_c1:
-            collection_val = st.number_input("التحصيل (Collection)", min_value=0.0, step=10.0)
+            collection_val = st.number_input("قيمة التحصيل", min_value=0.0, step=10.0)
         with col_c2:
             collection_curr = st.selectbox("عملة التحصيل", options=["جنية", "يورو", "دولار"])
         
@@ -246,7 +245,6 @@ if page == "نموذج تصفية المرشد":
             
         st.markdown("---")
         
-        # وضع الإكرامية، البارك، والغداء في 3 أعمدة جنب بعض
         col_misc1, col_misc2, col_misc3 = st.columns(3)
         with col_misc1:
             tip = st.number_input("إكرامية (Tip)", min_value=0.0, step=10.0)
