@@ -59,7 +59,7 @@ if active_logo_to_show and os.path.exists(active_logo_to_show):
 else:
     logo_html = '<span style="color: #1b5e20; font-weight: bold; font-size: 1.1rem;">Sun Pyramids Tours</span>'
 
-# تصميم الشريط العلوي وإلغاء المسافة الفاصلة تماماً للأعلى
+# تصميم الشريط العلوي وجعل سهم القائمة الجانبية تفاعلي لإظهار/إخفاء القائمة
 st.markdown(f"""
     <style>
     header {{visibility: hidden;}}
@@ -90,10 +90,20 @@ st.markdown(f"""
         gap: 15px;
     }}
     .sidebar-arrow-icon {{
-        font-size: 1.3rem;
-        color: #888888;
+        font-size: 1.4rem;
+        color: #1b5e20;
         font-weight: bold;
         cursor: pointer;
+        padding: 5px 10px;
+        border-radius: 6px;
+        background-color: #f1f8f1;
+        border: 1px solid #c2e0c2;
+        transition: all 0.2s;
+        user-select: none;
+    }}
+    .sidebar-arrow-icon:hover {{
+        background-color: #d8ebd8;
+        color: #0d3b12;
     }}
     .topbar-right-group {{
         display: flex;
@@ -176,7 +186,7 @@ st.markdown(f"""
     <div class="custom-topbar">
         <div class="topbar-left-group">
             {logo_html}
-            <span class="sidebar-arrow-icon" title="القائمة الجانبية">‹</span>
+            <span class="sidebar-arrow-icon" id="sidebar-toggle-btn" title="إظهار / إخفاء القائمة الجانبية">🍔 القائمة</span>
         </div>
         <div class="topbar-right-group">
             <div class="notification-container" title="عدد التصفيات والطلبات المعلقة">
@@ -188,6 +198,22 @@ st.markdown(f"""
             </div>
         </div>
     </div>
+
+    <script>
+    const toggleBtn = document.getElementById('sidebar-toggle-btn');
+    if (toggleBtn) {{
+        toggleBtn.onclick = function() {{
+            const sidebarCollapseBtn = parent.document.querySelector('[data-testid="collapsedControl"]');
+            if (sidebarCollapseBtn) {{
+                sidebarCollapseBtn.click();
+            }} else {{
+                // محاولة البحث عن زر إغلاق القائمة الداخلي لو مفتوحة
+                const closeBtn = parent.document.querySelector('button[kind="header"]');
+                if (closeBtn) {{ closeBtn.click(); }}
+            }}
+        }};
+    }}
+    </script>
 """, unsafe_allow_html=True)
 
 try:
