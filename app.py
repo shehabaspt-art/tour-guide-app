@@ -103,14 +103,14 @@ st.markdown(f"""
         left: 0;
         width: 100%;
         height: 65px;
-        background-color: #1b5e20;
-        border-bottom: 2px solid #144517;
+        background-color: #ffffff;
+        border-bottom: 2px solid #e0e0e0;
         display: flex;
         align-items: center;
         justify-content: space-between;
         padding: 0 25px;
         z-index: 99999;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }}
     .topbar-left-group {{
         display: flex;
@@ -132,9 +132,9 @@ st.markdown(f"""
         position: absolute;
         top: -8px;
         right: -15px;
-        background-color: #e8f5e9;
-        color: #1b5e20;
-        border: 1px solid #a5d6a7;
+        background-color: #ffebee;
+        color: #c62828;
+        border: 1px solid #ffcdd2;
         font-size: 0.75rem;
         font-weight: 700;
         padding: 1px 6px;
@@ -143,7 +143,7 @@ st.markdown(f"""
     .user-profile-badge {{
         width: 36px;
         height: 36px;
-        background-color: #2e7d32;
+        background-color: #1b5e20;
         color: #ffffff;
         border-radius: 50%;
         display: flex;
@@ -155,16 +155,17 @@ st.markdown(f"""
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }}
     
-    /* تخصيص زر إضافة أوبشن آخر ليكون أخضر متناسق */
+    /* تنسيق زر إضافة أوبشن آخر ليكون متناسقاً بلون الأزرار العادية */
     div.stFormSubmitButton > button[kind="secondary"] {{
         border-radius: 8px;
-        background-color: #2e7d32 !important;
-        color: #ffffff !important;
-        border: 1px solid #1b5e20 !important;
+        background-color: #f0f2f6 !important;
+        color: #31333F !important;
+        border: 1px solid #d6d6d6 !important;
     }}
     div.stFormSubmitButton > button[kind="secondary"]:hover {{
-        background-color: #1b5e20 !important;
-        border-color: #0f3813 !important;
+        background-color: #e0e2e6 !important;
+        border-color: #c6c6c6 !important;
+        color: #000000 !important;
     }}
     
     /* فرض خط ثقيل جداً (Bold/Heavy) على الجدول */
@@ -186,8 +187,8 @@ st.markdown(f"""
     }}
     
     [data-testid="stSidebar"] {{
-        background-color: #1b5e20;
-        border-left: 2px solid #144517;
+        background-color: #ffffff;
+        border-right: 2px solid #e0e0e0;
         margin-top: 0px !important;
         padding-top: 0px !important;
         border-radius: 0px 8px 8px 0px;
@@ -203,25 +204,25 @@ st.markdown(f"""
         display: none !important;
     }}
     [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label {{
-        background-color: #2e7d32 !important;
+        background-color: #f8f9fa !important;
         padding: 14px 18px !important;
         border-radius: 12px !important;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
-        border: 1px solid #4caf50 !important;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05) !important;
+        border: 1px solid #e0e0e0 !important;
         margin-bottom: 12px !important;
         transition: all 0.3s ease-in-out !important;
         display: flex !important;
         align-items: center !important;
     }}
     [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:hover {{
-        transform: translateY(-3px) !important;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2) !important;
-        border-color: #81c784 !important;
-        background-color: #388e3c !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
+        border-color: #b0bec5 !important;
+        background-color: #f1f3f4 !important;
     }}
     [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label p {{
         font-weight: 700 !important;
-        color: #ffffff !important;
+        color: #31333F !important;
         font-size: 1.05rem !important;
         margin: 0 !important;
     }}
@@ -260,8 +261,8 @@ SHOPS_LIST = [
     "ريحانة توابل", "كنور توابل", "قصر العطور", "لازوريت"
 ]
 
-st.sidebar.markdown("<h2 style='color: #ffffff; margin-bottom: 5px; font-size: 1.5rem;'>🧭 القائمة الرئيسية</h2>", unsafe_allow_html=True)
-st.sidebar.markdown("<p style='font-weight: 800; color: #c8e6c9; font-size: 1.15rem; margin-top: 15px; margin-bottom: 20px;'>اختر الصفحة</p>", unsafe_allow_html=True)
+st.sidebar.markdown("<h2 style='color: #1b5e20; margin-bottom: 5px; font-size: 1.5rem;'>🧭 القائمة الرئيسية</h2>", unsafe_allow_html=True)
+st.sidebar.markdown("<p style='font-weight: 800; color: #555555; font-size: 1.15rem; margin-top: 15px; margin-bottom: 20px;'>اختر الصفحة</p>", unsafe_allow_html=True)
 page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف"], label_visibility="collapsed")
 
 if page == "نموذج تصفية المرشد":
