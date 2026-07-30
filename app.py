@@ -44,32 +44,99 @@ def get_logo_file():
             return f
     return None
 
-# حساب عدد الطلبات المعلقة للإشعارات
+# حساب عدد الطلبات المعلقة للإشعارات بناءً على الملف الحقيقي
 sub_df_initial = load_data(SUBMISSIONS_FILE)
 pending_count = len(sub_df_initial)
 
-# تنسيقات CSS مع الحفاظ على المسافة البيضاء العلوية وإزالة الشريط العلوي تماماً
-st.markdown("""
+# قراءة اللوجو لتحويله لعرضه مباشرة داخل الـ Topbar
+logo_path = get_logo_file()
+import base64
+logo_html = ""
+if logo_path and os.path.exists(logo_path):
+    with open(logo_path, "rb") as img_file:
+        encoded_img = base64.b64encode(img_file.read()).decode()
+        logo_html = f'<img src="data:image/png;base64,{encoded_img}" style="height: 38px; object-fit: contain;" />'
+else:
+    logo_html = '<h3 style="color: #1b5e20; margin: 0; font-size: 1.1rem;">Sun Pyramids Tours</h3>'
+
+# تصميم الشريط العلوي الثابت بنفس الشكل الاحترافي المطلوب
+st.markdown(f"""
     <style>
     header {{visibility: hidden;}}
     
-    /* ترك مسافة بيضاء علوية للشاشة بالكامل وللقائمة الجانبية */
-    .stApp {
-        margin-top: 45px;
-    }
+    /* تثبيت المسافة العلوية للشاشة والقائمة الجانبية */
+    .stApp {{
+        margin-top: 60px;
+    }}
     
-    /* ضبط القائمة الجانبية (الشمال) لتأخذ نفس المسافة العلوية */
-    [data-testid="stSidebar"] {
+    /* تصميم الـ Topbar الثابت فوق خالص */
+    .custom-topbar {{
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 55px;
+        background-color: #ffffff;
+        border-bottom: 1px solid #e0e0e0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 30px;
+        z-index: 99999;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }}
+    .topbar-right-side {{
+        display: flex;
+        align-items: center;
+    }}
+    .topbar-left-side {{
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }}
+    .notification-box {{
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        cursor: pointer;
+    }}
+    .notification-number {{
+        position: absolute;
+        top: -8px;
+        right: -14px;
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        border: 1px solid #a5d6a7;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 1px 5px;
+        border-radius: 10px;
+    }}
+    .user-avatar {{
+        width: 35px;
+        height: 35px;
+        background-color: #111111;
+        color: #ffffff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.85rem;
+    }}
+    
+    /* ضبط القائمة الجانبية لتنزل تحت الشريط العلوي مباشرة */
+    [data-testid="stSidebar"] {{
         background-color: #f4f9f4;
         border-left: 2px solid #e0e0e0;
         padding-top: 1rem;
-        margin-top: 45px;
+        margin-top: 55px;
         border-radius: 8px;
-    }
-    [data-testid="stSidebar"] .stRadio > label {
+    }}
+    [data-testid="stSidebar"] .stRadio > label {{
         display: none !important;
-    }
-    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label {
+    }}
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label {{
         background-color: #ffffff !important;
         padding: 14px 18px !important;
         border-radius: 12px !important;
@@ -79,20 +146,35 @@ st.markdown("""
         transition: all 0.3s ease-in-out !important;
         display: flex !important;
         align-items: center !important;
-    }
-    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:hover {
+    }}
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:hover {{
         transform: translateY(-3px) !important;
         box-shadow: 0 8px 20px rgba(27, 94, 32, 0.15) !important;
         border-color: #2e7d32 !important;
         background-color: #f1f8f1 !important;
-    }
-    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label p {
+    }}
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label p {{
         font-weight: 700 !important;
         color: #1b5e20 !important;
         font-size: 1.05rem !important;
         margin: 0 !important;
-    }
+    }}
     </style>
+
+    <div class="custom-topbar">
+        <div class="topbar-right-side">
+            {logo_html}
+        </div>
+        <div class="topbar-left-side">
+            <div class="notification-box" title="عدد التصفيات المعلقة">
+                <span style="font-size: 1.25rem;">🔔</span>
+                <span class="notification-number">{pending_count}</span>
+            </div>
+            <div class="user-avatar" title="حساب المدير">
+                SA
+            </div>
+        </div>
+    </div>
 """, unsafe_allow_html=True)
 
 try:
