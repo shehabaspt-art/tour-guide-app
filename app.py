@@ -10,6 +10,7 @@ UPLOAD_DIR = "uploads"
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
 
+# تنسيقات CSS احترافية للقائمة الجانبية وشكل الهيدر
 st.markdown("""
     <style>
     [data-testid="stSidebar"] {
@@ -91,26 +92,30 @@ def save_to_file(file_path, new_data):
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
 
-# دالة ذكية للبحث عن أي صورة لوجو بغض النظر عن اسمها أو امتدادها في المشروع
+# دالة البحث الذكي عن صورة اللوجو
 def get_logo_file():
     for f in os.listdir("."):
         if f.startswith("image_0c53c2") or "0c53c2" in f:
             return f
     return None
 
-logo_path = get_logo_file()
-if logo_path and os.path.exists(logo_path):
-    st.sidebar.image(logo_path, use_container_width=True)
-else:
-    st.sidebar.markdown("<h2 style='text-align: center; color: #1b5e20;'>Sun Pyramids Tours</h2>", unsafe_allow_html=True)
-
-st.sidebar.markdown("---")
-
+# القائمة الجانبية تحتوي فقط على التنقل بشكل نظيف
 st.sidebar.title("🧭 القائمة الرئيسية")
 st.sidebar.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1.15rem; margin-bottom: 10px;'>اختر الصفحة</p>", unsafe_allow_html=True)
 page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "لوحة تحكم المدير", "التصفيات (الأرشيف)"], label_visibility="collapsed")
 
+# دالة مساعدة لعرض الهيدر العريض والاحترافي في بداية كل صفحة رئيسية
+def render_header():
+    logo_path = get_logo_file()
+    if logo_path and os.path.exists(logo_path):
+        # عرض اللوجو بعرض كبير واحترافي في أعلى الصفحة الرئيسية
+        st.image(logo_path, use_container_width=True)
+    else:
+        st.markdown("<h1 style='text-align: center; color: #1b5e20; padding: 10px;'>Sun Pyramids Tours</h1>", unsafe_allow_html=True)
+    st.markdown("---")
+
 if page == "نموذج تصفية المرشد":
+    render_header()
     st.title("🧭 نظام تصفية المرشدين")
     st.markdown("---")
     
@@ -219,6 +224,7 @@ if page == "نموذج تصفية المرشد":
                 st.rerun()
 
 elif page == "لوحة تحكم المدير":
+    render_header()
     st.title("📊 لوحة تحكم المدير")
     st.markdown("---")
     
@@ -341,6 +347,7 @@ elif page == "لوحة تحكم المدير":
         st.info("الرجاء إدخال كلمة المرور لعرض لوحة التحكم.")
 
 elif page == "التصفيات (الأرشيف)":
+    render_header()
     st.title("📁 أرشيف التصفيات المنتهية (تم)")
     st.markdown("---")
     
