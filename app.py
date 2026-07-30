@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import base64
 from datetime import datetime
+import time
 
 st.set_page_config(page_title="Sun Pyramids Tours", page_icon="🧭", layout="wide")
 
@@ -302,7 +303,7 @@ if page == "نموذج تصفية المرشد":
                 else:
                     st.markdown("")
             
-            option_data_list.log = {"type": opt_type, "value": opt_val, "curr": opt_curr, "pay": opt_pay, "holder": cash_h}
+            option_data_list.append({"type": opt_type, "value": opt_val, "curr": opt_curr, "pay": opt_pay, "holder": cash_h})
             if i < st.session_state.option_rows_count - 1:
                 st.markdown("---")
 
@@ -342,7 +343,6 @@ if page == "نموذج تصفية المرشد":
             st.rerun()
 
         if submitted:
-            # التحقق من صحة بيانات الأوبشنز المضافة
             validation_error = False
             for i in range(st.session_state.option_rows_count):
                 p_val = st.session_state.get(f"opt_pay_{i}", "كاش")
@@ -417,7 +417,7 @@ if page == "نموذج تصفية المرشد":
                 }
                 save_to_file(SUBMISSIONS_FILE, new_entry)
                 
-                st.session_state.option_rows_count = 1 # إعادة تعيين العداد
+                st.session_state.option_rows_count = 1
                 st.success("✅ تم إرسال الطلب للمدير بنجاح! جاهز لتسجيل تصفية جديدة...")
                 st.markdown("""
                     <script>
