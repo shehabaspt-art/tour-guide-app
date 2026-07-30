@@ -158,6 +158,21 @@ st.markdown(f"""
         border-radius: 8px;
     }}
     
+    /* تكثيف وجعل خطوط الجدول أتقل وبارزة (Bold) */
+    [data-testid="stDataFrame"] table {{
+        font-weight: 700 !important;
+    }}
+    [data-testid="stDataFrame"] th {{
+        font-weight: 800 !important;
+        font-size: 1.05rem !important;
+        color: #1b5e20 !important;
+    }}
+    [data-testid="stDataFrame"] td {{
+        font-weight: 700 !important;
+        font-size: 1rem !important;
+        color: #222222 !important;
+    }}
+    
     [data-testid="stSidebar"] {{
         background-color: #d8ebd8;
         border-left: 2px solid #c2e0c2;
@@ -508,7 +523,6 @@ elif page == "لوحة تحكم المدير":
             st.markdown("### قاعدة بيانات المرشدين (إدارة وتعديل أرقام الحسابات)")
             st.dataframe(guides_df, use_container_width=True)
             
-            # تنظيم القسمين جنباً إلى جنب في كولومين (عمودين) لتوفير المساحة وعدم ترك مسافات فارغة بالأسفل
             col_section_left, col_section_right = st.columns(2, gap="large")
             
             with col_section_left:
