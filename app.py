@@ -289,6 +289,10 @@ if page == "نموذج تصفية المرشد":
         with col_opt4:
             option_pay = st.selectbox("طريقة الدفع", options=["كاش", "لينك"])
         
+        cash_holder = ""
+        if option_pay == "كاش":
+            cash_holder = st.selectbox("مكان الفلوس (إلزامي في حالة الكاش)", options=[None, "مع المرشد", "مع السواق"])
+
         st.markdown("---")
         
         st.subheader("مصاريف (Expenses)")
@@ -323,6 +327,8 @@ if page == "نموذج تصفية المرشد":
                 st.error("⚠️ عذراً، يجب اختيار (رقم الحساب) الخاص بك أولاً!")
             elif not file_no.strip():
                 st.error("⚠️ عذراً، لا يمكن إرسال الطلب. يرجى إدخال (رقم الفايل) أولاً بشكل إلزامي!")
+            elif option_pay == "كاش" and not cash_holder:
+                st.error("⚠️ عذراً، نظراً لاختيار طريقة الدفع (كاش)، يجب اختيار ما إذا كانت الفلوس (مع المرشد) أو (مع السواق) بشكل إلزامي!")
             elif shop_images and not selected_shops and not other_shops.strip():
                 st.error("⚠️ عذراً، نظراً لرفع صور فواتير المحلات، يجب اختيار (اسم المحل) من القائمة أو كتابته في (محلات أخري) بشكل إلزامي!")
             else:
@@ -345,6 +351,10 @@ if page == "نموذج تصفية المرشد":
                             f.write(img.getbuffer())
                         shop_paths.append(s_path)
                 
+                option_details = f"{option_value} {option_curr} ({option_pay})"
+                if option_pay == "كاش" and cash_holder:
+                    option_details += f" - [{cash_holder}]"
+
                 new_entry = {
                     "Timestamp": current_time_str,
                     "Guide Name": guide_name,
@@ -353,7 +363,7 @@ if page == "نموذج تصفية المرشد":
                     "Advances": advances,
                     "Collection": f"{collection_val} {collection_curr}",
                     "Option Type": option_type,
-                    "Option": f"{option_value} {option_curr} ({option_pay})",
+                    "Option": option_details,
                     "Tickets": f"{ticket_value} - {ticket_type}",
                     "Tip": tip,
                     "Park": park,
