@@ -44,12 +44,10 @@ if "last_pending_count" not in st.session_state:
 sub_df_initial = load_data(SUBMISSIONS_FILE)
 pending_count = len(sub_df_initial)
 
-# متغير لجافاسكريبت عشان نعرف لو فيه طلب جديد جه فيحصل تنبيه براني
-trigger_desktop_notification = False
+new_order_arrived = False
 if pending_count > st.session_state.last_pending_count:
-    trigger_desktop_notification = True
+    new_order_arrived = True
     st.session_state.last_pending_count = pending_count
-    st.rerun()
 elif pending_count < st.session_state.last_pending_count:
     st.session_state.last_pending_count = pending_count
 
@@ -70,20 +68,16 @@ if active_logo_to_show and os.path.exists(active_logo_to_show):
 else:
     logo_html = '<span style="color: #1b5e20; font-weight: bold; font-size: 1.1rem;">Sun Pyramids Tours</span>'
 
-# كود تفعيل إشعارات سطح المكتب وصوت التنبيه من المتصفح
-notif_script = ""
-if trigger_desktop_notification:
-    notif_script = """
+# تنبيه صوتي وتغيير عنوان التبويب في المتصفح تلقائياً لو جه طلب جديد
+alert_script = ""
+if new_order_arrived:
+    alert_script = """
     <script>
-    if (Notification.permission === "granted") {
-        new Notification("Sun Pyramids Tours", {
-            body: "تم استلام تصفية جديدة من أحد المرشدين!",
-            icon: "🧭"
-        });
-    }
-    // صوت تنبيه خفيف
-    var audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-    audio.play().catch(e => console.log(e));
+        // تغيير عنوان التبويب فوق عشان تلفت انتباهك فوراً
+        document.title = "🚨 (طلب جديد!) Sun Pyramids Tours";
+        // تشغيل صوت تنبيه واضح
+        var audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+        audio.play().catch(e => console.log("Audio play blocked"));
     </script>
     """
 
@@ -208,14 +202,7 @@ st.markdown(f"""
             </div>
         </div>
     </div>
-    
-    <script>
-    // طلب إذن الإشعارات من المتصفح عند أول فتح
-    if (Notification.permission !== "granted" && Notification.permission !== "denied") {{
-        Notification.requestPermission();
-    }}
-    </script>
-    {notif_script}
+    {alert_script}
 """, unsafe_allow_html=True)
 
 try:
@@ -349,9 +336,15 @@ if page == "نموذج تصفية المرشد":
                 }
                 save_to_file(SUBMISSIONS_FILE, new_entry)
                 
+                # إظهار رسالة النجاح وجعلها تختفي تلقائياً بعد 4 ثواني ونظافة الصفحة من غير ما تعلق
                 st.success("✅ تم إرسال الطلب للمدير بنجاح! جاهز لتسجيل تصفية جديدة...")
-                time.sleep(5)
-                st.rerun()
+                st.markdown("""
+                    <script>
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 4000);
+                    </script>
+                """, unsafe_allow_html=True)
 
 elif page == "لوحة تحكم المدير":
     st.title("📊 لوحة تحكم المدير")
@@ -506,7 +499,7 @@ elif page == "التصفيات (الأرشيف)":
                 st.write(f"**الأوبشن (Option):** {req_row.get('Option', '')} | **النوع:** {req_row.get('Option Type', '')}")
                 st.write(f"**التذاكر (Tickets):** {req_row.get('Tickets', '')}")
                 st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
-                st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
+                st.write(f"**بارك (Park):} {req_row.get('Park', 0)}")
                 st.write(f"**غداء (Lunch):** {req_row.get('Lunch', 0)}")
                 
                 l_path = req_row.get("Lunch Receipt", "")
@@ -571,6 +564,6 @@ elif page == "التصفيات (الأرشيف)":
     else:
         st.info("الرجاء إدخال كلمة المرور لعرض صفحة التصفيات (الأرشيف).")
 
-# تحديث تلقائي كل 15 ثانية للتشييك على الطلبات الجديدة
+# تحديث تلقائي كل 15 ثانية للتنبيه الفوري في الخلفية
 time.sleep(15)
 st.rerun()
