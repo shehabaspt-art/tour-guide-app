@@ -350,7 +350,7 @@ elif page == "لوحة تحكم المدير":
                 
                 l_path = req_row.get("Lunch Receipt", "")
                 if pd.notna(l_path) and str(l_path).strip() != "" and os.path.exists(str(l_path)):
-                    st.image(str(l_path), caption="صورة فاتورة الغداء", width=300)
+                    st.image(str(l_path), caption="صورة فاتورة الغداء", use_container_width=True)
                 else:
                     st.info("لا توجد صورة لفاتورة الغداء.")
                 
@@ -363,7 +363,7 @@ elif page == "لوحة تحكم المدير":
                     paths_list = str(s_paths).split(",")
                     for idx, p in enumerate(paths_list):
                         if os.path.exists(p):
-                            st.image(p, caption=f"صورة محلات رقم {idx+1}", width=300)
+                            st.image(p, caption=f"صورة محلات رقم {idx+1}", use_container_width=True)
                 else:
                     st.info("لا توجد صور لفواتير المحلات.")
                 
@@ -445,11 +445,84 @@ elif page == "التصفيات (الأرشيف)":
     if password_archive == "159753":
         st.success("تم تسجيل الدخول بنجاح!")
         archive_df = load_data(ARCHIVE_FILE)
-        if not archive_df.empty:
-            cols_to_show = [c for c in archive_df.columns if c not in ["Lunch Receipt", "Shop Images"]]
-            st.dataframe(archive_df[cols_to_show], use_container_width=True)
+        
+        if "viewing_archive_file" not in st.session_state:
+            st.session_state.viewing_archive_file = None
+
+        if st.session_state.viewing_archive_file is not None:
+            req_idx = st.session_state.viewing_archive_file
+            if req_idx in archive_df.index:
+                req_row = archive_df.loc[req_idx]
+                
+                if st.button("⬅️ رجوع إلى الأرشيف"):
+                    st.session_state.viewing_archive_file = None
+                    st.rerun()
+                
+                st.markdown(f"### 📄 تفاصيل تصفية الأرشيف للفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
+                st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {req_row.get('Account', '')}")
+                st.markdown("---")
+                
+                st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
+                st.write(f"**التحصيل (Collection):** {req_row.get('Collection', 0)}")
+                st.write(f"**الأوبشن (Option):** {req_row.get('Option', '')} | **النوع:** {req_row.get('Option Type', '')}")
+                st.write(f"**التذاكر (Tickets):** {req_row.get('Tickets', '')}")
+                st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
+                st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
+                st.write(f"**غداء (Lunch):** {req_row.get('Lunch', 0)}")
+                
+                l_path = req_row.get("Lunch Receipt", "")
+                if pd.notna(l_path) and str(l_path).strip() != "" and os.path.exists(str(l_path)):
+                    st.image(str(l_path), caption="صورة فاتورة الغداء", use_container_width=True)
+                else:
+                    st.info("لا توجد صورة لفاتورة الغداء.")
+                
+                st.markdown("---")
+                st.write(f"**أسماء المحلات المختارة:** {req_row.get('Shop Names', 'لا يوجد')}")
+                st.write(f"**محلات أخري:** {req_row.get('Other Shops', 'لا يوجد')}")
+                
+                s_paths = req_row.get("Shop Images", "")
+                if pd.notna(s_paths) and str(s_paths).strip() != "":
+                    paths_list = str(s_paths).split(",")
+                    for idx, p in enumerate(paths_list):
+                        if os.path.exists(p):
+                            st.image(p, caption=f"صورة محلات رقم {idx+1}", use_container_width=True)
+                else:
+                    st.info("لا توجد صور لفواتير المحلات.")
+            else:
+                st.session_state.viewing_archive_file = None
+                st.rerun()
         else:
-            st.info("لا توجد تصفيات مؤرشفة حتى الآن.")
+            if not archive_df.empty:
+                st.markdown("### 🔍 فلترة وعرض التصفيات المؤرشفة")
+                
+                all_guides_in_arch = archive_df["Guide Name"].dropna().unique().tolist()
+                selected_arch_guide_filter = st.selectbox("اختر اسم المرشد لعرض جميع تصفياته المؤرشفة", options=["الكل (جميع المرشدين)"] + all_guides_in_arch, key="arch_guide_filter")
+                
+                if selected_arch_guide_filter != "الكل (جميع المرشدين)":
+                    filtered_arch_df = archive_df[archive_df["Guide Name"] == selected_arch_guide_filter]
+                    st.info(f"عرض التصفيات المؤرشفة الخاصة بالمرشد: **{selected_arch_guide_filter}** (عدد الطلبات: {len(filtered_arch_df)})")
+                else:
+                    filtered_arch_df = archive_df
+                
+                st.markdown("### التصفيات المنتهية")
+                
+                for idx, row in filtered_arch_df.iterrows():
+                    cols = st.columns([1, 2, 2, 2, 1.5])
+                    with cols[0]:
+                        st.write(f"**#{idx+1}**")
+                    with cols[1]:
+                        st.write(f"الفايل: {row.get('File No', '')}")
+                    with cols[2]:
+                        st.write(f"المرشد: {row.get('Guide Name', '')}")
+                    with cols[3]:
+                        st.write(f"الوقت: {row.get('Timestamp', '')}")
+                    with cols[4]:
+                        if st.button("عرض", key=f"view_arch_btn_{idx}", type="primary"):
+                            st.session_state.viewing_archive_file = idx
+                            st.rerun()
+                    st.markdown("---")
+            else:
+                st.info("لا توجد تصفيات مؤرشفة حتى الآن.")
 
         st.markdown("---")
         st.markdown("### قاعدة بيانات المرشدين")
