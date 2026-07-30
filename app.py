@@ -10,24 +10,29 @@ UPLOAD_DIR = "uploads"
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
 
-# تنسيقات CSS احترافية للقائمة الجانبية وتنسيق اللوجو بشكل عريض ومحترم في مكانه
+# تنسيقات CSS احترافية لتثبيت وتحسين مظهر اللوجو العريض في أعلى القائمة الجانبية
 st.markdown("""
     <style>
     [data-testid="stSidebar"] {
         background-color: #f4f9f4;
         border-left: 2px solid #e0e0e0;
-        padding-top: 1rem;
+        padding-top: 0.5rem;
     }
-    /* ستايل عريض واحترافي للوجو في القائمة الجانبية */
-    .sidebar-logo {
+    /* ستايل اللوجو العريض والمنسق تماماً زي الصورة */
+    .sidebar-logo-container {
         width: 100%;
-        max-height: 120px;
-        object-fit: contain;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         background-color: #ffffff;
-        padding: 5px;
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        text-align: center;
+    }
+    .sidebar-logo-container img {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        object-fit: contain;
     }
     [data-testid="stSidebar"] h1 {
         color: #1b5e20;
@@ -107,14 +112,22 @@ def overwrite_data(file_path, df):
 # دالة البحث الذكي عن صورة اللوجو
 def get_logo_file():
     for f in os.listdir("."):
-        if f.startswith("image_0c53c2") or "0c53c2" in f:
+        if f.startswith("image_0c53c2") or "0c53c2" in f or f.endswith(('.png', '.jpg', '.jpeg')):
+            # نتحقق من اسم ملف اللوجو الفعلي المرفوع
+            if "0c53c2" in f:
+                return f
+    # كاحتياطي لو اسم الملف اتغير
+    for f in os.listdir("."):
+        if f.startswith("image_") and f.endswith(('.png', '.jpg', '.jpeg')):
             return f
     return None
 
-# عرض اللوجو عريض واحترافي في أعلى القائمة الجانبية في مكانه الصحيح
+# عرض اللوجو بالعرض المظبوط في أعلى القائمة الجانبية
 logo_path = get_logo_file()
 if logo_path and os.path.exists(logo_path):
+    st.sidebar.markdown('<div class="sidebar-logo-container">', unsafe_allow_html=True)
     st.sidebar.image(logo_path, use_container_width=True)
+    st.sidebar.markdown('</div>', unsafe_allow_html=True)
 else:
     st.sidebar.markdown("<h2 style='text-align: center; color: #1b5e20; background-color: #ffffff; padding: 10px; border-radius: 8px;'>Sun Pyramids Tours</h2>", unsafe_allow_html=True)
 
