@@ -197,39 +197,9 @@ SHOPS_LIST = [
 
 st.sidebar.title("🧭 القائمة الرئيسية")
 st.sidebar.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1.15rem; margin-bottom: 10px;'>اختر الصفحة</p>", unsafe_allow_html=True)
-page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "لوحة تحكم المدير", "التصفيات (الأرشيف)", "إدارة اللوجو 🖼️"], label_visibility="collapsed")
+page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "لوحة تحكم المدير", "التصفيات (الأرشيف)"], label_visibility="collapsed")
 
-if page == "إدارة اللوجو 🖼️":
-    st.title("🖼️ لوحة التحكم في شعار الموقع (Logo)")
-    st.markdown("---")
-    
-    col_l1, col_l2 = st.columns(2)
-    with col_l1:
-        st.subheader("الشعار الحالي المعروض:")
-        if os.path.exists(SAVED_LOGO_PATH):
-            st.image(SAVED_LOGO_PATH, width=250, caption="الشعار المستخدم حالياً")
-            if st.button("🗑️ حذف الشعار الحالي العودة للافتراضي", type="secondary"):
-                os.remove(SAVED_LOGO_PATH)
-                st.success("تم حذف الشعار بنجاح!")
-                time.sleep(1)
-                st.rerun()
-        else:
-            st.info("لا يوجد شعار مخصص محفوظ حالياً، يتم استخدام الشعار الافتراضي.")
-
-    with col_l2:
-        st.subheader("رفع وتحديث الشعار:")
-        uploaded_new_logo = st.file_uploader("اختر صورة الشعار الجديدة (PNG / JPG)", type=["png", "jpg", "jpeg"])
-        
-        if uploaded_new_logo is not None:
-            st.image(uploaded_new_logo, width=200, caption="معاينة الشعار الجديد")
-            if st.button("💾 Save (حفظ الشعار)", type="primary"):
-                with open(SAVED_LOGO_PATH, "wb") as f:
-                    f.write(uploaded_new_logo.getbuffer())
-                st.success("✅ تم حفظ الشعار الجديد بنجاح وتحديثه في الموقع!")
-                time.sleep(1.5)
-                st.rerun()
-
-elif page == "نموذج تصفية المرشد":
+if page == "نموذج تصفية المرشد":
     st.title("🧭 نظام تصفية المرشدين")
     st.markdown("---")
     
