@@ -204,18 +204,18 @@ if page == "نموذج تصفية المرشد":
     st.markdown("---")
     
     with st.form("guide_form", clear_on_submit=True):
-        # وضع رقم الحساب ورقم الفايل جنب بعض في عمودين
-        col_top1, col_top2 = st.columns(2)
+        # وضع رقم الحساب، رقم الفايل، والعهد في 3 أعمدة جنب بعض
+        col_top1, col_top2, col_top3 = st.columns(3)
         with col_top1:
             account_options = [None] + guides_df[acc_column].astype(str).tolist()
             account_no = st.selectbox("رقم الحساب الخاص بالمرشد", options=account_options, index=0)
         with col_top2:
             file_no = st.text_input("رقم الفايل (File Number) *إلزامي*")
+        with col_top3:
+            advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0)
         
         st.markdown("---")
         st.subheader("الحقول المالية والبنود")
-        
-        advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0)
         
         col_c1, col_c2 = st.columns([2, 1])
         with col_c1:
