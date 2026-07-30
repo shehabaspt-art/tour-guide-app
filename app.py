@@ -373,6 +373,8 @@ elif page == "لوحة تحكم المدير":
             st.session_state.confirming_del_guide = None
         if "confirming_add_guide" not in st.session_state:
             st.session_state.confirming_add_guide = None
+        if "clear_add_inputs" not in st.session_state:
+            st.session_state.clear_add_inputs = False
 
         if st.session_state.viewing_file is not None:
             req_idx = st.session_state.viewing_file
@@ -503,7 +505,6 @@ elif page == "لوحة تحكم المدير":
             guide_names_list = guides_df[name_column].astype(str).tolist()
             selected_guide_to_edit = st.selectbox("اختر اسم المرشد", options=guide_names_list, key="sel_guide_edit")
             
-            # جلب وعرض رقم الحساب الحالي للمرشد المختار تلقائياً
             current_acc_val = guides_df.loc[guides_df[name_column].astype(str) == selected_guide_to_edit, acc_column].values[0] if selected_guide_to_edit and not guides_df[guides_df[name_column].astype(str) == selected_guide_to_edit].empty else ""
             new_acc_input = st.text_input("رقم الحساب الجديد", value=str(current_acc_val), key="new_acc_val_input")
             
@@ -565,6 +566,12 @@ elif page == "لوحة تحكم المدير":
 
             st.markdown("---")
             st.markdown("#### إضافة مرشد جديد لقاعدة البيانات:")
+            
+            if st.session_state.clear_add_inputs:
+                st.session_state.clear_add_inputs = False
+                st.session_state.new_guide_name_input = ""
+                st.session_state.new_guide_acc_input = ""
+
             new_guide_name_input = st.text_input("اسم المرشد الجديد", key="new_guide_name_input")
             new_guide_acc_input = st.text_input("رقم الحساب الخاص بالمرشد الجديد", key="new_guide_acc_input")
             
@@ -593,8 +600,9 @@ elif page == "لوحة تحكم المدير":
                             guides_df = pd.concat([guides_df, new_row_df], ignore_index=True)
                             overwrite_data(GUIDES_FILE, guides_df)
                             st.session_state.confirming_add_guide = None
-                            st.success("✅ تم إضافة المرشد الجديد بنجاح!")
-                            time.sleep(1)
+                            st.session_state.clear_add_inputs = True
+                            st.success("✅ تم إضافة المرشد الجديد بنجاح! سيتم تفريغ الخانات خلال 5 ثوانٍ...")
+                            time.sleep(5)
                             st.rerun()
                     with ac2:
                         if st.button("❌ إلغاء الإضافة", key="cancel_add_guide_btn"):
