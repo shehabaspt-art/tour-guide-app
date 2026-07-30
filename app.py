@@ -155,13 +155,14 @@ st.markdown(f"""
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }}
     
-    button[kind="secondary"], div.stButton > button {{
+    /* تخصيص زر إضافة أوبشن آخر ليكون أخضر متناسق */
+    div.stFormSubmitButton > button[kind="secondary"] {{
         border-radius: 8px;
         background-color: #2e7d32 !important;
         color: #ffffff !important;
         border: 1px solid #1b5e20 !important;
     }}
-    button[kind="secondary"]:hover, div.stButton > button:hover {{
+    div.stFormSubmitButton > button[kind="secondary"]:hover {{
         background-color: #1b5e20 !important;
         border-color: #0f3813 !important;
     }}
