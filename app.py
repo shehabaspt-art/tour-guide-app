@@ -130,8 +130,8 @@ if page == "نموذج تصفية المرشد":
             option_pay = st.selectbox("طريقة الدفع", options=["كاش", "لينك"])
         
         st.markdown("---")
-        tip = st.number_input("إكرامية (Tip)", min_value=0.0, step=10.0)
         
+        # التذاكر أصبحت قبل الإكرامية
         st.subheader("التذاكر (Tickets)")
         col_tkt1, col_tkt2 = st.columns(2)
         with col_tkt1:
@@ -140,6 +140,7 @@ if page == "نموذج تصفية المرشد":
             ticket_type = st.text_input("نوع التذاكر")
             
         st.markdown("---")
+        tip = st.number_input("إكرامية (Tip)", min_value=0.0, step=10.0)
         park = st.number_input("بارك (Park)", min_value=0.0, step=10.0)
         
         lunch = st.number_input("غداء (Lunch)", min_value=0.0, step=10.0)
@@ -190,8 +191,8 @@ if page == "نموذج تصفية المرشد":
                     "Collection": f"{collection_val} {collection_curr}",
                     "Option Type": option_type,
                     "Option": f"{option_value} {option_curr} ({option_pay})",
-                    "Tip": tip,
                     "Tickets": f"{ticket_value} - {ticket_type}",
+                    "Tip": tip,
                     "Park": park,
                     "Lunch": lunch,
                     "Lunch Receipt": lunch_path,
@@ -235,8 +236,8 @@ elif page == "لوحة تحكم المدير":
                 st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
                 st.write(f"**التحصيل (Collection):** {req_row.get('Collection', 0)}")
                 st.write(f"**الأوبشن (Option):** {req_row.get('Option', '')} | **النوع:** {req_row.get('Option Type', '')}")
-                st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
                 st.write(f"**تذاكر (Tickets):** {req_row.get('Tickets', '')}")
+                st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
                 st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
                 st.write(f"**غداء (Lunch):** {req_row.get('Lunch', 0)}")
                 
