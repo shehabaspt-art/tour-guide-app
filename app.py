@@ -59,12 +59,15 @@ if active_logo_to_show and os.path.exists(active_logo_to_show):
 else:
     logo_html = '<span style="color: #1b5e20; font-weight: bold; font-size: 1.1rem;">Sun Pyramids Tours</span>'
 
-# تصميم الشريط العلوي الثابت
+# تصميم الشريط العلوي وإزالة المساحات الفاضية
 st.markdown(f"""
     <style>
     header {{visibility: hidden;}}
     .stApp {{
-        margin-top: 65px;
+        margin-top: 55px !important;
+    }}
+    .block-container {{
+        padding-top: 1rem !important;
     }}
     .custom-topbar {{
         position: fixed;
