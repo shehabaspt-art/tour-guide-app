@@ -38,7 +38,6 @@ def save_to_file(file_path, new_data):
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
 
-# تنظيف تلقائي للطلبات المحددة بناءً على طلبك السابق
 if os.path.exists(SUBMISSIONS_FILE):
     try:
         init_sub_df = pd.read_excel(SUBMISSIONS_FILE)
@@ -368,10 +367,10 @@ elif page == "لوحة تحكم المدير":
             st.session_state.viewing_file = None
         if "confirming_del_sub" not in st.session_state:
             st.session_state.confirming_del_sub = None
-        if "editing_guide_idx" not in st.session_state:
-            st.session_state.editing_guide_idx = None
         if "confirming_edit_guide" not in st.session_state:
             st.session_state.confirming_edit_guide = None
+        if "confirming_add_guide" not in st.session_state:
+            st.session_state.confirming_add_guide = None
 
         if st.session_state.viewing_file is not None:
             req_idx = st.session_state.viewing_file
@@ -441,7 +440,6 @@ elif page == "لوحة تحكم المدير":
                 st.rerun()
         
         else:
-            # أولاً: عرض الطلبات الواردة في الأعلى
             if not sub_df.empty:
                 st.markdown("### 🔍 فلترة وعرض تصفيات المرشدين")
                 
@@ -496,7 +494,6 @@ elif page == "لوحة تحكم المدير":
                 st.info("لا توجد طلبات جديدة حتى الآن.")
             
             st.markdown("---")
-            # ثانياً: عرض وتعديل قاعدة بيانات المرشدين في الأسفل
             st.markdown("### قاعدة بيانات المرشدين (إدارة وتعديل أرقام الحسابات)")
             st.dataframe(guides_df, use_container_width=True)
             
@@ -504,7 +501,8 @@ elif page == "لوحة تحكم المدير":
             guide_names_list = guides_df[name_column].astype(str).tolist()
             selected_guide_to_edit = st.selectbox("اختر اسم المرشد لتعديل رقمه", options=guide_names_list, key="sel_guide_edit")
             
-            current_acc_val = guides_df.loc[guides_df[name_column].astype(str) == selected_guide_to_edit, acc_column].values[0] if selected_guide_to_edit else ""
+            # جلب وعرض رقم الحساب الحالي للمرشد المختار تلقائياً
+            current_acc_val = guides_df.loc[guides_df[name_column].astype(str) == selected_guide_to_edit, acc_column].values[0] if selected_guide_to_edit and not guides_df[guides_df[name_column].astype(str) == selected_guide_to_edit].empty else ""
             new_acc_input = st.text_input("رقم الحساب الجديد", value=str(current_acc_val), key="new_acc_val_input")
             
             if st.button("💾 حفظ تعديل رقم الحساب", type="primary"):
@@ -534,6 +532,46 @@ elif page == "لوحة تحكم المدير":
                         st.info("تم إلغاء التعديل ولم يتم حفظ أي تغييرات.")
                         time.sleep(1)
                         st.rerun()
+
+            st.markdown("---")
+            st.markdown("#### إضافة مرشد جديد لقاعدة البيانات:")
+            new_guide_name_input = st.text_input("اسم المرشد الجديد", key="new_guide_name_input")
+            new_guide_acc_input = st.text_input("رقم الحساب الخاص بالمرشد الجديد", key="new_guide_acc_input")
+            
+            if st.button("➕ إضافة المرشد الجديد", type="primary"):
+                st.session_state.confirming_add_guide = {
+                    "name": new_guide_name_input.strip(),
+                    "acc": new_guide_acc_input.strip()
+                }
+                st.rerun()
+            
+            if st.session_state.confirming_add_guide is not None:
+                a_name = st.session_state.confirming_add_guide["name"]
+                a_acc = st.session_state.confirming_add_guide["acc"]
+                
+                if not a_name or not a_acc:
+                    st.error("⚠️ يرجى كتابة (اسم المرشد) و(رقم الحساب) بشكل صحيح قبل الحفظ!")
+                    if st.button("❌ رجوع"):
+                        st.session_state.confirming_add_guide = None
+                        st.rerun()
+                else:
+                    st.warning(f"⚠️ هل أنت متأكد من رغبتك في إضافة المرشد الجديد (**{a_name}**) برقم حساب: **{a_acc}**؟")
+                    ac1, ac2 = st.columns(2)
+                    with ac1:
+                        if st.button("✔️ تأكيد وإضافة المرشد", type="primary", key="confirm_add_guide_btn"):
+                            new_row_df = pd.DataFrame([{name_column: a_name, acc_column: a_acc}])
+                            guides_df = pd.concat([guides_df, new_row_df], ignore_index=True)
+                            overwrite_data(GUIDES_FILE, guides_df)
+                            st.session_state.confirming_add_guide = None
+                            st.success("✅ تم إضافة المرشد الجديد بنجاح!")
+                            time.sleep(1)
+                            st.rerun()
+                    with ac2:
+                        if st.button("❌ إلغاء الإضافة", key="cancel_add_guide_btn"):
+                            st.session_state.confirming_add_guide = None
+                            st.info("تم إلغاء إضافة المرشد.")
+                            time.sleep(1)
+                            st.rerun()
             
     elif password:
         st.error("كلمة المرور غير صحيحة.")
