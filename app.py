@@ -279,7 +279,8 @@ if page == "نموذج تصفية المرشد":
         
         st.markdown("---")
         st.subheader("الأوبشن (Option)")
-        col_opt1, col_opt2, col_opt3, col_opt4 = st.columns(4)
+        
+        col_opt1, col_opt2, col_opt3, col_opt4, col_opt5 = st.columns(5)
         with col_opt1:
             option_type = st.text_input("نوع الاوبشن")
         with col_opt2:
@@ -288,10 +289,12 @@ if page == "نموذج تصفية المرشد":
             option_curr = st.selectbox("عملة الاوبشن", options=["مصري", "دولار", "يورو"], key="opt_curr")
         with col_opt4:
             option_pay = st.selectbox("طريقة الدفع", options=["كاش", "لينك"])
-        
-        cash_holder = ""
-        if option_pay == "كاش":
-            cash_holder = st.selectbox("مكان الفلوس (إلزامي في حالة الكاش)", options=[None, "مع المرشد", "مع السواق"])
+        with col_opt5:
+            cash_holder = ""
+            if option_pay == "كاش":
+                cash_holder = st.selectbox("المبلغ", options=[None, "مع المرشد", "مع السواق"])
+            else:
+                st.markdown("") # للمحاذاة التامة مع باقي الأعمدة في حال لم يكن كاش
 
         st.markdown("---")
         
@@ -328,7 +331,7 @@ if page == "نموذج تصفية المرشد":
             elif not file_no.strip():
                 st.error("⚠️ عذراً، لا يمكن إرسال الطلب. يرجى إدخال (رقم الفايل) أولاً بشكل إلزامي!")
             elif option_pay == "كاش" and not cash_holder:
-                st.error("⚠️ عذراً، نظراً لاختيار طريقة الدفع (كاش)، يجب اختيار ما إذا كانت الفلوس (مع المرشد) أو (مع السواق) بشكل إلزامي!")
+                st.error("⚠️ عذراً، نظراً لاختيار طريقة الدفع (كاش)، يجب اختيار (المبلغ) [مع المرشد / مع السواق] بشكل إلزامي!")
             elif shop_images and not selected_shops and not other_shops.strip():
                 st.error("⚠️ عذراً، نظراً لرفع صور فواتير المحلات، يجب اختيار (اسم المحل) من القائمة أو كتابته في (محلات أخري) بشكل إلزامي!")
             else:
