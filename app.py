@@ -245,10 +245,16 @@ if page == "نموذج تصفية المرشد":
             ticket_type = st.text_input("نوع التذاكر")
             
         st.markdown("---")
-        tip = st.number_input("إكرامية (Tip)", min_value=0.0, step=10.0)
-        park = st.number_input("بارك (Park)", min_value=0.0, step=10.0)
         
-        lunch = st.number_input("غداء (Lunch)", min_value=0.0, step=10.0)
+        # وضع الإكرامية، البارك، والغداء في 3 أعمدة جنب بعض
+        col_misc1, col_misc2, col_misc3 = st.columns(3)
+        with col_misc1:
+            tip = st.number_input("إكرامية (Tip)", min_value=0.0, step=10.0)
+        with col_misc2:
+            park = st.number_input("بارك (Park)", min_value=0.0, step=10.0)
+        with col_misc3:
+            lunch = st.number_input("غداء (Lunch)", min_value=0.0, step=10.0)
+            
         lunch_image = st.file_uploader("رفع صورة فاتورة الغداء", type=["png", "jpg", "jpeg"], key="lunch_img")
         
         st.markdown("---")
