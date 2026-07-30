@@ -48,92 +48,28 @@ def get_logo_file():
 sub_df_initial = load_data(SUBMISSIONS_FILE)
 pending_count = len(sub_df_initial)
 
-# قراءة اللوجو لتحويله لعرضه مباشرة داخل الـ HTML الهيدر الواحد بدون أي زوائد
-logo_path = get_logo_file()
-import base64
-logo_html = ""
-if logo_path and os.path.exists(logo_path):
-    with open(logo_path, "rb") as img_file:
-        encoded_img = base64.b64encode(img_file.read()).decode()
-        logo_html = f'<img src="data:image/png;base64,{encoded_img}" style="height: 45px; object-fit: contain;" />'
-else:
-    logo_html = '<h3 style="color: #1b5e20; margin: 0;">Sun Pyramids Tours</h3>'
-
-# تنسيقات CSS مع الحفاظ على المسافة البيضاء العلوية وإزالة أي خطوط أو زوائد نهائياً
-st.markdown(f"""
+# تنسيقات CSS مع الحفاظ على المسافة البيضاء العلوية وإزالة الشريط العلوي تماماً
+st.markdown("""
     <style>
     header {{visibility: hidden;}}
     
     /* ترك مسافة بيضاء علوية للشاشة بالكامل وللقائمة الجانبية */
-    .stApp {{
+    .stApp {
         margin-top: 45px;
-    }}
-    
-    /* شريط علوي موحد نظيف وخالي من أي خطوط أو زوائد */
-    .topbar-container {{
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background-color: #ffffff;
-        padding: 10px 25px;
-        border: 1px solid #e0e0e0;
-        margin-bottom: 25px;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-    }}
-    .topbar-right {{
-        display: flex;
-        align-items: center;
-    }}
-    .topbar-left {{
-        display: flex;
-        align-items: center;
-        gap: 18px;
-    }}
-    .notification-badge-wrapper {{
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        cursor: pointer;
-    }}
-    .notification-counter {{
-        position: absolute;
-        top: -8px;
-        right: -12px;
-        background-color: #e8f5e9;
-        color: #2e7d32;
-        border: 1px solid #a5d6a7;
-        font-size: 0.75rem;
-        font-weight: 700;
-        padding: 1px 6px;
-        border-radius: 10px;
-    }}
-    .user-profile-circle {{
-        width: 38px;
-        height: 38px;
-        background-color: #111111;
-        color: #ffffff;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        font-size: 0.95rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }}
+    }
     
     /* ضبط القائمة الجانبية (الشمال) لتأخذ نفس المسافة العلوية */
-    [data-testid="stSidebar"] {{
+    [data-testid="stSidebar"] {
         background-color: #f4f9f4;
         border-left: 2px solid #e0e0e0;
         padding-top: 1rem;
         margin-top: 45px;
         border-radius: 8px;
-    }}
-    [data-testid="stSidebar"] .stRadio > label {{
+    }
+    [data-testid="stSidebar"] .stRadio > label {
         display: none !important;
-    }}
-    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label {{
+    }
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label {
         background-color: #ffffff !important;
         padding: 14px 18px !important;
         border-radius: 12px !important;
@@ -143,35 +79,20 @@ st.markdown(f"""
         transition: all 0.3s ease-in-out !important;
         display: flex !important;
         align-items: center !important;
-    }}
-    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:hover {{
+    }
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:hover {
         transform: translateY(-3px) !important;
         box-shadow: 0 8px 20px rgba(27, 94, 32, 0.15) !important;
         border-color: #2e7d32 !important;
         background-color: #f1f8f1 !important;
-    }}
-    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label p {{
+    }
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label p {
         font-weight: 700 !important;
         color: #1b5e20 !important;
         font-size: 1.05rem !important;
         margin: 0 !important;
-    }}
+    }
     </style>
-
-    <div class="topbar-container">
-        <div class="topbar-right">
-            {logo_html}
-        </div>
-        <div class="topbar-left">
-            <div class="notification-badge-wrapper" title="عدد التصفيات والطلبات الجديدة">
-                <span style="font-size: 1.35rem;">🔔</span>
-                <span class="notification-counter">{pending_count}</span>
-            </div>
-            <div class="user-profile-circle" title="الحساب الشخصي">
-                SA
-            </div>
-        </div>
-    </div>
 """, unsafe_allow_html=True)
 
 try:
