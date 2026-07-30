@@ -153,24 +153,26 @@ st.markdown(f"""
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }}
     
-    /* توحيد ألوان أزرار الحذف لتكون باللون الأخضر */
     button[kind="secondary"], div.stButton > button {{
         border-radius: 8px;
     }}
     
-    /* تكثيف وجعل خطوط الجدول أتقل وبارزة (Bold) */
+    /* فرض خط ثقيل جداً (Bold/Heavy) على الجدول */
     [data-testid="stDataFrame"] table {{
-        font-weight: 700 !important;
+        font-weight: 900 !important;
     }}
     [data-testid="stDataFrame"] th {{
-        font-weight: 800 !important;
-        font-size: 1.05rem !important;
-        color: #1b5e20 !important;
+        font-weight: 900 !important;
+        font-size: 1.15rem !important;
+        color: #0b3d0f !important;
     }}
     [data-testid="stDataFrame"] td {{
-        font-weight: 700 !important;
-        font-size: 1rem !important;
-        color: #222222 !important;
+        font-weight: 900 !important;
+        font-size: 1.1rem !important;
+        color: #000000 !important;
+    }}
+    [data-testid="stDataFrame"] div, [data-testid="stDataFrame"] span, [data-testid="stDataFrame"] p {{
+        font-weight: 900 !important;
     }}
     
     [data-testid="stSidebar"] {{
