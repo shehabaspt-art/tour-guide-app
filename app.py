@@ -1,9 +1,9 @@
-import streamlit as st
-import pandas as pd
 import os
 import base64
 from datetime import datetime
 import time
+import streamlit as st
+import pandas as pd
 
 st.set_page_config(page_title="Sun Pyramids Tours", page_icon="🧭", layout="wide")
 
@@ -155,6 +155,13 @@ st.markdown(f"""
     
     button[kind="secondary"], div.stButton > button {{
         border-radius: 8px;
+        background-color: #28a745 !important;
+        color: white !important;
+        border: none !important;
+    }}
+    div.stButton > button:hover {{
+        background-color: #218838 !important;
+        color: white !important;
     }}
     
     /* فرض خط ثقيل جداً (Bold/Heavy) على الجدول */
@@ -681,7 +688,7 @@ elif page == "إدارة التصفيات":
                             if st.button("❌ إلغاء الإضافة", key="cancel_add_guide_btn", type="primary"):
                                 st.session_state.confirming_add_guide = None
                                 st.rerun()
-            
+        
     elif password:
         st.error("كلمة المرور غير صحيحة.")
     else:
@@ -711,7 +718,7 @@ elif page == "الأرشيف":
                     st.session_state.viewing_archive_file = None
                     st.rerun()
                 
-                st.markdown(f"### 📄 تفاصيل تصفية الأرشيف للفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
+                st.markdown(f"### 📄 تفاصيل أرشيف الفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
                 st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {req_row.get('Account', '')}")
                 st.markdown("---")
                 
@@ -741,23 +748,45 @@ elif page == "الأرشيف":
                             st.image(p, caption=f"صورة محلات رقم {idx+1}", use_container_width=True)
                 else:
                     st.info("لا توجد صور لفواتير المحلات.")
+                
+                st.markdown("---")
+                if st.button("🗑️ حذف هذا السجل نهائياً من الأرشيف", type="primary", use_container_width=True):
+                    st.session_state.confirming_del_arch = st.session_state.viewing_archive_file
+                    st.rerun()
+                
+                if st.session_state.confirming_del_arch is not None:
+                    del_idx = st.session_state.confirming_del_arch
+                    if del_idx in archive_df.index:
+                        del_row_file = archive_df.loc[del_idx].get('File No', '')
+                        st.warning(f"⚠️ هل أنت متأكد من رغبتك في حذف أرشيف الفايل رقم ({del_row_file}) نهائياً؟")
+                        d_col1, d_col2 = st.columns(2)
+                        with d_col1:
+                            if st.button("✔️ تأكيد الحذف النهائي", type="primary", key="confirm_del_arch_btn"):
+                                archive_df = archive_df.drop(del_idx).reset_index(drop=True)
+                                overwrite_data(ARCHIVE_FILE, archive_df)
+                                st.session_state.confirming_del_arch = None
+                                st.session_state.viewing_archive_file = None
+                                st.rerun()
+                        with d_col2:
+                            if st.button("❌ إلغاء", key="cancel_del_arch_btn", type="primary"):
+                                st.session_state.confirming_del_arch = None
+                                st.rerun()
             else:
                 st.session_state.viewing_archive_file = None
                 st.rerun()
+        
         else:
             if not archive_df.empty:
-                st.markdown("### 🔍 فلترة وعرض التصفيات المؤرشفة")
+                st.markdown("### 🔍 أرشيف الطلبات المكتملة")
                 
                 all_guides_in_arch = archive_df["Guide Name"].dropna().unique().tolist()
-                selected_arch_guide_filter = st.selectbox("اختر اسم المرشد لعرض جميع تصفياته المؤرشفة", options=["الكل (جميع المرشدين)"] + all_guides_in_arch, key="arch_guide_filter")
+                selected_arch_filter = st.selectbox("اختر اسم المرشد لعرض أرشيفه فقط", options=["الكل (جميع المرشدين)"] + all_guides_in_arch, key="arch_guide_filter")
                 
-                if selected_arch_guide_filter != "الكل (جميع المرشدين)":
-                    filtered_arch_df = archive_df[archive_df["Guide Name"] == selected_arch_guide_filter]
-                    st.info(f"عرض التصفيات المؤرشفة الخاصة بالمرشد: **{selected_arch_guide_filter}** (عدد الطلبات: {len(filtered_arch_df)})")
+                if selected_arch_filter != "الكل (جميع المرشدين)":
+                    filtered_arch_df = archive_df[archive_df["Guide Name"] == selected_arch_filter]
+                    st.info(f"عرض أرشيف المرشد: **{selected_arch_filter}** (عدد الطلبات المؤرشفة: {len(filtered_arch_df)})")
                 else:
                     filtered_arch_df = archive_df
-                
-                st.markdown("### التصفيات المنتهية")
                 
                 for idx, row in filtered_arch_df.iterrows():
                     cols = st.columns([1, 2, 2, 2, 1.5, 1.5])
@@ -779,24 +808,24 @@ elif page == "الأرشيف":
                             st.rerun()
                     
                     if st.session_state.confirming_del_arch == idx:
-                        st.warning(f"⚠️ هل أنت متأكد من رغبتك في حذف تصفية الأرشيف للفايل رقم ({row.get('File No', '')})؟")
-                        ca_col1, ca_col2 = st.columns(2)
-                        with ca_col1:
-                            if st.button("✔️ تأكيد الحذف النهائي", key=f"confirm_del_arch_{idx}", type="primary"):
+                        st.warning(f"⚠️ هل أنت متأكد من رغبتك في حذف أرشيف الفايل رقم ({row.get('File No', '')})؟")
+                        ac_col1, ac_col2 = st.columns(2)
+                        with ac_col1:
+                            if st.button("✔️ تأكيد الحذف النهائي", key=f"confirm_del_arch_list_{idx}", type="primary"):
                                 archive_df = archive_df.drop(idx).reset_index(drop=True)
                                 overwrite_data(ARCHIVE_FILE, archive_df)
                                 st.session_state.confirming_del_arch = None
                                 st.rerun()
-                        with ca_col2:
-                            if st.button("❌ رجوع (إلغاء)", key=f"cancel_del_arch_{idx}", type="primary"):
+                        with ac_col2:
+                            if st.button("❌ رجوع (إلغاء)", key=f"cancel_del_arch_list_{idx}", type="primary"):
                                 st.session_state.confirming_del_arch = None
                                 st.rerun()
-                    
+                                
                     st.markdown("---")
             else:
-                st.info("لا توجد تصفيات مؤرشفة حتى الآن.")
-
+                st.info("الأرشيف فارغ حالياً.")
+                
     elif password_archive:
         st.error("كلمة المرور غير صحيحة.")
     else:
-        st.info("الرجاء إدخال كلمة المرور لعرض صفحة الأرشيف.")
+        st.info("الرجاء إدخال كلمة المرور لعرض الأرشيف.")
