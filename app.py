@@ -458,7 +458,6 @@ elif page == "لوحة تحكم المدير":
                             st.session_state.confirming_del_sub = idx
                             st.rerun()
                     
-                    # نافذة تأكيد الحذف للطلبات المعلقة
                     if st.session_state.confirming_del_sub == idx:
                         st.warning(f"⚠️ هل أنت متأكد من رغبتك في حذف طلب الفايل رقم ({row.get('File No', '')})؟")
                         c_col1, c_col2 = st.columns(2)
@@ -579,7 +578,6 @@ elif page == "التصفيات (الأرشيف)":
                             st.session_state.confirming_del_arch = idx
                             st.rerun()
                     
-                    # نافذة تأكيد الحذف للأرشيف
                     if st.session_state.confirming_del_arch == idx:
                         st.warning(f"⚠️ هل أنت متأكد من رغبتك في حذف تصفية الأرشيف للفايل رقم ({row.get('File No', '')})؟")
                         ca_col1, ca_col2 = st.columns(2)
@@ -600,9 +598,6 @@ elif page == "التصفيات (الأرشيف)":
             else:
                 st.info("لا توجد تصفيات مؤرشفة حتى الآن.")
 
-        st.markdown("---")
-        st.markdown("### قاعدة بيانات المرشدين")
-        st.dataframe(guides_df, use_container_width=True)
     elif password_archive:
         st.error("كلمة المرور غير صحيحة.")
     else:
