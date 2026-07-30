@@ -204,6 +204,7 @@ if page == "نموذج تصفية المرشد":
     st.markdown("---")
     
     with st.form("guide_form", clear_on_submit=True):
+        st.subheader("بيانات المرشد")
         col_top1, col_top2, col_top3 = st.columns(3)
         with col_top1:
             account_options = [None] + guides_df[acc_column].astype(str).tolist()
