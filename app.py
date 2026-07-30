@@ -10,60 +10,8 @@ UPLOAD_DIR = "uploads"
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
 
-# تنسيقات CSS للقائمة الجانبية والشكل العام
-st.markdown("""
-    <style>
-    [data-testid="stSidebar"] {
-        background-color: #f4f9f4;
-        border-left: 2px solid #e0e0e0;
-        padding-top: 0.5rem;
-    }
-    [data-testid="stSidebar"] .stRadio > label {
-        display: none !important;
-    }
-    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label {
-        background-color: #ffffff !important;
-        padding: 14px 18px !important;
-        border-radius: 12px !important;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04) !important;
-        border: 1px solid #c8e6c9 !important;
-        margin-bottom: 12px !important;
-        transition: all 0.3s ease-in-out !important;
-        display: flex !important;
-        align-items: center !important;
-    }
-    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:hover {
-        transform: translateY(-3px) !important;
-        box-shadow: 0 8px 20px rgba(27, 94, 32, 0.15) !important;
-        border-color: #2e7d32 !important;
-        background-color: #f1f8f1 !important;
-    }
-    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label p {
-        font-weight: 700 !important;
-        color: #1b5e20 !important;
-        font-size: 1.05rem !important;
-        margin: 0 !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-try:
-    guides_df = pd.read_excel("guides.xlsx")
-except:
-    guides_df = pd.DataFrame({"Guide Name": ["أحمد", "محمود"], "Account Number": ["1805000493514500022", "1805000493514500033"]})
-
-name_column = guides_df.columns[0] if len(guides_df.columns) > 0 else "Guide Name"
-acc_column = guides_df.columns[1] if len(guides_df.columns) > 1 else guides_df.columns[0]
-
 SUBMISSIONS_FILE = "submissions.xlsx"
 ARCHIVE_FILE = "archive.xlsx"
-
-SHOPS_LIST = [
-    "وجية بردى", "اخناتون سجاد", "مينا للبرديات", "رويال سجاد", 
-    "اولد كايرو", "رويال للعطور", "خان الحلو للقطن", "فلور قطن", 
-    "طيبة للقطن", "فيلة بازار", "جولدن بيرد", "مملوك", 
-    "ريحانة توابل", "كنور توابل", "سقاره سجاد", "قصر العطور", "لازوريت"
-]
 
 def load_data(file_path):
     if os.path.exists(file_path):
@@ -89,21 +37,146 @@ def overwrite_data(file_path, df):
 
 def get_logo_file():
     for f in os.listdir("."):
-        if "d9f5c2" in f or "d9fd40" in f or "0c53c2" in f or "d9ee9b" in f:
+        if any(k in f for k in ["d9f5c2", "d9fd40", "0c53c2", "d9ee9b", "d9e6ba"]):
             return f
     for f in os.listdir("."):
         if f.startswith("image_") and f.endswith(('.png', '.jpg', '.jpeg')):
             return f
     return None
 
-# وضع اللوجو في أعلى القائمة الجانبية (Sidebar Top) مباشرة بالشكل المطلوب
+# حساب عدد الطلبات المعلقة للإشعارات
+sub_df_initial = load_data(SUBMISSIONS_FILE)
+pending_count = len(sub_df_initial)
+
+# تنسيقات CSS لشريط الهيدر العلوي الاحترافي والشكل العام
+st.markdown(f"""
+    <style>
+    header {{visibility: hidden;}}
+    
+    /* تصميم الشريط العلوي الاحترافي Topbar */
+    .top-header-bar {{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: #ffffff;
+        padding: 8px 20px;
+        border-bottom: 2px solid #e0e0e0;
+        margin-top: -30px;
+        margin-bottom: 25px;
+        border-radius: 6px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }}
+    .top-logo-container {{
+        display: flex;
+        align-items: center;
+    }}
+    .top-user-section {{
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }}
+    .notification-badge-container {{
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+    }}
+    .notification-count {{
+        position: absolute;
+        top: -8px;
+        right: -12px;
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        border: 1px solid #a5d6a7;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 1px 6px;
+        border-radius: 10px;
+    }}
+    .user-avatar-circle {{
+        width: 38px;
+        height: 38px;
+        background-color: #111111;
+        color: #ffffff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.95rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }}
+    
+    [data-testid="stSidebar"] {{
+        background-color: #f4f9f4;
+        border-left: 2px solid #e0e0e0;
+        padding-top: 1rem;
+    }}
+    [data-testid="stSidebar"] .stRadio > label {{
+        display: none !important;
+    }}
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label {{
+        background-color: #ffffff !important;
+        padding: 14px 18px !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04) !important;
+        border: 1px solid #c8e6c9 !important;
+        margin-bottom: 12px !important;
+        transition: all 0.3s ease-in-out !important;
+        display: flex !important;
+        align-items: center !important;
+    }}
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:hover {{
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 20px rgba(27, 94, 32, 0.15) !important;
+        border-color: #2e7d32 !important;
+        background-color: #f1f8f1 !important;
+    }}
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label p {{
+        font-weight: 700 !important;
+        color: #1b5e20 !important;
+        font-size: 1.05rem !important;
+        margin: 0 !important;
+    }}
+    </style>
+
+    <div class="top-header-bar">
+        <div class="top-logo-container">
+            <!-- سيتم وضع صورة اللوجو هنا بجوار الهيدر -->
+        </div>
+        <div class="top-user-section">
+            <div class="notification-badge-container" title="الطلبات الجديدة المعلقة">
+                <span style="font-size: 1.3rem;">🔔</span>
+                <span class="notification-count">{pending_count}</span>
+            </div>
+            <div class="user-avatar-circle" title="حساب المستخدم">
+                SA
+            </div>
+        </div>
+    </div>
+""", unsafe_allow_html=True)
+
+# عرض صورة اللوجو في المكان المخصص بالشريط العلوي
 logo_path = get_logo_file()
 if logo_path and os.path.exists(logo_path):
-    st.sidebar.image(logo_path, use_container_width=True)
-else:
-    st.sidebar.markdown("<h2 style='text-align: center; color: #1b5e20;'>Sun Pyramids Tours</h2>", unsafe_allow_html=True)
+    # وضع اللوجو في أقصى اليمين أو اليسار داخل الشريط العلوي
+    col_l1, col_l2 = st.columns([2, 5])
+    with col_l1:
+        st.image(logo_path, width=260)
 
-st.sidebar.markdown("---")
+try:
+    guides_df = pd.read_excel("guides.xlsx")
+except:
+    guides_df = pd.DataFrame({"Guide Name": ["أحمد", "محمود"], "Account Number": ["1805000493514500022", "1805000493514500033"]})
+
+name_column = guides_df.columns[0] if len(guides_df.columns) > 0 else "Guide Name"
+acc_column = guides_df.columns[1] if len(guides_df.columns) > 1 else guides_df.columns[0]
+
+SHOPS_LIST = [
+    "وجية بردى", "اخناتون سجاد", "مينا للبرديات", "رويال سجاد", 
+    "اولد كايرو", "رويال للعطور", "خان الحلو للقطن", "فلور قطن", 
+    "طيبة للقطن", "فيلة بازار", "جولدن بيرد", "مملوك", 
+    "ريحانة توابل", "كنور توابل", "سقاره سجاد", "قصر العطور", "لازوريت"
+]
 
 st.sidebar.title("🧭 القائمة الرئيسية")
 st.sidebar.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1.15rem; margin-bottom: 10px;'>اختر الصفحة</p>", unsafe_allow_html=True)
