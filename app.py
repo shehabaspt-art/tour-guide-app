@@ -10,35 +10,16 @@ UPLOAD_DIR = "uploads"
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
 
-# تنسيقات CSS احترافية لتثبيت وتحسين مظهر اللوجو العريض في أعلى القائمة الجانبية
+# تنسيقات CSS لجعل الهيدر واللوجو في أعلى الصفحة بشكل احترافي
 st.markdown("""
     <style>
+    /* إخفاء الهيدر الافتراضي لستريمليت التحكم في المساحة */
+    header {visibility: hidden;}
+    
     [data-testid="stSidebar"] {
         background-color: #f4f9f4;
         border-left: 2px solid #e0e0e0;
-        padding-top: 0.5rem;
-    }
-    /* ستايل اللوجو العريض والمنسق تماماً زي الصورة */
-    .sidebar-logo-container {
-        width: 100%;
-        background-color: #ffffff;
-        padding: 10px;
-        border-radius: 8px;
-        margin-bottom: 15px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        text-align: center;
-    }
-    .sidebar-logo-container img {
-        width: 100% !important;
-        max-width: 100% !important;
-        height: auto !important;
-        object-fit: contain;
-    }
-    [data-testid="stSidebar"] h1 {
-        color: #1b5e20;
-        font-weight: 800;
-        font-size: 1.6rem;
-        margin-bottom: 15px;
+        padding-top: 1rem;
     }
     [data-testid="stSidebar"] .stRadio > label {
         display: none !important;
@@ -65,6 +46,17 @@ st.markdown("""
         color: #1b5e20 !important;
         font-size: 1.05rem !important;
         margin: 0 !important;
+    }
+    /* ستايل شريط الهيدر العلوي للوجو */
+    .top-header-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 20px;
+        background-color: #ffffff;
+        border-bottom: 2px solid #e0e0e0;
+        margin-bottom: 20px;
+        border-radius: 8px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -109,29 +101,22 @@ def save_to_file(file_path, new_data):
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
 
-# دالة البحث الذكي عن صورة اللوجو
 def get_logo_file():
     for f in os.listdir("."):
-        if f.startswith("image_0c53c2") or "0c53c2" in f or f.endswith(('.png', '.jpg', '.jpeg')):
-            # نتحقق من اسم ملف اللوجو الفعلي المرفوع
-            if "0c53c2" in f:
-                return f
-    # كاحتياطي لو اسم الملف اتغير
+        if "d9f5c2" in f or "d9fd40" in f or "0c53c2" in f:
+            return f
     for f in os.listdir("."):
         if f.startswith("image_") and f.endswith(('.png', '.jpg', '.jpeg')):
             return f
     return None
 
-# عرض اللوجو بالعرض المظبوط في أعلى القائمة الجانبية
+# وضع اللوجو في أعلى الصفحة (Top Bar) بشكل احترافي وعريض
 logo_path = get_logo_file()
 if logo_path and os.path.exists(logo_path):
-    st.sidebar.markdown('<div class="sidebar-logo-container">', unsafe_allow_html=True)
-    st.sidebar.image(logo_path, use_container_width=True)
-    st.sidebar.markdown('</div>', unsafe_allow_html=True)
-else:
-    st.sidebar.markdown("<h2 style='text-align: center; color: #1b5e20; background-color: #ffffff; padding: 10px; border-radius: 8px;'>Sun Pyramids Tours</h2>", unsafe_allow_html=True)
-
-st.sidebar.markdown("---")
+    col_logo, col_space = st.columns([2, 5])
+    with col_logo:
+        st.image(logo_path, width=280)
+    st.markdown("<hr style='margin-top: 0px; margin-bottom: 20px;'>", unsafe_allow_html=True)
 
 st.sidebar.title("🧭 القائمة الرئيسية")
 st.sidebar.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1.15rem; margin-bottom: 10px;'>اختر الصفحة</p>", unsafe_allow_html=True)
