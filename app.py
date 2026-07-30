@@ -49,97 +49,43 @@ else:
             active_logo_to_show = f
             break
 
-logo_html = ""
-if active_logo_to_show and os.path.exists(active_logo_to_show):
-    with open(active_logo_to_show, "rb") as img_file:
-        encoded_img = base64.b64encode(img_file.read()).decode()
-        logo_html = f'<img src="data:image/png;base64,{encoded_img}" style="height: 48px; object-fit: contain;" />'
-else:
-    logo_html = '<span style="color: #1b5e20; font-weight: bold; font-size: 1.1rem;">Sun Pyramids Tours</span>'
+# جزء اللوجو زي ما هو الأصلي تماماً من غير أي تغيير
+col_logo, col_notif, col_profile = st.columns([6, 1, 1])
 
-st.markdown(f"""
+with col_logo:
+    if active_logo_to_show and os.path.exists(active_logo_to_show):
+        st.image(active_logo_to_show, width=180)
+    else:
+        st.markdown('<span style="color: #1b5e20; font-weight: bold; font-size: 1.3rem;">Sun Pyramids Tours</span>', unsafe_allow_html=True)
+
+with col_notif:
+    st.markdown(f"""
+        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 5px; margin-top: 10px;" title="عدد التصفيات والطلبات المعلقة">
+            <span style="font-size: 1.4rem;">🔔</span>
+            <span style="background-color: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; font-size: 0.8rem; font-weight: 700; padding: 2px 6px; border-radius: 12px;">{pending_count}</span>
+        </div>
+    """, unsafe_allow_html=True)
+
+with col_profile:
+    st.markdown("""
+        <div style="width: 38px; height: 38px; background-color: #111111; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-top: 5px; margin-left: auto;" title="حساب المدير">
+            SA
+        </div>
+    """, unsafe_allow_html=True)
+
+st.markdown("---")
+
+st.markdown("""
     <style>
-    header {{visibility: hidden;}}
-    .stApp {{
-        margin-top: 55px !important;
-    }}
-    .block-container {{
-        padding-top: 1rem !important;
-    }}
-    .custom-topbar {{
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 60px;
-        background-color: #ffffff;
-        border-bottom: 1px solid #e0e0e0;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 25px;
-        z-index: 99999;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.03);
-    }}
-    .topbar-left-group {{
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }}
-    .topbar-right-group {{
-        display: flex;
-        align-items: center;
-        gap: 22px;
-    }}
-    .notification-container {{
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        cursor: pointer;
-    }}
-    .notification-badge {{
-        position: absolute;
-        top: -8px;
-        right: -15px;
-        background-color: #e8f5e9;
-        color: #2e7d32;
-        border: 1px solid #a5d6a7;
-        font-size: 0.75rem;
-        font-weight: 700;
-        padding: 1px 6px;
-        border-radius: 12px;
-    }}
-    .user-profile-badge {{
-        width: 36px;
-        height: 36px;
-        background-color: #111111;
-        color: #ffffff;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        font-size: 0.9rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }}
-    [data-testid="stSidebar"] {{
+    [data-testid="stSidebar"] {
         background-color: #d8ebd8;
         border-left: 2px solid #c2e0c2;
-        margin-top: 0px !important;
-        padding-top: 0px !important;
         border-radius: 0px 8px 8px 0px;
-    }}
-    [data-testid="stSidebar"] > div:first-child {{
-        padding-top: 1rem !important;
-    }}
-    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {{
-        gap: 0rem !important;
-        padding-top: 0rem !important;
-    }}
-    [data-testid="stSidebar"] .stRadio > label {{
+    }
+    [data-testid="stSidebar"] .stRadio > label {
         display: none !important;
-    }}
-    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label {{
+    }
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label {
         background-color: #ffffff !important;
         padding: 14px 18px !important;
         border-radius: 12px !important;
@@ -149,35 +95,20 @@ st.markdown(f"""
         transition: all 0.3s ease-in-out !important;
         display: flex !important;
         align-items: center !important;
-    }}
-    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:hover {{
+    }
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:hover {
         transform: translateY(-3px) !important;
         box-shadow: 0 8px 20px rgba(27, 94, 32, 0.15) !important;
         border-color: #2e7d32 !important;
         background-color: #f1f8f1 !important;
-    }}
-    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label p {{
+    }
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label p {
         font-weight: 700 !important;
         color: #1b5e20 !important;
         font-size: 1.05rem !important;
         margin: 0 !important;
-    }}
+    }
     </style>
-
-    <div class="custom-topbar">
-        <div class="topbar-left-group">
-            {logo_html}
-        </div>
-        <div class="topbar-right-group">
-            <div class="notification-container" title="عدد التصفيات والطلبات المعلقة">
-                <span style="font-size: 1.3rem;">🔔</span>
-                <span class="notification-badge">{pending_count}</span>
-            </div>
-            <div class="user-profile-badge" title="حساب المدير">
-                SA
-            </div>
-        </div>
-    </div>
 """, unsafe_allow_html=True)
 
 try:
@@ -195,6 +126,8 @@ SHOPS_LIST = [
     "ريحانة توابل", "كنور توابل", "سقاره سجاد", "قصر العطور", "لازوريت"
 ]
 
+# زرار القائمة الجانبية في القائمة الرئيسية (تحت اللوجو مباشرة)
+st.sidebar.markdown("<br>", unsafe_allow_html=True)
 st.sidebar.title("🧭 القائمة الرئيسية")
 st.sidebar.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1.15rem; margin-bottom: 10px;'>اختر الصفحة</p>", unsafe_allow_html=True)
 page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "لوحة تحكم المدير", "التصفيات (الأرشيف)"], label_visibility="collapsed")
