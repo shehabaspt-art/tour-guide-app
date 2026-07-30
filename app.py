@@ -35,31 +35,11 @@ def save_to_file(file_path, new_data):
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
 
-def get_logo_file():
-    for f in os.listdir("."):
-        if any(k in f for k in ["d9f5c2", "d9fd40", "0c53c2", "d9ee9b", "d9e6ba", "d9df36", "d9893e"]):
-            return f
-    for f in os.listdir("."):
-        if f.startswith("image_") and f.endswith(('.png', '.jpg', '.jpeg')):
-            return f
-    return None
-
 # حساب عدد الطلبات المعلقة للإشعارات بدقة من ملف الإكسيل
 sub_df_initial = load_data(SUBMISSIONS_FILE)
 pending_count = len(sub_df_initial)
 
-# قراءة اللوجو لتحويله لعرضه مباشرة داخل الـ Topbar
-logo_path = get_logo_file()
-import base64
-logo_html = ""
-if logo_path and os.path.exists(logo_path):
-    with open(logo_path, "rb") as img_file:
-        encoded_img = base64.b64encode(img_file.read()).decode()
-        logo_html = f'<img src="data:image/png;base64,{encoded_img}" style="height: 42px; object-fit: contain;" />'
-else:
-    logo_html = '<h3 style="color: #1b5e20; margin: 0; font-size: 1.1rem;">Sun Pyramids Tours</h3>'
-
-# تصميم الشريط العلوي الاحترافي تماماً مثل الصورة المطلوبة
+# تصميم الشريط العلوي واللوجو والاسم بالكامل باستخدام HTML/CSS النقي لضمان التطابق التام مع صورتك
 st.markdown(f"""
     <style>
     header {{visibility: hidden;}}
@@ -81,7 +61,7 @@ st.markdown(f"""
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 30px;
+        padding: 0 25px;
         z-index: 99999;
         box-shadow: 0 1px 4px rgba(0,0,0,0.03);
     }}
@@ -90,15 +70,54 @@ st.markdown(f"""
         align-items: center;
         gap: 15px;
     }}
-    .sidebar-arrow-icon {{
-        font-size: 1.2rem;
-        color: #777777;
-        font-weight: bold;
+    
+    /* تصميم اللوجو بالـ CSS لضمان ظهوره بشكل احترافي ومتطابق تماماً */
+    .brand-logo-container {{
+        display: flex;
+        align-items: center;
+        gap: 12px;
     }}
+    .pyramid-logo {{
+        width: 42px;
+        height: 38px;
+        background: linear-gradient(135deg, #f39c12 0%, #1abc9c 100%);
+        clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        position: relative;
+    }}
+    .brand-text-box {{
+        display: flex;
+        flex-direction: column;
+        line-height: 1.1;
+    }}
+    .brand-title {{
+        font-family: 'Arial Black', sans-serif;
+        font-size: 1.15rem;
+        font-weight: 900;
+        font-style: italic;
+        color: #1a5276;
+        letter-spacing: 0.5px;
+    }}
+    .brand-subtitle {{
+        font-family: 'Arial', sans-serif;
+        font-size: 0.72rem;
+        font-weight: bold;
+        font-style: italic;
+        color: #d35400;
+        letter-spacing: 1px;
+    }}
+    
+    .sidebar-arrow-icon {{
+        font-size: 1.3rem;
+        color: #888888;
+        font-weight: bold;
+        margin-left: 10px;
+        cursor: pointer;
+    }}
+    
     .topbar-right-group {{
         display: flex;
         align-items: center;
-        gap: 25px;
+        gap: 22px;
     }}
     .notification-container {{
         position: relative;
@@ -170,7 +189,13 @@ st.markdown(f"""
 
     <div class="custom-topbar">
         <div class="topbar-left-group">
-            {logo_html}
+            <div class="brand-logo-container">
+                <div class="pyramid-logo"></div>
+                <div class="brand-text-box">
+                    <span class="brand-title">SUN PYRAMIDS</span>
+                    <span class="brand-subtitle"><span style="text-decoration: underline;">SINCE</span> TOURS <span style="text-decoration: underline;">1970</span></span>
+                </div>
+            </div>
             <span class="sidebar-arrow-icon" title="القائمة الجانبية">‹</span>
         </div>
         <div class="topbar-right-group">
