@@ -131,7 +131,7 @@ if page == "نموذج تصفية المرشد":
         
         st.markdown("---")
         
-        # التذاكر أصبحت قبل الإكرامية
+        # التذاكر قبل الإكرامية
         st.subheader("التذاكر (Tickets)")
         col_tkt1, col_tkt2 = st.columns(2)
         with col_tkt1:
@@ -150,7 +150,6 @@ if page == "نموذج تصفية المرشد":
         st.subheader("فواتير ومحلات التسوق")
         selected_shops = st.multiselect("اسم المحل (اختر من القائمة)", options=SHOPS_LIST)
         other_shops = st.text_input("محلات أخري (اكتبها يدوياً إن وجدت)")
-        shop_bills_amount = st.number_input("قيمة فواتير المحلات", min_value=0.0, step=10.0)
         shop_images = st.file_uploader("رفع صور فواتير المحلات", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key="shop_imgs")
         
         submitted = st.form_submit_button("إرسال الطلب للمدير", type="primary")
@@ -198,7 +197,6 @@ if page == "نموذج تصفية المرشد":
                     "Lunch Receipt": lunch_path,
                     "Shop Names": ", ".join(selected_shops),
                     "Other Shops": other_shops,
-                    "Shop Bills": shop_bills_amount,
                     "Shop Images": ",".join(shop_paths) if shop_paths else ""
                 }
                 save_to_file(SUBMISSIONS_FILE, new_entry)
@@ -250,7 +248,6 @@ elif page == "لوحة تحكم المدير":
                 st.markdown("---")
                 st.write(f"**أسماء المحلات المختارة:** {req_row.get('Shop Names', 'لا يوجد')}")
                 st.write(f"**محلات أخري:** {req_row.get('Other Shops', 'لا يوجد')}")
-                st.write(f"**قيمة فواتير المحلات:** {req_row.get('Shop Bills', 0)}")
                 
                 s_paths = req_row.get("Shop Images", "")
                 if pd.notna(s_paths) and str(s_paths).strip() != "":
