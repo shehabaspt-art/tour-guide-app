@@ -110,7 +110,6 @@ if page == "نموذج تصفية المرشد":
         
         advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0)
         
-        # خانة التحصيل مع اختيار العملة
         col_c1, col_c2 = st.columns([2, 1])
         with col_c1:
             collection_val = st.number_input("التحصيل (Collection)", min_value=0.0, step=10.0)
@@ -131,7 +130,6 @@ if page == "نموذج تصفية المرشد":
         
         st.markdown("---")
         
-        # التذاكر قبل الإكرامية
         st.subheader("التذاكر (Tickets)")
         col_tkt1, col_tkt2 = st.columns(2)
         with col_tkt1:
@@ -209,7 +207,7 @@ elif page == "لوحة تحكم المدير":
     st.title("📊 لوحة تحكم المدير")
     st.markdown("---")
     
-    password = st.text_input("أدخل كلمة المرور", type="password")
+    password = st.text_input("أدخل كلمة المرور", type="password", key="mgr_pass")
     
     if password == "159753":
         st.success("تم تسجيل الدخول بنجاح!")
@@ -331,13 +329,21 @@ elif page == "التصفيات (الأرشيف)":
     st.title("📁 أرشيف التصفيات المنتهية (تم)")
     st.markdown("---")
     
-    archive_df = load_data(ARCHIVE_FILE)
-    if not archive_df.empty:
-        cols_to_show = [c for c in archive_df.columns if c not in ["Lunch Receipt", "Shop Images"]]
-        st.dataframe(archive_df[cols_to_show], use_container_width=True)
-    else:
-        st.info("لا توجد تصفيات مؤرشفة حتى الآن.")
+    password_archive = st.text_input("أدخل كلمة المرور لعرض الأرشيف", type="password", key="arch_pass")
+    
+    if password_archive == "159753":
+        st.success("تم تسجيل الدخول بنجاح!")
+        archive_df = load_data(ARCHIVE_FILE)
+        if not archive_df.empty:
+            cols_to_show = [c for c in archive_df.columns if c not in ["Lunch Receipt", "Shop Images"]]
+            st.dataframe(archive_df[cols_to_show], use_container_width=True)
+        else:
+            st.info("لا توجد تصفيات مؤرشفة حتى الآن.")
 
-    st.markdown("---")
-    st.markdown("### قاعدة بيانات المرشدين")
-    st.dataframe(guides_df, use_container_width=True)
+        st.markdown("---")
+        st.markdown("### قاعدة بيانات المرشدين")
+        st.dataframe(guides_df, use_container_width=True)
+    elif password_archive:
+        st.error("كلمة المرور غير صحيحة.")
+    else:
+        st.info("الرجاء إدخال كلمة المرور لعرض صفحة التصفيات (الأرشيف).")
