@@ -208,20 +208,37 @@ st.markdown(f"""
 
     <div class="custom-topbar">
         <div class="topbar-left-group">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <!-- أيقونة الأهرامات والشمس -->
-                <svg width="55" height="42" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M50 10 L85 70 L15 70 Z" fill="#f39c12" />
-                    <path d="M50 10 L68 70 L32 70 Z" fill="#e67e22" />
-                    <line x1="50" y1="10" x2="35" y2="70" stroke="#fff" stroke-width="1.5" />
-                    <line x1="50" y1="10" x2="45" y2="70" stroke="#fff" stroke-width="1.5" />
-                    <line x1="50" y1="10" x2="55" y2="70" stroke="#fff" stroke-width="1.5" />
-                    <path d="M10 70 Q 50 45 90 70 Z" fill="#00bcd4" />
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <!-- مطابقة دقيقة لشكل الأيقونة في الصورة المرفقة -->
+                <svg width="65" height="48" viewBox="0 0 110 80" xmlns="http://www.w3.org/2000/svg">
+                    <!-- الأهرامات بدقة -->
+                    <polygon points="50,12 82,72 18,72" fill="#f39c12"/>
+                    <polygon points="50,12 65,72 35,72" fill="#e67e22"/>
+                    <!-- خطوط الأهرامات الداخلية -->
+                    <line x1="50" y1="12" x2="42" y2="72" stroke="#ffffff" stroke-width="1.2"/>
+                    <line x1="50" y1="12" x2="52" y2="72" stroke="#ffffff" stroke-width="1.2"/>
+                    <line x1="50" y1="12" x2="60" y2="72" stroke="#ffffff" stroke-width="1.2"/>
+                    <!-- نصف الدائرة (الشمس) في الأسفل بلون تيروز / سماوي -->
+                    <path d="M 15 72 A 38 38 0 0 1 85 72 Z" fill="#00acc1"/>
+                    <!-- شعاع الشمس الصاعد خلف الأهرامات -->
+                    <line x1="50" y1="42" x2="30" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
+                    <line x1="50" y1="42" x2="40" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
+                    <line x1="50" y1="42" x2="50" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
+                    <line x1="50" y1="42" x2="60" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
+                    <line x1="50" y1="42" x2="70" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
                 </svg>
-                <!-- اسم الشركة بالتصميم المطلوب مطابظاً للصورة -->
-                <div style="display: flex; flex-direction: column; justify-content: center;">
-                    <span style="font-family: 'Times New Roman', serif; font-style: italic; font-weight: bold; font-size: 1.35rem; color: #2563eb; letter-spacing: 1px; line-height: 1.1;">SUN PYRAMIDS</span>
-                    <span style="font-family: 'Times New Roman', serif; font-size: 0.8rem; color: #f59e0b; font-weight: bold; letter-spacing: 0.5px;"><span style="text-decoration: underline;">SINCE</span> TOURS <span style="text-decoration: underline;">1970</span></span>
+                <!-- مطابقة النص والتصميم والخطوط تماماً للصورة -->
+                <div style="display: flex; flex-direction: column; justify-content: center; gap: 2px;">
+                    <span style="font-family: 'Times New Roman', Times, serif; font-style: italic; font-weight: bold; font-size: 1.35rem; color: #1d4ed8; letter-spacing: 0.8px; line-height: 1;">SUN PYRAMIDS</span>
+                    <div style="display: flex; align-items: center; gap: 4px; font-family: 'Times New Roman', Times, serif; font-size: 0.85rem; font-weight: bold; letter-spacing: 0.5px;">
+                        <span style="color: #00acc1; text-decoration: underline; font-style: italic;">SINCE</span>
+                        <span style="color: #f39c12; font-style: italic; font-size: 0.95rem;">T</span>
+                        <span style="color: #00acc1; font-style: italic; font-size: 0.95rem;">O</span>
+                        <span style="color: #f39c12; font-style: italic; font-size: 0.95rem;">U</span>
+                        <span style="color: #00acc1; font-style: italic; font-size: 0.95rem;">R</span>
+                        <span style="color: #f39c12; font-style: italic; font-size: 0.95rem;">S</span>
+                        <span style="color: #00acc1; text-decoration: underline; font-style: italic; margin-left: 2px;">1970</span>
+                    </div>
                 </div>
             </div>
         </div>
