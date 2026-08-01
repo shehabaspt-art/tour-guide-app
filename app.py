@@ -118,7 +118,7 @@ st.markdown("""
         margin: 0 !important;
     }
     
-    /* تصميم الشريط العلوي الثابت (Sticky Header) */
+    /* تصميم الشريط العلوي الثابت مع محاذاة العناصر لليمين */
     .sticky-header {
         position: fixed;
         top: 0;
@@ -129,18 +129,18 @@ st.markdown("""
         padding: 10px 30px;
         border-bottom: 1px solid #e0e0e0;
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-end;
         align-items: center;
+        gap: 30px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
-    /* إبعاد المحتوى عن الشريط الثابت حتى لا يختفي تحته */
     .block-container {
         padding-top: 5rem !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# الشريط العلوي الثابت يحتوي على منبه الإشعارات والطلبات واسم الحساب بجانب بعضهما تماماً
+# الشريط العلوي الثابت يضم المنبه والعداد والحروف مجتمعين على اليمين
 st.markdown(f"""
     <div class="sticky-header">
         <div style="font-size: 1rem; font-weight: bold; color: #333;">
