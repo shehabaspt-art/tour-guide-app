@@ -53,6 +53,24 @@ if current_logo_path:
     except:
         pass
 
+def get_image_base64(path):
+    if path and os.path.exists(path):
+        with open(path, "rb") as img_file:
+            encoded = base64.b64encode(img_file.read()).decode()
+            ext = path.split(".")[-1].lower()
+            if ext == "jpg" or ext == "jpeg":
+                mime = "image/jpeg"
+            elif ext == "png":
+                mime = "image/png"
+            elif ext == "svg":
+                mime = "image/svg+xml"
+            else:
+                mime = "image/png"
+            return f"data:{mime};base64,{encoded}"
+    return ""
+
+logo_base64 = get_image_base64(current_logo_path)
+
 if os.path.exists(SUBMISSIONS_FILE):
     try:
         init_sub_df = pd.read_excel(SUBMISSIONS_FILE)
@@ -118,7 +136,7 @@ st.markdown("""
         margin: 0 !important;
     }
     
-    /* تصميم الشريط العلوي الثابت مع محاذاة العناصر لليمين */
+    /* تصميم الشريط العلوي الثابت مع عرض اللوجو على الشمال والعناصر على اليمين */
     .sticky-header {
         position: fixed;
         top: 0;
@@ -126,12 +144,11 @@ st.markdown("""
         width: 100%;
         background-color: #f8f9fa;
         z-index: 999999;
-        padding: 10px 30px;
+        padding: 8px 30px;
         border-bottom: 1px solid #e0e0e0;
         display: flex;
-        justify-content: flex-end;
+        justify-content: space-between;
         align-items: center;
-        gap: 30px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
     .block-container {
@@ -140,14 +157,21 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# الشريط العلوي الثابت يضم المنبه والعداد والحروف مجتمعين على اليمين
+logo_html = f'<img src="{logo_base64}" style="height: 38px; object-fit: contain;" />' if logo_base64 else '<span style="font-weight: bold; color: #1b5e20;">Sun Pyramids</span>'
+
+# الشريط العلوي الثابت يضم اللوجو على الشمال والمنبه والحروف على اليمين
 st.markdown(f"""
     <div class="sticky-header">
-        <div style="font-size: 1rem; font-weight: bold; color: #333;">
-            🔔 <b>الطلبات المعلقة:</b> <span style="background-color: #e9ecef; padding: 2px 8px; border-radius: 6px; color: #d9534f;">{pending_count}</span>
+        <div>
+            {logo_html}
         </div>
-        <div style="font-size: 1rem; font-weight: bold; color: #333;">
-            👤 <b>SA</b>
+        <div style="display: flex; align-items: center; gap: 30px;">
+            <div style="font-size: 1rem; font-weight: bold; color: #333;">
+                🔔 <b>الطلبات المعلقة:</b> <span style="background-color: #e9ecef; padding: 2px 8px; border-radius: 6px; color: #d9534f;">{pending_count}</span>
+            </div>
+            <div style="font-size: 1rem; font-weight: bold; color: #333;">
+                👤 <b>SA</b>
+            </div>
         </div>
     </div>
 """, unsafe_allow_html=True)
