@@ -136,7 +136,7 @@ st.markdown("""
         margin: 0 !important;
     }
     
-    /* تصميم الشريط العلوي الثابت مع عرض اللوجو على الشمال والعناصر على اليمين */
+    /* تصميم الشريط العلوي الثابت مع جعل اللوجو أعرض وأثقل */
     .sticky-header {
         position: fixed;
         top: 0;
@@ -157,9 +157,9 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-logo_html = f'<img src="{logo_base64}" style="height: 38px; object-fit: contain;" />' if logo_base64 else '<span style="font-weight: bold; color: #1b5e20;">Sun Pyramids</span>'
+logo_html = f'<img src="{logo_base64}" style="height: 48px; width: auto; max-width: 220px; object-fit: contain; filter: contrast(1.15) saturate(1.1);" />' if logo_base64 else '<span style="font-weight: bold; color: #1b5e20; font-size: 1.1rem;">Sun Pyramids</span>'
 
-# الشريط العلوي الثابت يضم اللوجو على الشمال والمنبه والحروف على اليمين
+# الشريط العلوي الثابت يضم اللوجو (أعرض وأثقل) على الشمال والمنبه والحروف على اليمين
 st.markdown(f"""
     <div class="sticky-header">
         <div>
