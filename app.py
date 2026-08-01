@@ -102,7 +102,7 @@ else:
         </svg>
     """
 
-topbar_html = f"""
+st.markdown(f"""
     <style>
     .stApp {{
         margin-top: 70px !important;
@@ -167,7 +167,6 @@ topbar_html = f"""
         font-size: 0.9rem;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }}
-    
     div.stFormSubmitButton > button, div.stButton > button {{
         border-radius: 8px !important;
         background-color: #28a745 !important;
@@ -178,7 +177,6 @@ topbar_html = f"""
         background-color: #218838 !important;
         color: white !important;
     }}
-    
     [data-testid="stDataFrame"] table {{
         font-weight: 900 !important;
     }}
@@ -192,10 +190,6 @@ topbar_html = f"""
         font-size: 1.1rem !important;
         color: #000000 !important;
     }}
-    [data-testid="stDataFrame"] div, [data-testid="stDataFrame"] span, [data-testid="stDataFrame"] p {{
-        font-weight: 900 !important;
-    }}
-    
     [data-testid="stSidebar"] {{
         background-color: #d8ebd8;
         border-left: 2px solid #c2e0c2;
@@ -205,10 +199,6 @@ topbar_html = f"""
     }}
     [data-testid="stSidebar"] > div:first-child {{
         padding-top: 10px !important;
-    }}
-    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {{
-        gap: 0rem !important;
-        padding-top: 0rem !important;
     }}
     [data-testid="stSidebar"] .stRadio > label {{
         display: none !important;
@@ -267,9 +257,7 @@ topbar_html = f"""
         </div>
     </div>
     {alert_script}
-"""
-
-st.markdown(topbar_html, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 try:
     guides_df = pd.read_excel(GUIDES_FILE)
