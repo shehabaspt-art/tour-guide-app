@@ -6,7 +6,7 @@ import streamlit as st
 import pandas as pd
 
 # -------------------------------------------------------------
-# 🎯 حط اسم صورة اللوجو هنا أو رابطها المباشر
+# 🎯 اكتب اسم ملف اللوجو الحقيقي عندك هنا (مثلاً logo.png أو logo.jpg)
 LOGO_FILENAME = "logo.png" 
 # -------------------------------------------------------------
 
@@ -218,7 +218,7 @@ st.markdown(f"""
 
     <div class="custom-topbar">
         <div class="topbar-left-group">
-            {"<img src='data:image/png;base64," + encoded_logo_data + "' style='height: 48px; object-fit: contain;' />" if has_logo_file else "<div style='display: flex; align-items: center; gap: 10px;'><span style='font-size: 1.6rem;'>🧭</span><span style='color: #1b5e20; font-weight: bold; font-size: 1.25rem;'>Sun Pyramids Tours</span></div>"}
+            {"<img src='data:image/png;base64," + encoded_logo_data + "' style='height: 45px; object-fit: contain;' />" if has_logo_file else "<div style='display: flex; align-items: center; gap: 10px;'><span style='font-size: 1.6rem;'>🧭</span><span style='color: #1b5e20; font-weight: bold; font-size: 1.25rem;'>Sun Pyramids Tours</span></div>"}
         </div>
         <div class="topbar-right-group">
             <div class="notification-container" title="عدد التصفيات والطلبات المعلقة">
