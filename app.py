@@ -69,141 +69,41 @@ if pending_count > st.session_state.last_pending_count:
 elif pending_count < st.session_state.last_pending_count:
     st.session_state.last_pending_count = pending_count
 
-alert_script = ""
-if new_order_arrived:
-    alert_script = """
-    <script>
-        document.title = "🚨 (طلب جديد!) Sun Pyramids Tours";
-        var audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-        audio.play().catch(e => console.log("Audio play blocked"));
-    </script>
-    """
-
-current_logo_path = get_current_logo()
-logo_html_element = ""
-if current_logo_path:
-    with open(current_logo_path, "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read()).decode()
-    logo_html_element = f'<img src="data:image/png;base64,{encoded_string}" style="height: 48px; object-fit: contain;" />'
-else:
-    logo_html_element = """
-        <svg width="65" height="48" viewBox="0 0 110 80" xmlns="http://www.w3.org/2000/svg">
-            <polygon points="50,12 82,72 18,72" fill="#f39c12"/>
-            <polygon points="50,12 65,72 35,72" fill="#e67e22"/>
-            <line x1="50" y1="12" x2="42" y2="72" stroke="#ffffff" stroke-width="1.2"/>
-            <line x1="50" y1="12" x2="52" y2="72" stroke="#ffffff" stroke-width="1.2"/>
-            <line x1="50" y1="12" x2="60" y2="72" stroke="#ffffff" stroke-width="1.2"/>
-            <path d="M 15 72 A 38 38 0 0 1 85 72 Z" fill="#00acc1"/>
-            <line x1="50" y1="42" x2="30" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
-            <line x1="50" y1="42" x2="40" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
-            <line x1="50" y1="42" x2="50" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
-            <line x1="50" y1="42" x2="60" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
-            <line x1="50" y1="42" x2="70" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
-        </svg>
-    """
-
-st.markdown(f"""
+# تعديل تصميم الـ CSS والتنسيق العام بطريقة نظيفة وآمنة تماماً
+st.markdown("""
     <style>
-    .stApp {{
-        margin-top: 70px !important;
-    }}
-    .block-container {{
-        padding-top: 2rem !important;
-    }}
-    .custom-topbar {{
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 65px;
-        background-color: #ffffff;
-        border-bottom: 2px solid #e0e0e0;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 25px;
-        z-index: 99999;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    }}
-    .topbar-left-group {{
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }}
-    .topbar-right-group {{
-        display: flex;
-        align-items: center;
-        gap: 22px;
-    }}
-    .notification-container {{
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        cursor: pointer;
-    }}
-    .notification-badge {{
-        position: absolute;
-        top: -8px;
-        right: -15px;
-        background-color: #e8f5e9;
-        color: #2e7d32;
-        border: 1px solid #a5d6a7;
-        font-size: 0.75rem;
-        font-weight: 700;
-        padding: 1px 6px;
-        border-radius: 12px;
-    }}
-    .user-profile-badge {{
-        width: 36px;
-        height: 36px;
-        background-color: #f1f8f1;
-        color: #114b21;
-        border: 1px solid #c8e6c9;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        font-size: 0.9rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }}
-    div.stFormSubmitButton > button, div.stButton > button {{
+    div.stFormSubmitButton > button, div.stButton > button {
         border-radius: 8px !important;
         background-color: #28a745 !important;
         color: white !important;
         border: none !important;
-    }}
-    div.stFormSubmitButton > button:hover, div.stButton > button:hover {{
+    }
+    div.stFormSubmitButton > button:hover, div.stButton > button:hover {
         background-color: #218838 !important;
         color: white !important;
-    }}
-    [data-testid="stDataFrame"] table {{
+    }
+    [data-testid="stDataFrame"] table {
         font-weight: 900 !important;
-    }}
-    [data-testid="stDataFrame"] th {{
+    }
+    [data-testid="stDataFrame"] th {
         font-weight: 900 !important;
         font-size: 1.15rem !important;
         color: #0b3d0f !important;
-    }}
-    [data-testid="stDataFrame"] td {{
+    }
+    [data-testid="stDataFrame"] td {
         font-weight: 900 !important;
         font-size: 1.1rem !important;
         color: #000000 !important;
-    }}
-    [data-testid="stSidebar"] {{
+    }
+    [data-testid="stSidebar"] {
         background-color: #d8ebd8;
         border-left: 2px solid #c2e0c2;
-        margin-top: 0px !important;
-        padding-top: 0px !important;
         border-radius: 0px 8px 8px 0px;
-    }}
-    [data-testid="stSidebar"] > div:first-child {{
-        padding-top: 10px !important;
-    }}
-    [data-testid="stSidebar"] .stRadio > label {{
+    }
+    [data-testid="stSidebar"] .stRadio > label {
         display: none !important;
-    }}
-    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label {{
+    }
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label {
         background-color: #ffffff !important;
         padding: 14px 18px !important;
         border-radius: 12px !important;
@@ -213,51 +113,44 @@ st.markdown(f"""
         transition: all 0.3s ease-in-out !important;
         display: flex !important;
         align-items: center !important;
-    }}
-    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:hover {{
+    }
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:hover {
         transform: translateY(-3px) !important;
         box-shadow: 0 8px 20px rgba(27, 94, 32, 0.15) !important;
         border-color: #2e7d32 !important;
         background-color: #f1f8f1 !important;
-    }}
-    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label p {{
+    }
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label p {
         font-weight: 700 !important;
         color: #1b5e20 !important;
         font-size: 1.05rem !important;
         margin: 0 !important;
-    }}
+    }
     </style>
-
-    <div class="custom-topbar">
-        <div class="topbar-left-group">
-            <div style="display: flex; align-items: center; gap: 14px;">
-                {logo_html_element}
-                <div style="display: flex; flex-direction: column; justify-content: center; gap: 2px;">
-                    <span style="font-family: 'Times New Roman', Times, serif; font-style: italic; font-weight: bold; font-size: 1.35rem; color: #1d4ed8; letter-spacing: 0.8px; line-height: 1;">SUN PYRAMIDS</span>
-                    <div style="display: flex; align-items: center; gap: 4px; font-family: 'Times New Roman', Times, serif; font-size: 0.85rem; font-weight: bold; letter-spacing: 0.5px;">
-                        <span style="color: #00acc1; text-decoration: underline; font-style: italic;">SINCE</span>
-                        <span style="color: #f39c12; font-style: italic; font-size: 0.95rem;">T</span>
-                        <span style="color: #00acc1; font-style: italic; font-size: 0.95rem;">O</span>
-                        <span style="color: #f39c12; font-style: italic; font-size: 0.95rem;">U</span>
-                        <span style="color: #00acc1; font-style: italic; font-size: 0.95rem;">R</span>
-                        <span style="color: #f39c12; font-style: italic; font-size: 0.95rem;">S</span>
-                        <span style="color: #00acc1; text-decoration: underline; font-style: italic; margin-left: 2px;">1970</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="topbar-right-group">
-            <div class="notification-container" title="عدد التصفيات والطلبات المعلقة">
-                <span style="font-size: 1.3rem;">🔔</span>
-                <span class="notification-badge">{pending_count}</span>
-            </div>
-            <div class="user-profile-badge" title="حساب المدير">
-                SA
-            </div>
-        </div>
-    </div>
-    {alert_script}
 """, unsafe_allow_html=True)
+
+# استخدام أعمدة Streamlit الرسمية لعمل شريط علوي احترافي ومستقر 100% بدون أي مشاكل في العرض
+top_col1, top_col2, top_col3 = st.columns([6, 2, 1])
+
+with top_col1:
+    st.markdown("### 🧭 SUN PYRAMIDS TOURS <span style='font-size:0.8rem; color:#00acc1;'>SINCE TOURS 1970</span>", unsafe_allow_html=True)
+
+with top_col2:
+    st.markdown(f"🔔 **الطلبات المعلقة:** `{pending_count}`")
+
+with top_col3:
+    st.markdown("👤 **SA** (المدير)")
+
+st.markdown("---")
+
+if new_order_arrived:
+    st.markdown("""
+        <script>
+            document.title = "🚨 (طلب جديد!) Sun Pyramids Tours";
+            var audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+            audio.play().catch(e => console.log("Audio play blocked"));
+        </script>
+    """, unsafe_allow_html=True)
 
 try:
     guides_df = pd.read_excel(GUIDES_FILE)
