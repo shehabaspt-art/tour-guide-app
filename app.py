@@ -5,6 +5,11 @@ import time
 import streamlit as st
 import pandas as pd
 
+# -------------------------------------------------------------
+# 🎯 اكتب اسم ملف اللوجو الأساسي الخاص بك هنا بالضبط:
+LOGO_FILENAME = "logo.png"  # قم بتغييره لاسم ملف اللوجو لديك (مثال: logo.jpg أو sun_logo.png)
+# -------------------------------------------------------------
+
 st.set_page_config(page_title="Sun Pyramids Tours", page_icon="🧭", layout="wide")
 
 UPLOAD_DIR = "uploads"
@@ -14,7 +19,6 @@ if not os.path.exists(UPLOAD_DIR):
 SUBMISSIONS_FILE = "submissions.xlsx"
 ARCHIVE_FILE = "archive.xlsx"
 GUIDES_FILE = "guides.xlsx"
-SAVED_LOGO_PATH = os.path.join(UPLOAD_DIR, "custom_saved_logo.png")
 
 def load_data(file_path):
     if os.path.exists(file_path):
@@ -61,29 +65,15 @@ if pending_count > st.session_state.last_pending_count:
 elif pending_count < st.session_state.last_pending_count:
     st.session_state.last_pending_count = pending_count
 
-# التثبيت النهائي والآمن للوجو الشركة الأساسي بدقة عالية
-active_logo_to_show = None
-if os.path.exists(SAVED_LOGO_PATH):
-    active_logo_to_show = SAVED_LOGO_PATH
-else:
-    for f in os.listdir("."):
-        if ("logo" in f.lower() or "sun" in f.lower()) and f.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')) and not f.startswith("image_"):
-            active_logo_to_show = f
-            break
-    
-    if not active_logo_to_show:
-        for f in os.listdir("."):
-            if f.endswith(('.png', '.jpg', '.jpeg', '.webp')) and not f.startswith("image_"):
-                active_logo_to_show = f
-                break
-
+# 🖼️ عرض اللوجو مباشرة عبر اسم الملف المحدد
 logo_html = ""
-if active_logo_to_show and os.path.exists(active_logo_to_show):
-    with open(active_logo_to_show, "rb") as img_file:
+if os.path.exists(LOGO_FILENAME):
+    with open(LOGO_FILENAME, "rb") as img_file:
         encoded_img = base64.b64encode(img_file.read()).decode()
-        logo_html = f'<img src="data:image/png;base64,{encoded_img}" style="height: 45px; object-fit: contain;" />'
+        logo_html = f'<img src="data:image/png;base64,{encoded_img}" style="height: 50px; object-fit: contain;" />'
 else:
-    logo_html = '<span style="color: #1b5e20; font-weight: bold; font-size: 1.2rem;">Sun Pyramids Tours</span>'
+    # إظهار الاسم بخط بارز في حال عدم العثور على اسم الملف لتنفيذه مباشرة
+    logo_html = '<span style="color: #1b5e20; font-weight: bold; font-size: 1.3rem;">Sun Pyramids Tours</span>'
 
 alert_script = ""
 if new_order_arrived:
