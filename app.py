@@ -61,22 +61,30 @@ if pending_count > st.session_state.last_pending_count:
 elif pending_count < st.session_state.last_pending_count:
     st.session_state.last_pending_count = pending_count
 
+# البحث حصرياً عن اللوجو المحفوظ أو أي صورة لوجو أصلية واضحة
 active_logo_to_show = None
 if os.path.exists(SAVED_LOGO_PATH):
     active_logo_to_show = SAVED_LOGO_PATH
 else:
     for f in os.listdir("."):
-        if f.startswith("image_") and f.endswith(('.png', '.jpg', '.jpeg', '.webp')):
+        if (f.lower().startswith("logo") or "sun" in f.lower()) and f.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
             active_logo_to_show = f
             break
+    
+    # إذا لم يجد اسم لوجو صريح، نبحث عن أي صورة عدا لقطات الشاشة أو الملفات المؤقتة
+    if not active_logo_to_show:
+        for f in os.listdir("."):
+            if f.endswith(('.png', '.jpg', '.jpeg', '.webp')) and not f.startswith("image_"):
+                active_logo_to_show = f
+                break
 
 logo_html = ""
 if active_logo_to_show and os.path.exists(active_logo_to_show):
     with open(active_logo_to_show, "rb") as img_file:
         encoded_img = base64.b64encode(img_file.read()).decode()
-        logo_html = f'<img src="data:image/png;base64,{encoded_img}" style="height: 48px; object-fit: contain;" />'
+        logo_html = f'<img src="data:image/png;base64,{encoded_img}" style="height: 45px; object-fit: contain;" />'
 else:
-    logo_html = '<span style="color: #1b5e20; font-weight: bold; font-size: 1.1rem;">Sun Pyramids Tours</span>'
+    logo_html = '<span style="color: #1b5e20; font-weight: bold; font-size: 1.2rem;">Sun Pyramids Tours</span>'
 
 alert_script = ""
 if new_order_arrived:
@@ -153,7 +161,6 @@ st.markdown(f"""
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }}
     
-    /* فرض اللون الأخضر الصريح على زرار إضافة أوبشن آخر وكل الزراير */
     div.stFormSubmitButton > button, div.stButton > button {{
         border-radius: 8px !important;
         background-color: #28a745 !important;
@@ -165,7 +172,6 @@ st.markdown(f"""
         color: white !important;
     }}
     
-    /* فرض خط ثقيل جداً (Bold/Heavy) على الجدول */
     [data-testid="stDataFrame"] table {{
         font-weight: 900 !important;
     }}
@@ -812,13 +818,13 @@ elif page == "الأرشيف":
                         st.warning(f"⚠️ هل أنت متأكد من رغبتك في حذف أرشيف الفايل رقم ({row.get('File No', '')})؟")
                         ac_col1, ac_col2 = st.columns(2)
                         with ac_col1:
-                            if st.button("✔️ تأكيد الحذف النهائي", key=f"confirm_del_arch_list_{idx}", type="primary"):
+                            if st.button("✔️ تأكيد الحذف النهائي", key="confirm_del_arch_list_{idx}", type="primary"):
                                 archive_df = archive_df.drop(idx).reset_index(drop=True)
                                 overwrite_data(ARCHIVE_FILE, archive_df)
                                 st.session_state.confirming_del_arch = None
                                 st.rerun()
                         with ac_col2:
-                            if st.button("❌ رجوع (إلغاء)", key=f"cancel_del_arch_list_{idx}", type="primary"):
+                            if st.button("❌ رجوع (إلغاء)", key="cancel_del_arch_list_{idx}", type="primary"):
                                 st.session_state.confirming_del_arch = None
                                 st.rerun()
                                 
