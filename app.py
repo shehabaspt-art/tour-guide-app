@@ -69,25 +69,141 @@ if pending_count > st.session_state.last_pending_count:
 elif pending_count < st.session_state.last_pending_count:
     st.session_state.last_pending_count = pending_count
 
+alert_script = ""
 if new_order_arrived:
-    st.markdown("""
+    alert_script = """
     <script>
         document.title = "🚨 (طلب جديد!) Sun Pyramids Tours";
         var audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
         audio.play().catch(e => console.log("Audio play blocked"));
     </script>
-    """, unsafe_allow_html=True)
+    """
 
-# ----------------- تصميم رأس الصفحة (Header نظيف وآمن 100%) -----------------
-col_h1, col_h2, col_h3 = st.columns([6, 2, 1])
-with col_h1:
-    st.markdown("### 🧭 SUN PYRAMIDS TOURS - نظام التصفية")
-with col_h2:
-    st.markdown(f"🔔 **الطلبات المعلقة:** `{pending_count}`")
-with col_h3:
-    st.markdown("👤 **SA**")
+current_logo_path = get_current_logo()
+logo_html_element = ""
+if current_logo_path:
+    with open(current_logo_path, "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read()).decode()
+    logo_html_element = f'<img src="data:image/png;base64,{encoded_string}" style="height: 40px; object-fit: contain;" />'
+else:
+    logo_html_element = """
+        <svg width="45" height="35" viewBox="0 0 110 80" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="50,12 82,72 18,72" fill="#f39c12"/>
+            <polygon points="50,12 65,72 35,72" fill="#e67e22"/>
+            <path d="M 15 72 A 38 38 0 0 1 85 72 Z" fill="#00acc1"/>
+        </svg>
+    """
 
-st.markdown("---")
+st.markdown(f"""
+    <style>
+    .stApp {{
+        margin-top: 55px !important;
+    }}
+    .block-container {{
+        padding-top: 1.2rem !important;
+    }}
+    .custom-topbar {{
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 55px;
+        background-color: #ffffff;
+        border-bottom: 2px solid #e0e0e0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 25px;
+        z-index: 99999;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }}
+    .topbar-left {{
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }}
+    .topbar-right {{
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }}
+    .notification-badge-box {{
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+    }}
+    .badge-count {{
+        position: absolute;
+        top: -8px;
+        right: -12px;
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        border: 1px solid #a5d6a7;
+        font-size: 0.7rem;
+        font-weight: bold;
+        padding: 1px 5px;
+        border-radius: 10px;
+    }}
+    .user-badge {{
+        width: 32px;
+        height: 32px;
+        background-color: #f1f8f1;
+        color: #114b21;
+        border: 1px solid #c8e6c9;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.85rem;
+    }}
+    div.stFormSubmitButton > button, div.stButton > button {{
+        border-radius: 8px !important;
+        background-color: #28a745 !important;
+        color: white !important;
+        border: none !important;
+    }}
+    div.stFormSubmitButton > button:hover, div.stButton > button:hover {{
+        background-color: #218838 !important;
+        color: white !important;
+    }}
+    [data-testid="stSidebar"] {{
+        background-color: #d8ebd8;
+        border-left: 2px solid #c2e0c2;
+    }}
+    [data-testid="stSidebar"] .stRadio > label {{
+        display: none !important;
+    }}
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label {{
+        background-color: #ffffff !important;
+        padding: 10px 14px !important;
+        border-radius: 10px !important;
+        border: 1px solid #a3d9a3 !important;
+        margin-bottom: 8px !important;
+    }}
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label p {{
+        font-weight: 700 !important;
+        color: #1b5e20 !important;
+        font-size: 0.95rem !important;
+        margin: 0 !important;
+    }}
+    </style>
+
+    <div class="custom-topbar">
+        <div class="topbar-left">
+            {logo_html_element}
+            <span style="font-family: 'Times New Roman', Times, serif; font-style: italic; font-weight: bold; font-size: 1.1rem; color: #1d4ed8;">SUN PYRAMIDS TOURS</span>
+        </div>
+        <div class="topbar-right">
+            <div class="notification-badge-box" title="الطلبات المعلقة">
+                <span style="font-size: 1.2rem;">🔔</span>
+                <span class="badge-count">{pending_count}</span>
+            </div>
+            <div class="user-badge" title="المدير">SA</div>
+        </div>
+    </div>
+    {alert_script}
+""", unsafe_allow_html=True)
 
 try:
     guides_df = pd.read_excel(GUIDES_FILE)
@@ -105,11 +221,12 @@ SHOPS_LIST = [
     "ريحانة توابل", "كنور توابل", "قصر العطور", "لازوريت"
 ]
 
-st.sidebar.markdown("## 🧭 القائمة الرئيسية")
-page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف", "إعدادات اللوجو"])
+st.sidebar.markdown("<h2 style='color: #1b5e20; margin-bottom: 5px; font-size: 1.3rem;'>🧭 القائمة الرئيسية</h2>", unsafe_allow_html=True)
+st.sidebar.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1rem; margin-top: 5px; margin-bottom: 10px;'>اختر الصفحة</p>", unsafe_allow_html=True)
+page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف", "إعدادات اللوجو"], label_visibility="collapsed")
 
 if page == "نموذج تصفية المرشد":
-    st.title("🧭 نموذج تصفية المرشدين")
+    st.title("🧭 نظام تصفية المرشدين")
     st.markdown("---")
     
     if "option_rows_count" not in st.session_state:
@@ -271,7 +388,13 @@ if page == "نموذج تصفية المرشد":
                 
                 st.session_state.option_rows_count = 1
                 st.success("✅ تم إرسال الطلب للمدير بنجاح! جاهز لتسجيل تصفية جديدة...")
-                st.rerun()
+                st.markdown("""
+                    <script>
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 3000);
+                    </script>
+                """, unsafe_allow_html=True)
 
 elif page == "إدارة التصفيات":
     st.title("📊 إدارة التصفيات")
@@ -539,13 +662,15 @@ elif page == "الأرشيف":
         st.info("الأرشيف فارغ حالياً.")
 
 elif page == "إعدادات اللوجو":
-    st.title("🖼️ إعدادات اللوجو")
+    st.title("🖼️ إعدادات اللوجو (الشريط العلوي)")
     st.markdown("---")
     
     logo_pass = st.text_input("أدخل كلمة المرور لإدارة اللوجو", type="password", key="logo_pass")
     
     if logo_pass == "159753":
         st.success("تم التحقق بنجاح!")
+        st.markdown("### رفع شعار (لوجو) جديد للشريط العلوي")
+        
         uploaded_logo = st.file_uploader("اختر صورة اللوجو (PNG, JPG, JPEG)", type=["png", "jpg", "jpeg"])
         
         if uploaded_logo is not None:
@@ -558,5 +683,27 @@ elif page == "إعدادات اللوجو":
                 with open(LOGO_CONFIG_FILE, "w") as f:
                     f.write(logo_path)
                 
-                st.success("✅ تم حفظ وتطبيق اللوجو بنجاح!")
-                st.rerun()
+                st.success("✅ تم حفظ وتطبيق اللوجو بنجاح! جاري التحديث...")
+                st.markdown("""
+                    <script>
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 2000);
+                    </script>
+                """, unsafe_allow_html=True)
+        
+        if current_logo_path:
+            st.markdown("---")
+            st.markdown("### اللوجو الحالي المستخدم:")
+            st.image(current_logo_path, width=150)
+            if st.button("🗑️ العودة للوجو الافتراضي", type="primary"):
+                if os.path.exists(LOGO_CONFIG_FILE):
+                    os.remove(LOGO_CONFIG_FILE)
+                st.success("✅ تمت العودة للشعار الافتراضي بنجاح! جاري التحديث...")
+                st.markdown("""
+                    <script>
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 2000);
+                    </script>
+                """, unsafe_allow_html=True)
