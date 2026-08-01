@@ -6,7 +6,7 @@ import streamlit as st
 import pandas as pd
 
 # -------------------------------------------------------------
-# 🎯 تأكد أن اسم ملف اللوجو الصحيح هنا تماماً (مثل logo.png)
+# 🎯 حط اسم صورة اللوجو هنا أو رابطها المباشر
 LOGO_FILENAME = "logo.png" 
 # -------------------------------------------------------------
 
@@ -65,7 +65,6 @@ if pending_count > st.session_state.last_pending_count:
 elif pending_count < st.session_state.last_pending_count:
     st.session_state.last_pending_count = pending_count
 
-# قراءة اللوجو وتحويله لتنسيق Base64 آمن تماماً
 encoded_logo_data = ""
 has_logo_file = os.path.exists(LOGO_FILENAME)
 if has_logo_file:
@@ -218,8 +217,8 @@ st.markdown(f"""
     </style>
 
     <div class="custom-topbar">
-        <div class="topbar-left-group" id="topbar-logo-slot">
-            <!-- سيتم حقن اللوجو هنا مباشرة عبر سكربت -->
+        <div class="topbar-left-group">
+            {"<img src='data:image/png;base64," + encoded_logo_data + "' style='height: 48px; object-fit: contain;' />" if has_logo_file else "<div style='display: flex; align-items: center; gap: 10px;'><span style='font-size: 1.6rem;'>🧭</span><span style='color: #1b5e20; font-weight: bold; font-size: 1.25rem;'>Sun Pyramids Tours</span></div>"}
         </div>
         <div class="topbar-right-group">
             <div class="notification-container" title="عدد التصفيات والطلبات المعلقة">
@@ -231,18 +230,6 @@ st.markdown(f"""
             </div>
         </div>
     </div>
-    
-    <script>
-        const slot = document.getElementById('topbar-logo-slot');
-        if (slot) {{
-            const hasFile = {"true" if has_logo_file else "false"};
-            if (hasFile) {{
-                slot.innerHTML = '<img src="data:image/png;base64,{encoded_logo_data}" style="height: 48px; object-fit: contain;" />';
-            }} else {{
-                slot.innerHTML = '<span style="color: #1b5e20; font-weight: bold; font-size: 1.3rem;">Sun Pyramids Tours</span>';
-            }}
-        }}
-    </script>
     {alert_script}
 """, unsafe_allow_html=True)
 
