@@ -153,23 +153,8 @@ st.markdown(f"""
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }}
     
-    /* تنسيق زرار إضافة أوبشن آخر ليكون أخصر وعلى قد النص */
-    div.stFormSubmitButton > button {{
-        border-radius: 8px !important;
-        background-color: #28a745 !important;
-        color: white !important;
-        border: none !important;
-        width: fit-content !important;
-        padding: 0.4rem 1.2rem !important;
-    }}
-    div.stFormSubmitButton > button:hover {{
-        background-color: #218838 !important;
-        color: white !important;
-    }}
-    
-    /* باقي الزراير في النموذج */
-    div.stButton > button {{
-        border-radius: 8px !important;
+    button[kind="secondary"], div.stButton > button {{
+        border-radius: 8px;
         background-color: #28a745 !important;
         color: white !important;
         border: none !important;
