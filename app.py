@@ -61,17 +61,16 @@ if pending_count > st.session_state.last_pending_count:
 elif pending_count < st.session_state.last_pending_count:
     st.session_state.last_pending_count = pending_count
 
-# البحث حصرياً عن اللوجو المحفوظ أو أي صورة لوجو أصلية واضحة
+# التثبيت النهائي والآمن للوجو الشركة الأساسي بدقة عالية
 active_logo_to_show = None
 if os.path.exists(SAVED_LOGO_PATH):
     active_logo_to_show = SAVED_LOGO_PATH
 else:
     for f in os.listdir("."):
-        if (f.lower().startswith("logo") or "sun" in f.lower()) and f.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
+        if ("logo" in f.lower() or "sun" in f.lower()) and f.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')) and not f.startswith("image_"):
             active_logo_to_show = f
             break
     
-    # إذا لم يجد اسم لوجو صريح، نبحث عن أي صورة عدا لقطات الشاشة أو الملفات المؤقتة
     if not active_logo_to_show:
         for f in os.listdir("."):
             if f.endswith(('.png', '.jpg', '.jpeg', '.webp')) and not f.startswith("image_"):
