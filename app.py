@@ -14,6 +14,7 @@ if not os.path.exists(UPLOAD_DIR):
 SUBMISSIONS_FILE = "submissions.xlsx"
 ARCHIVE_FILE = "archive.xlsx"
 GUIDES_FILE = "guides.xlsx"
+SAVED_LOGO_PATH = os.path.join(UPLOAD_DIR, "custom_saved_logo.png")
 
 def load_data(file_path):
     if os.path.exists(file_path):
@@ -60,6 +61,23 @@ if pending_count > st.session_state.last_pending_count:
 elif pending_count < st.session_state.last_pending_count:
     st.session_state.last_pending_count = pending_count
 
+active_logo_to_show = None
+if os.path.exists(SAVED_LOGO_PATH):
+    active_logo_to_show = SAVED_LOGO_PATH
+else:
+    for f in os.listdir("."):
+        if f.startswith("image_") and f.endswith(('.png', '.jpg', '.jpeg', '.webp')):
+            active_logo_to_show = f
+            break
+
+logo_html = ""
+if active_logo_to_show and os.path.exists(active_logo_to_show):
+    with open(active_logo_to_show, "rb") as img_file:
+        encoded_img = base64.b64encode(img_file.read()).decode()
+        logo_html = f'<img src="data:image/png;base64,{encoded_img}" style="height: 48px; object-fit: contain;" />'
+else:
+    logo_html = '<span style="color: #1b5e20; font-weight: bold; font-size: 1.1rem;">Sun Pyramids Tours</span>'
+
 alert_script = ""
 if new_order_arrived:
     alert_script = """
@@ -85,13 +103,13 @@ st.markdown(f"""
         width: 100%;
         height: 65px;
         background-color: #ffffff;
-        border-bottom: 2px solid #e0e0e0;
+        border-bottom: 1px solid #e0e0e0;
         display: flex;
         align-items: center;
         justify-content: space-between;
         padding: 0 25px;
         z-index: 99999;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.03);
     }}
     .topbar-left-group {{
         display: flex;
@@ -124,29 +142,44 @@ st.markdown(f"""
     .user-profile-badge {{
         width: 36px;
         height: 36px;
-        background-color: #f1f8f1;
-        color: #114b21;
-        border: 1px solid #c8e6c9;
+        background-color: #111111;
+        color: #ffffff;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: bold;
         font-size: 0.9rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }}
     
-    div.stFormSubmitButton > button, div.stButton > button {{
+    /* تنسيق زرار إضافة أوبشن آخر ليكون أخصر وعلى قد النص */
+    div.stFormSubmitButton > button {{
+        border-radius: 8px !important;
+        background-color: #28a745 !important;
+        color: white !important;
+        border: none !important;
+        width: fit-content !important;
+        padding: 0.4rem 1.2rem !important;
+    }}
+    div.stFormSubmitButton > button:hover {{
+        background-color: #218838 !important;
+        color: white !important;
+    }}
+    
+    /* باقي الزراير في النموذج */
+    div.stButton > button {{
         border-radius: 8px !important;
         background-color: #28a745 !important;
         color: white !important;
         border: none !important;
     }}
-    div.stFormSubmitButton > button:hover, div.stButton > button:hover {{
+    div.stButton > button:hover {{
         background-color: #218838 !important;
         color: white !important;
     }}
     
+    /* فرض خط ثقيل جداً (Bold/Heavy) على الجدول */
     [data-testid="stDataFrame"] table {{
         font-weight: 900 !important;
     }}
@@ -208,37 +241,7 @@ st.markdown(f"""
 
     <div class="custom-topbar">
         <div class="topbar-left-group">
-            <div style="display: flex; align-items: center; gap: 14px;">
-                <!-- مطابقة تامة 100% لشكل الأيقونة والألوان من صورتك الأخيرة -->
-                <svg width="65" height="48" viewBox="0 0 110 80" xmlns="http://www.w3.org/2000/svg">
-                    <!-- الأهرامات بتدرج برتقالي واصفر -->
-                    <polygon points="50,10 84,74 16,74" fill="#f39c12"/>
-                    <polygon points="50,10 68,74 32,74" fill="#e67e22"/>
-                    <!-- خطوط الشروق البيضاء الخارجة من الشمس داخل الهرم -->
-                    <line x1="50" y1="52" x2="35" y2="74" stroke="#ffffff" stroke-width="1.8"/>
-                    <line x1="50" y1="52" x2="43" y2="74" stroke="#ffffff" stroke-width="1.8"/>
-                    <line x1="50" y1="52" x2="50" y2="74" stroke="#ffffff" stroke-width="1.8"/>
-                    <line x1="50" y1="52" x2="57" y2="74" stroke="#ffffff" stroke-width="1.8"/>
-                    <line x1="50" y1="52" x2="65" y2="74" stroke="#ffffff" stroke-width="1.8"/>
-                    <!-- نصف الدائرة (الشمس/الأفق) في الأسفل بلون تيروز / سماوي غامق -->
-                    <path d="M 18 74 A 36 36 0 0 1 82 74 Z" fill="#00acc1"/>
-                    <!-- شمس صغيرة صفراء في مركز الشروق -->
-                    <circle cx="50" cy="52" r="4" fill="#ffeb3b"/>
-                </svg>
-                <!-- مطابقة تامة للنصوص والألوان كما ظهرت في صورتك الأخيرة -->
-                <div style="display: flex; flex-direction: column; justify-content: center; gap: 2px;">
-                    <span style="font-family: 'Times New Roman', Times, serif; font-style: italic; font-weight: bold; font-size: 1.35rem; color: #2563eb; letter-spacing: 0.8px; line-height: 1;">SUN PYRAMIDS</span>
-                    <div style="display: flex; align-items: center; gap: 4px; font-family: 'Times New Roman', Times, serif; font-size: 0.9rem; font-weight: bold; letter-spacing: 0.5px;">
-                        <span style="color: #00acc1; text-decoration: underline; font-style: italic;">SINCE</span>
-                        <span style="color: #f39c12; font-style: italic; font-size: 1rem;">T</span>
-                        <span style="color: #00acc1; font-style: italic; font-size: 1rem;">O</span>
-                        <span style="color: #f39c12; font-style: italic; font-size: 1rem;">U</span>
-                        <span style="color: #00acc1; font-style: italic; font-size: 1rem;">R</span>
-                        <span style="color: #f39c12; font-style: italic; font-size: 1rem;">S</span>
-                        <span style="color: #00acc1; text-decoration: underline; font-style: italic; margin-left: 3px;">1970</span>
-                    </div>
-                </div>
-            </div>
+            {logo_html}
         </div>
         <div class="topbar-right-group">
             <div class="notification-container" title="عدد التصفيات والطلبات المعلقة">
@@ -773,7 +776,7 @@ elif page == "الأرشيف":
                         st.warning(f"⚠️ هل أنت متأكد من رغبتك في حذف أرشيف الفايل رقم ({del_row_file}) نهائياً؟")
                         d_col1, d_col2 = st.columns(2)
                         with d_col1:
-                            if st.button("✔️ تأكيد الحذف النهائي", key="confirm_del_arch_btn", type="primary"):
+                            if st.button("✔️ تأكيد الحذف النهائي", type="primary", key="confirm_del_arch_btn"):
                                 archive_df = archive_df.drop(del_idx).reset_index(drop=True)
                                 overwrite_data(ARCHIVE_FILE, archive_df)
                                 st.session_state.confirming_del_arch = None
