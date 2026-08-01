@@ -5,6 +5,11 @@ import time
 import streamlit as st
 import pandas as pd
 
+# -------------------------------------------------------------
+# 🎯 تأكد أن اسم ملف اللوجو الصحيح هنا تماماً (مثل logo.png)
+LOGO_FILENAME = "logo.png" 
+# -------------------------------------------------------------
+
 st.set_page_config(page_title="Sun Pyramids Tours", page_icon="🧭", layout="wide")
 
 UPLOAD_DIR = "uploads"
@@ -14,7 +19,6 @@ if not os.path.exists(UPLOAD_DIR):
 SUBMISSIONS_FILE = "submissions.xlsx"
 ARCHIVE_FILE = "archive.xlsx"
 GUIDES_FILE = "guides.xlsx"
-SAVED_LOGO_PATH = os.path.join(UPLOAD_DIR, "custom_saved_logo.png")
 
 def load_data(file_path):
     if os.path.exists(file_path):
@@ -61,30 +65,12 @@ if pending_count > st.session_state.last_pending_count:
 elif pending_count < st.session_state.last_pending_count:
     st.session_state.last_pending_count = pending_count
 
-# البحث حصرياً عن اللوجو المحفوظ أو أي صورة لوجو أصلية واضحة
-active_logo_to_show = None
-if os.path.exists(SAVED_LOGO_PATH):
-    active_logo_to_show = SAVED_LOGO_PATH
-else:
-    for f in os.listdir("."):
-        if (f.lower().startswith("logo") or "sun" in f.lower()) and f.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
-            active_logo_to_show = f
-            break
-    
-    # إذا لم يجد اسم لوجو صريح، نبحث عن أي صورة عدا لقطات الشاشة أو الملفات المؤقتة
-    if not active_logo_to_show:
-        for f in os.listdir("."):
-            if f.endswith(('.png', '.jpg', '.jpeg', '.webp')) and not f.startswith("image_"):
-                active_logo_to_show = f
-                break
-
-logo_html = ""
-if active_logo_to_show and os.path.exists(active_logo_to_show):
-    with open(active_logo_to_show, "rb") as img_file:
-        encoded_img = base64.b64encode(img_file.read()).decode()
-        logo_html = f'<img src="data:image/png;base64,{encoded_img}" style="height: 45px; object-fit: contain;" />'
-else:
-    logo_html = '<span style="color: #1b5e20; font-weight: bold; font-size: 1.2rem;">Sun Pyramids Tours</span>'
+# قراءة اللوجو وتحويله لتنسيق Base64 آمن تماماً
+encoded_logo_data = ""
+has_logo_file = os.path.exists(LOGO_FILENAME)
+if has_logo_file:
+    with open(LOGO_FILENAME, "rb") as img_file:
+        encoded_logo_data = base64.b64encode(img_file.read()).decode()
 
 alert_script = ""
 if new_order_arrived:
@@ -232,8 +218,8 @@ st.markdown(f"""
     </style>
 
     <div class="custom-topbar">
-        <div class="topbar-left-group">
-            {logo_html}
+        <div class="topbar-left-group" id="topbar-logo-slot">
+            <!-- سيتم حقن اللوجو هنا مباشرة عبر سكربت لضمان الظهور وعدم عمل كاش -->
         </div>
         <div class="topbar-right-group">
             <div class="notification-container" title="عدد التصفيات والطلبات المعلقة">
@@ -245,6 +231,18 @@ st.markdown(f"""
             </div>
         </div>
     </div>
+    
+    <script>
+        const slot = document.getElementById('topbar-logo-slot');
+        if (slot) {{
+            const hasFile = {"true" if has_logo_file else "false"};
+            if (hasFile) {{
+                slot.innerHTML = '<img src="data:image/png;base64,{encoded_logo_data}" style="height: 48px; object-fit: contain;" />';
+            }} else {{
+                slot.innerHTML = '<span style="color: #1b5e20; font-weight: bold; font-size: 1.3rem;">Sun Pyramids Tours</span>';
+            }}
+        }}
+    </script>
     {alert_script}
 """, unsafe_allow_html=True)
 
