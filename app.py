@@ -14,6 +14,7 @@ if not os.path.exists(UPLOAD_DIR):
 SUBMISSIONS_FILE = "submissions.xlsx"
 ARCHIVE_FILE = "archive.xlsx"
 GUIDES_FILE = "guides.xlsx"
+LOGO_CONFIG_FILE = "logo_path.txt"
 
 def load_data(file_path):
     if os.path.exists(file_path):
@@ -36,6 +37,12 @@ def save_to_file(file_path, new_data):
 
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
+
+# حفظ واسترجاع اللوجو المخصص
+custom_logo_path = ""
+if os.path.exists(LOGO_CONFIG_FILE):
+    with open(LOGO_CONFIG_FILE, "r", encoding="utf-8") as f:
+        custom_logo_path = f.read().strip()
 
 if os.path.exists(SUBMISSIONS_FILE):
     try:
@@ -192,6 +199,7 @@ st.markdown(f"""
     <div class="custom-topbar">
         <div class="topbar-left-group">
             <div style="display: flex; align-items: center; gap: 12px;">
+                {'<img src="data:image/png;base64,' + base64.b64encode(open(custom_logo_path, "rb").read()).decode("utf-8") + '" style="height: 42px; object-fit: contain;" />' if custom_logo_path and os.path.exists(custom_logo_path) else '''
                 <svg width="45" height="35" viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
                     <polygon points="60,10 100,75 20,75" fill="#f39c12" />
                     <polygon points="60,10 80,75 40,75" fill="#e67e22" opacity="0.6" />
@@ -215,6 +223,7 @@ st.markdown(f"""
                         <span style="color: #00bcd4; text-decoration: underline; margin-left: 1px;">1970</span>
                     </div>
                 </div>
+                '''}
             </div>
         </div>
         <div class="topbar-right-group">
@@ -431,6 +440,32 @@ elif page == "إدارة التصفيات":
     
     if password == "159753":
         st.success("تم تسجيل الدخول بنجاح!")
+        
+        # --- قسم التحكم في اللوجو الخاص بالمدير ---
+        st.markdown("### 🖼️ التحكم في شعار (اللوجو) الخاص بالسيستم")
+        uploaded_logo = st.file_uploader("ارفع صورة اللوجو الجديد (PNG / JPG)", type=["png", "jpg", "jpeg"], key="logo_uploader")
+        if uploaded_logo is not None:
+            logo_save_path = os.path.join(UPLOAD_DIR, f"custom_logo_{time.time()}{os.path.splitext(uploaded_logo.name)[1]}")
+            with open(logo_save_path, "wb") as f:
+                f.write(uploaded_logo.getbuffer())
+            with open(LOGO_CONFIG_FILE, "w", encoding="utf-8") as f:
+                f.write(logo_save_path)
+            st.success("✅ تم تحديث اللوجو بنجاح! يتم الآن إعادة تحميل الصفحة لتطبيقه...")
+            st.markdown("""
+                <script>
+                    setTimeout(function() { window.location.reload(); }, 2000);
+                </script>
+            """, unsafe_allow_html=True)
+            
+        if custom_logo_path and os.path.exists(custom_logo_path):
+            if st.button("🔄 العودة للوجو الافتراضي الأصلي"):
+                if os.path.exists(LOGO_CONFIG_FILE):
+                    os.remove(LOGO_CONFIG_FILE)
+                st.success("تم العودة للوجو الافتراضي!")
+                st.rerun()
+                
+        st.markdown("---")
+
         sub_df = load_data(SUBMISSIONS_FILE)
         
         if "viewing_file" not in st.session_state:
