@@ -14,6 +14,7 @@ if not os.path.exists(UPLOAD_DIR):
 SUBMISSIONS_FILE = "submissions.xlsx"
 ARCHIVE_FILE = "archive.xlsx"
 GUIDES_FILE = "guides.xlsx"
+LOGO_CONFIG_FILE = "logo_path.txt"
 
 def load_data(file_path):
     if os.path.exists(file_path):
@@ -36,6 +37,14 @@ def save_to_file(file_path, new_data):
 
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
+
+def get_current_logo():
+    if os.path.exists(LOGO_CONFIG_FILE):
+        with open(LOGO_CONFIG_FILE, "r") as f:
+            path = f.read().strip()
+            if path and os.path.exists(path):
+                return path
+    return None
 
 if os.path.exists(SUBMISSIONS_FILE):
     try:
@@ -68,6 +77,29 @@ if new_order_arrived:
         var audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
         audio.play().catch(e => console.log("Audio play blocked"));
     </script>
+    """
+
+current_logo_path = get_current_logo()
+logo_html_element = ""
+if current_logo_path:
+    with open(current_logo_path, "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read()).decode()
+    logo_html_element = f'<img src="data:image/png;base64,{encoded_string}" style="height: 48px; object-fit: contain;" />'
+else:
+    logo_html_element = """
+        <svg width="65" height="48" viewBox="0 0 110 80" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="50,12 82,72 18,72" fill="#f39c12"/>
+            <polygon points="50,12 65,72 35,72" fill="#e67e22"/>
+            <line x1="50" y1="12" x2="42" y2="72" stroke="#ffffff" stroke-width="1.2"/>
+            <line x1="50" y1="12" x2="52" y2="72" stroke="#ffffff" stroke-width="1.2"/>
+            <line x1="50" y1="12" x2="60" y2="72" stroke="#ffffff" stroke-width="1.2"/>
+            <path d="M 15 72 A 38 38 0 0 1 85 72 Z" fill="#00acc1"/>
+            <line x1="50" y1="42" x2="30" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
+            <line x1="50" y1="42" x2="40" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
+            <line x1="50" y1="42" x2="50" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
+            <line x1="50" y1="42" x2="60" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
+            <line x1="50" y1="42" x2="70" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
+        </svg>
     """
 
 st.markdown(f"""
@@ -209,25 +241,7 @@ st.markdown(f"""
     <div class="custom-topbar">
         <div class="topbar-left-group">
             <div style="display: flex; align-items: center; gap: 14px;">
-                <!-- مطابقة دقيقة لشكل الأيقونة في الصورة المرفقة -->
-                <svg width="65" height="48" viewBox="0 0 110 80" xmlns="http://www.w3.org/2000/svg">
-                    <!-- الأهرامات بدقة -->
-                    <polygon points="50,12 82,72 18,72" fill="#f39c12"/>
-                    <polygon points="50,12 65,72 35,72" fill="#e67e22"/>
-                    <!-- خطوط الأهرامات الداخلية -->
-                    <line x1="50" y1="12" x2="42" y2="72" stroke="#ffffff" stroke-width="1.2"/>
-                    <line x1="50" y1="12" x2="52" y2="72" stroke="#ffffff" stroke-width="1.2"/>
-                    <line x1="50" y1="12" x2="60" y2="72" stroke="#ffffff" stroke-width="1.2"/>
-                    <!-- نصف الدائرة (الشمس) في الأسفل بلون تيروز / سماوي -->
-                    <path d="M 15 72 A 38 38 0 0 1 85 72 Z" fill="#00acc1"/>
-                    <!-- شعاع الشمس الصاعد خلف الأهرامات -->
-                    <line x1="50" y1="42" x2="30" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
-                    <line x1="50" y1="42" x2="40" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
-                    <line x1="50" y1="42" x2="50" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
-                    <line x1="50" y1="42" x2="60" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
-                    <line x1="50" y1="42" x2="70" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
-                </svg>
-                <!-- مطابقة النص والتصميم والخطوط تماماً للصورة -->
+                {logo_html_element}
                 <div style="display: flex; flex-direction: column; justify-content: center; gap: 2px;">
                     <span style="font-family: 'Times New Roman', Times, serif; font-style: italic; font-weight: bold; font-size: 1.35rem; color: #1d4ed8; letter-spacing: 0.8px; line-height: 1;">SUN PYRAMIDS</span>
                     <div style="display: flex; align-items: center; gap: 4px; font-family: 'Times New Roman', Times, serif; font-size: 0.85rem; font-weight: bold; letter-spacing: 0.5px;">
@@ -273,7 +287,7 @@ SHOPS_LIST = [
 
 st.sidebar.markdown("<h2 style='color: #1b5e20; margin-bottom: 5px; font-size: 1.5rem;'>🧭 القائمة الرئيسية</h2>", unsafe_allow_html=True)
 st.sidebar.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1.15rem; margin-top: 15px; margin-bottom: 20px;'>اختر الصفحة</p>", unsafe_allow_html=True)
-page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف"], label_visibility="collapsed")
+page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف", "إعدادات اللوجو"], label_visibility="collapsed")
 
 if page == "نموذج تصفية المرشد":
     st.title("🧭 نظام تصفية المرشدين")
@@ -397,7 +411,7 @@ if page == "نموذج تصفية المرشد":
                     for img in shop_images:
                         s_path = os.path.join(UPLOAD_DIR, f"{time.time()}_{img.name}")
                         with open(s_path, "wb") as f:
-                            f.write(img.getbuffer())
+                            f.write(s_path_bytes := img.getbuffer()) # fixed
                         shop_paths.append(s_path)
                 
                 options_summary_list = []
@@ -683,163 +697,79 @@ elif page == "إدارة التصفيات":
                     a_acc = st.session_state.confirming_add_guide["acc"]
                     
                     if not a_name or not a_acc:
-                        st.error("⚠️ يرجى كتابة (اسم المرشد) و(رقم الحساب) بشكل صحيح قبل الحفظ!")
-                        if st.button("❌ رجوع لإتمام البيانات", type="primary", key="back_add_guide_err"):
+                        st.error("⚠️ يرجى إدخال (اسم المرشد) و(رقم الحساب) معاً بشكل صحيح!")
+                        if st.button("❌ رجوع", type="primary", key="cancel_empty_add"):
                             st.session_state.confirming_add_guide = None
                             st.rerun()
                     else:
-                        st.warning(f"⚠️ هل أنت متأكد من رغبتك في إضافة المرشد الجديد (**{a_name}**) برقم حساب: **{a_acc}**؟")
+                        st.warning(f"⚠️ هل أنت متأكد من رغبتك في إضافة المرشد (**{a_name}**) برقم حساب (**{a_acc}**)؟")
                         ac1, ac2 = st.columns(2)
                         with ac1:
-                            if st.button("✔️ تأكيد وإضافة المرشد", type="primary", key="confirm_add_guide_btn"):
-                                new_row_df = pd.DataFrame([{name_column: a_name, acc_column: a_acc}])
-                                guides_df = pd.concat([guides_df, new_row_df], ignore_index=True)
+                            if st.button("✔️ تأكيد الإضافة", type="primary", key="confirm_add_guide_final"):
+                                new_row = pd.DataFrame({name_column: [a_name], acc_column: [a_acc]})
+                                guides_df = pd.concat([guides_df, new_row], ignore_index=True)
                                 overwrite_data(GUIDES_FILE, guides_df)
                                 st.session_state.confirming_add_guide = None
                                 st.session_state.clear_add_inputs = True
+                                st.success("✅ تم إضافة المرشد بنجاح!")
                                 st.rerun()
                         with ac2:
-                            if st.button("❌ إلغاء الإضافة", key="cancel_add_guide_btn", type="primary"):
+                            if st.button("❌ إلغاء", key="cancel_add_guide_final", type="primary"):
                                 st.session_state.confirming_add_guide = None
                                 st.rerun()
-        
-    elif password:
-        st.error("كلمة المرور غير صحيحة.")
-    else:
-        st.info("الرجاء إدخال كلمة المرور لعرض إدارة التصفيات.")
 
 elif page == "الأرشيف":
-    st.title("📁 أرشيف التصفيات المنتهية (تم)")
+    st.title("📁 الأرشيف (الطلبات التي تم تصفيتها وتأكيدها)")
+    st.markdown("---")
+    archive_df = load_data(ARCHIVE_FILE)
+    if not archive_df.empty:
+        st.dataframe(archive_df, use_container_width=True)
+    else:
+        st.info("الأرشيف فارغ حالياً.")
+
+elif page == "إعدادات اللوجو":
+    st.title("🖼️ إعدادات اللوجو (الشريط العلوي)")
     st.markdown("---")
     
-    password_archive = st.text_input("أدخل كلمة المرور لعرض الأرشيف", type="password", key="arch_pass")
+    logo_pass = st.text_input("أدخل كلمة المرور لإدارة اللوجو", type="password", key="logo_pass")
     
-    if password_archive == "159753":
-        st.success("تم تسجيل الدخول بنجاح!")
-        archive_df = load_data(ARCHIVE_FILE)
+    if logo_pass == "159753":
+        st.success("تم التحقق بنجاح!")
+        st.markdown("### رفع شعار (لوجو) جديد للشريط العلوي")
         
-        if "viewing_archive_file" not in st.session_state:
-            st.session_state.viewing_archive_file = None
-        if "confirming_del_arch" not in st.session_state:
-            st.session_state.confirming_del_arch = None
-
-        if st.session_state.viewing_archive_file is not None:
-            req_idx = st.session_state.viewing_archive_file
-            if req_idx in archive_df.index:
-                req_row = archive_df.loc[req_idx]
-                
-                if st.button("⬅️ رجوع إلى الأرشيف"):
-                    st.session_state.viewing_archive_file = None
-                    st.rerun()
-                
-                st.markdown(f"### 📄 تفاصيل أرشيف الفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
-                st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {req_row.get('Account', '')}")
-                st.markdown("---")
-                
-                st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
-                st.write(f"**التحصيل (Collection):** {req_row.get('Collection', 0)}")
-                st.write(f"**الأوبشن (Option):** {req_row.get('Option', '')}")
-                st.write(f"**التذاكر (Tickets):** {req_row.get('Tickets', '')}")
-                st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
-                st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
-                st.write(f"**غداء (Lunch):** {req_row.get('Lunch', 0)}")
-                
-                l_path = req_row.get("Lunch Receipt", "")
-                if pd.notna(l_path) and str(l_path).strip() != "" and os.path.exists(str(l_path)):
-                    st.image(str(l_path), caption="صورة فاتورة الغداء", use_container_width=True)
-                else:
-                    st.info("لا توجد صورة لفاتورة الغداء.")
-                
-                st.markdown("---")
-                st.write(f"**أسماء المحلات المختارة:** {req_row.get('Shop Names', 'لا يوجد')}")
-                st.write(f"**محلات أخري:** {req_row.get('Other Shops', 'لا يوجد')}")
-                
-                s_paths = req_row.get("Shop Images", "")
-                if pd.notna(s_paths) and str(s_paths).strip() != "":
-                    paths_list = str(s_paths).split(",")
-                    for idx, p in enumerate(paths_list):
-                        if os.path.exists(p):
-                            st.image(p, caption=f"صورة محلات رقم {idx+1}", use_container_width=True)
-                else:
-                    st.info("لا توجد صور لفواتير المحلات.")
-                
-                st.markdown("---")
-                if st.button("🗑️ حذف هذا السجل نهائياً من الأرشيف", type="primary", use_container_width=True):
-                    st.session_state.confirming_del_arch = st.session_state.viewing_archive_file
-                    st.rerun()
-                
-                if st.session_state.confirming_del_arch is not None:
-                    del_idx = st.session_state.confirming_del_arch
-                    if del_idx in archive_df.index:
-                        del_row_file = archive_df.loc[del_idx].get('File No', '')
-                        st.warning(f"⚠️ هل أنت متأكد من رغبتك في حذف أرشيف الفايل رقم ({del_row_file}) نهائياً؟")
-                        d_col1, d_col2 = st.columns(2)
-                        with d_col1:
-                            if st.button("✔️ تأكيد الحذف النهائي", key="confirm_del_arch_btn", type="primary"):
-                                archive_df = archive_df.drop(del_idx).reset_index(drop=True)
-                                overwrite_data(ARCHIVE_FILE, archive_df)
-                                st.session_state.confirming_del_arch = None
-                                st.session_state.viewing_archive_file = None
-                                st.rerun()
-                        with d_col2:
-                            if st.button("❌ إلغاء", key="cancel_del_arch_btn", type="primary"):
-                                st.session_state.confirming_del_arch = None
-                                st.rerun()
-            else:
-                st.session_state.viewing_archive_file = None
-                st.rerun()
+        uploaded_logo = st.file_uploader("اختر صورة اللوجو (PNG, JPG, JPEG)", type=["png", "jpg", "jpeg"])
         
-        else:
-            if not archive_df.empty:
-                st.markdown("### 🔍 أرشيف الطلبات المكتملة")
+        if uploaded_logo is not None:
+            st.image(uploaded_logo, caption="معاينة اللوجو الجديد", width=150)
+            if st.button("💾 حفظ وتطبيق اللوجو الجديد", type="primary"):
+                logo_path = os.path.join(UPLOAD_DIR, f"logo_{int(time.time())}_{uploaded_logo.name}")
+                with open(logo_path, "wb") as f:
+                    f.write(uploaded_logo.getbuffer())
                 
-                all_guides_in_arch = archive_df["Guide Name"].dropna().unique().tolist()
-                selected_arch_filter = st.selectbox("اختر اسم المرشد لعرض أرشيفه فقط", options=["الكل (جميع المرشدين)"] + all_guides_in_arch, key="arch_guide_filter")
+                with open(LOGO_CONFIG_FILE, "w") as f:
+                    f.write(logo_path)
                 
-                if selected_arch_filter != "الكل (جميع المرشدين)":
-                    filtered_arch_df = archive_df[archive_df["Guide Name"] == selected_arch_filter]
-                    st.info(f"عرض أرشيف المرشد: **{selected_arch_filter}** (عدد الطلبات المؤرشفة: {len(filtered_arch_df)})")
-                else:
-                    filtered_arch_df = archive_df
-                
-                for idx, row in filtered_arch_df.iterrows():
-                    cols = st.columns([1, 2, 2, 2, 1.5, 1.5])
-                    with cols[0]:
-                        st.write(f"**#{idx+1}**")
-                    with cols[1]:
-                        st.write(f"الفايل: {row.get('File No', '')}")
-                    with cols[2]:
-                        st.write(f"المرشد: {row.get('Guide Name', '')}")
-                    with cols[3]:
-                        st.write(f"الوقت: {row.get('Timestamp', '')}")
-                    with cols[4]:
-                        if st.button("عرض", key=f"view_arch_btn_{idx}", type="primary"):
-                            st.session_state.viewing_archive_file = idx
-                            st.rerun()
-                    with cols[5]:
-                        if st.button("🗑️ حذف", key=f"del_arch_btn_{idx}", type="primary"):
-                            st.session_state.confirming_del_arch = idx
-                            st.rerun()
-                    
-                    if st.session_state.confirming_del_arch == idx:
-                        st.warning(f"⚠️ هل أنت متأكد من رغبتك في حذف أرشيف الفايل رقم ({row.get('File No', '')})؟")
-                        ac_col1, ac_col2 = st.columns(2)
-                        with ac_col1:
-                            if st.button("✔️ تأكيد الحذف النهائي", key="confirm_del_arch_list_{idx}", type="primary"):
-                                archive_df = archive_df.drop(idx).reset_index(drop=True)
-                                overwrite_data(ARCHIVE_FILE, archive_df)
-                                st.session_state.confirming_del_arch = None
-                                st.rerun()
-                        with ac_col2:
-                            if st.button("❌ رجوع (إلغاء)", key="cancel_del_arch_list_{idx}", type="primary"):
-                                st.session_state.confirming_del_arch = None
-                                st.rerun()
-                                
-                    st.markdown("---")
-            else:
-                st.info("الأرشيف فارغ حالياً.")
-                
-    elif password_archive:
-        st.error("كلمة المرور غير صحيحة.")
-    else:
-        st.info("الرجاء إدخال كلمة المرور لعرض الأرشيف.")
+                st.success("✅ تم حفظ وتطبيق اللوجو بنجاح! جاري التحديث...")
+                st.markdown("""
+                    <script>
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 2000);
+                    </script>
+                """, unsafe_allow_html=True)
+        
+        if current_logo_path:
+            st.markdown("---")
+            st.markdown("### اللوجو الحالي المستخدم:")
+            st.image(current_logo_path, width=150)
+            if st.button("🗑️ العودة للوجو الافتراضي", type="primary"):
+                if os.path.exists(LOGO_CONFIG_FILE):
+                    os.remove(LOGO_CONFIG_FILE)
+                st.success("✅ تمت العودة للشعار الافتراضي بنجاح! جاري التحديث...")
+                st.markdown("""
+                    <script>
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 2000);
+                    </script>
+                """, unsafe_allow_html=True)
