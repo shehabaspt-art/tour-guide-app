@@ -5,11 +5,6 @@ import time
 import streamlit as st
 import pandas as pd
 
-# -------------------------------------------------------------
-# 🎯 اكتب اسم ملف اللوجو الحقيقي عندك هنا (مثلاً logo.png أو logo.jpg)
-LOGO_FILENAME = "logo.png" 
-# -------------------------------------------------------------
-
 st.set_page_config(page_title="Sun Pyramids Tours", page_icon="🧭", layout="wide")
 
 UPLOAD_DIR = "uploads"
@@ -65,12 +60,6 @@ if pending_count > st.session_state.last_pending_count:
 elif pending_count < st.session_state.last_pending_count:
     st.session_state.last_pending_count = pending_count
 
-encoded_logo_data = ""
-has_logo_file = os.path.exists(LOGO_FILENAME)
-if has_logo_file:
-    with open(LOGO_FILENAME, "rb") as img_file:
-        encoded_logo_data = base64.b64encode(img_file.read()).decode()
-
 alert_script = ""
 if new_order_arrived:
     alert_script = """
@@ -95,14 +84,14 @@ st.markdown(f"""
         left: 0;
         width: 100%;
         height: 65px;
-        background-color: #ffffff;
-        border-bottom: 1px solid #e0e0e0;
+        background-color: #114b21;
+        border-bottom: 2px solid #0d3818;
         display: flex;
         align-items: center;
         justify-content: space-between;
         padding: 0 25px;
         z-index: 99999;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }}
     .topbar-left-group {{
         display: flex;
@@ -135,8 +124,8 @@ st.markdown(f"""
     .user-profile-badge {{
         width: 36px;
         height: 36px;
-        background-color: #111111;
-        color: #ffffff;
+        background-color: #ffffff;
+        color: #114b21;
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -218,7 +207,22 @@ st.markdown(f"""
 
     <div class="custom-topbar">
         <div class="topbar-left-group">
-            {"<img src='data:image/png;base64," + encoded_logo_data + "' style='height: 45px; object-fit: contain;' />" if has_logo_file else "<div style='display: flex; align-items: center; gap: 10px;'><span style='font-size: 1.6rem;'>🧭</span><span style='color: #1b5e20; font-weight: bold; font-size: 1.25rem;'>Sun Pyramids Tours</span></div>"}
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <!-- أيقونة الأهرامات والشمس -->
+                <svg width="55" height="42" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M50 10 L85 70 L15 70 Z" fill="#f39c12" />
+                    <path d="M50 10 L68 70 L32 70 Z" fill="#e67e22" />
+                    <line x1="50" y1="10" x2="35" y2="70" stroke="#fff" stroke-width="1.5" />
+                    <line x1="50" y1="10" x2="45" y2="70" stroke="#fff" stroke-width="1.5" />
+                    <line x1="50" y1="10" x2="55" y2="70" stroke="#fff" stroke-width="1.5" />
+                    <path d="M10 70 Q 50 45 90 70 Z" fill="#00bcd4" />
+                </svg>
+                <!-- اسم الشركة بالتصميم المطلوب -->
+                <div style="display: flex; flex-direction: column; justify-content: center;">
+                    <span style="font-family: 'Times New Roman', serif; font-style: italic; font-weight: bold; font-size: 1.35rem; color: #3498db; letter-spacing: 1px; line-height: 1.1;">SUN PYRAMIDS</span>
+                    <span style="font-family: 'Times New Roman', serif; font-size: 0.8rem; color: #f39c12; font-weight: bold; letter-spacing: 0.5px;"><span style="text-decoration: underline;">SINCE</span> TOURS <span style="text-decoration: underline;">1970</span></span>
+                </div>
+            </div>
         </div>
         <div class="topbar-right-group">
             <div class="notification-container" title="عدد التصفيات والطلبات المعلقة">
