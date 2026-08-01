@@ -84,78 +84,69 @@ logo_html_element = ""
 if current_logo_path:
     with open(current_logo_path, "rb") as image_file:
         encoded_string = base64.b64encode(image_file.read()).decode()
-    logo_html_element = f'<img src="data:image/png;base64,{encoded_string}" style="height: 48px; object-fit: contain;" />'
+    logo_html_element = f'<img src="data:image/png;base64,{encoded_string}" style="height: 42px; object-fit: contain;" />'
 else:
     logo_html_element = """
-        <svg width="65" height="48" viewBox="0 0 110 80" xmlns="http://www.w3.org/2000/svg">
+        <svg width="55" height="40" viewBox="0 0 110 80" xmlns="http://www.w3.org/2000/svg">
             <polygon points="50,12 82,72 18,72" fill="#f39c12"/>
             <polygon points="50,12 65,72 35,72" fill="#e67e22"/>
-            <line x1="50" y1="12" x2="42" y2="72" stroke="#ffffff" stroke-width="1.2"/>
-            <line x1="50" y1="12" x2="52" y2="72" stroke="#ffffff" stroke-width="1.2"/>
-            <line x1="50" y1="12" x2="60" y2="72" stroke="#ffffff" stroke-width="1.2"/>
             <path d="M 15 72 A 38 38 0 0 1 85 72 Z" fill="#00acc1"/>
-            <line x1="50" y1="42" x2="30" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
-            <line x1="50" y1="42" x2="40" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
-            <line x1="50" y1="42" x2="50" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
-            <line x1="50" y1="42" x2="60" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
-            <line x1="50" y1="42" x2="70" y2="72" stroke="#ffeb3b" stroke-width="1.2"/>
         </svg>
     """
 
 st.markdown(f"""
     <style>
     .stApp {{
-        margin-top: 70px !important;
+        margin-top: 60px !important;
     }}
     .block-container {{
-        padding-top: 2rem !important;
+        padding-top: 1.5rem !important;
     }}
     .custom-topbar {{
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
-        height: 65px;
+        height: 60px;
         background-color: #ffffff;
         border-bottom: 2px solid #e0e0e0;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 25px;
+        padding: 0 20px;
         z-index: 99999;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }}
-    .topbar-left-group {{
+    .topbar-left {{
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 12px;
     }}
-    .topbar-right-group {{
+    .topbar-right {{
         display: flex;
         align-items: center;
-        gap: 22px;
+        gap: 18px;
     }}
-    .notification-container {{
+    .notification-badge-box {{
         position: relative;
         display: inline-flex;
         align-items: center;
-        cursor: pointer;
     }}
-    .notification-badge {{
+    .badge-count {{
         position: absolute;
         top: -8px;
-        right: -15px;
+        right: -12px;
         background-color: #e8f5e9;
         color: #2e7d32;
         border: 1px solid #a5d6a7;
-        font-size: 0.75rem;
-        font-weight: 700;
-        padding: 1px 6px;
-        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: bold;
+        padding: 1px 5px;
+        border-radius: 10px;
     }}
-    .user-profile-badge {{
-        width: 36px;
-        height: 36px;
+    .user-badge {{
+        width: 32px;
+        height: 32px;
         background-color: #f1f8f1;
         color: #114b21;
         border: 1px solid #c8e6c9;
@@ -164,8 +155,7 @@ st.markdown(f"""
         align-items: center;
         justify-content: center;
         font-weight: bold;
-        font-size: 0.9rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        font-size: 0.85rem;
     }}
     div.stFormSubmitButton > button, div.stButton > button {{
         border-radius: 8px !important;
@@ -177,83 +167,39 @@ st.markdown(f"""
         background-color: #218838 !important;
         color: white !important;
     }}
-    [data-testid="stDataFrame"] table {{
-        font-weight: 900 !important;
-    }}
-    [data-testid="stDataFrame"] th {{
-        font-weight: 900 !important;
-        font-size: 1.15rem !important;
-        color: #0b3d0f !important;
-    }}
-    [data-testid="stDataFrame"] td {{
-        font-weight: 900 !important;
-        font-size: 1.1rem !important;
-        color: #000000 !important;
-    }}
     [data-testid="stSidebar"] {{
         background-color: #d8ebd8;
         border-left: 2px solid #c2e0c2;
-        margin-top: 0px !important;
-        padding-top: 0px !important;
-        border-radius: 0px 8px 8px 0px;
-    }}
-    [data-testid="stSidebar"] > div:first-child {{
-        padding-top: 10px !important;
     }}
     [data-testid="stSidebar"] .stRadio > label {{
         display: none !important;
     }}
     [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label {{
         background-color: #ffffff !important;
-        padding: 14px 18px !important;
-        border-radius: 12px !important;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04) !important;
+        padding: 12px 16px !important;
+        border-radius: 10px !important;
         border: 1px solid #a3d9a3 !important;
-        margin-bottom: 12px !important;
-        transition: all 0.3s ease-in-out !important;
-        display: flex !important;
-        align-items: center !important;
-    }}
-    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:hover {{
-        transform: translateY(-3px) !important;
-        box-shadow: 0 8px 20px rgba(27, 94, 32, 0.15) !important;
-        border-color: #2e7d32 !important;
-        background-color: #f1f8f1 !important;
+        margin-bottom: 10px !important;
     }}
     [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label p {{
         font-weight: 700 !important;
         color: #1b5e20 !important;
-        font-size: 1.05rem !important;
+        font-size: 1rem !important;
         margin: 0 !important;
     }}
     </style>
 
     <div class="custom-topbar">
-        <div class="topbar-left-group">
-            <div style="display: flex; align-items: center; gap: 14px;">
-                {logo_html_element}
-                <div style="display: flex; flex-direction: column; justify-content: center; gap: 2px;">
-                    <span style="font-family: 'Times New Roman', Times, serif; font-style: italic; font-weight: bold; font-size: 1.35rem; color: #1d4ed8; letter-spacing: 0.8px; line-height: 1;">SUN PYRAMIDS</span>
-                    <div style="display: flex; align-items: center; gap: 4px; font-family: 'Times New Roman', Times, serif; font-size: 0.85rem; font-weight: bold; letter-spacing: 0.5px;">
-                        <span style="color: #00acc1; text-decoration: underline; font-style: italic;">SINCE</span>
-                        <span style="color: #f39c12; font-style: italic; font-size: 0.95rem;">T</span>
-                        <span style="color: #00acc1; font-style: italic; font-size: 0.95rem;">O</span>
-                        <span style="color: #f39c12; font-style: italic; font-size: 0.95rem;">U</span>
-                        <span style="color: #00acc1; font-style: italic; font-size: 0.95rem;">R</span>
-                        <span style="color: #f39c12; font-style: italic; font-size: 0.95rem;">S</span>
-                        <span style="color: #00acc1; text-decoration: underline; font-style: italic; margin-left: 2px;">1970</span>
-                    </div>
-                </div>
-            </div>
+        <div class="topbar-left">
+            {logo_html_element}
+            <span style="font-family: 'Times New Roman', Times, serif; font-style: italic; font-weight: bold; font-size: 1.2rem; color: #1d4ed8;">SUN PYRAMIDS TOURS</span>
         </div>
-        <div class="topbar-right-group">
-            <div class="notification-container" title="عدد التصفيات والطلبات المعلقة">
-                <span style="font-size: 1.3rem;">🔔</span>
-                <span class="notification-badge">{pending_count}</span>
+        <div class="topbar-right">
+            <div class="notification-badge-box" title="الطلبات المعلقة">
+                <span style="font-size: 1.2rem;">🔔</span>
+                <span class="badge-count">{pending_count}</span>
             </div>
-            <div class="user-profile-badge" title="حساب المدير">
-                SA
-            </div>
+            <div class="user-badge" title="المدير">SA</div>
         </div>
     </div>
     {alert_script}
@@ -275,8 +221,8 @@ SHOPS_LIST = [
     "ريحانة توابل", "كنور توابل", "قصر العطور", "لازوريت"
 ]
 
-st.sidebar.markdown("<h2 style='color: #1b5e20; margin-bottom: 5px; font-size: 1.5rem;'>🧭 القائمة الرئيسية</h2>", unsafe_allow_html=True)
-st.sidebar.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1.15rem; margin-top: 15px; margin-bottom: 20px;'>اختر الصفحة</p>", unsafe_allow_html=True)
+st.sidebar.markdown("<h2 style='color: #1b5e20; margin-bottom: 5px; font-size: 1.4rem;'>🧭 القائمة الرئيسية</h2>", unsafe_allow_html=True)
+st.sidebar.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1.1rem; margin-top: 10px; margin-bottom: 15px;'>اختر الصفحة</p>", unsafe_allow_html=True)
 page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف", "إعدادات اللوجو"], label_visibility="collapsed")
 
 if page == "نموذج تصفية المرشد":
@@ -335,7 +281,6 @@ if page == "نموذج تصفية المرشد":
         add_more_option = st.form_submit_button("➕ إضافة أوبشن آخر")
         
         st.markdown("---")
-        
         st.subheader("مصاريف (Expenses)")
         col_tkt1, col_tkt2 = st.columns(2)
         with col_tkt1:
@@ -344,7 +289,6 @@ if page == "نموذج تصفية المرشد":
             ticket_type = st.text_input("نوع التذاكر")
             
         st.markdown("---")
-        
         col_misc1, col_misc2, col_misc3 = st.columns(3)
         with col_misc1:
             tip = st.number_input("إكرامية", min_value=0.0, step=10.0)
@@ -448,7 +392,7 @@ if page == "نموذج تصفية المرشد":
                     <script>
                         setTimeout(function() {
                             window.location.reload();
-                        }, 4000);
+                        }, 3000);
                     </script>
                 """, unsafe_allow_html=True)
 
