@@ -46,7 +46,6 @@ def get_current_logo():
                 return path
     return None
 
-# تطبيق اللوجو في الشريط الجانبي لستريمليت إذا وجد
 current_logo_path = get_current_logo()
 if current_logo_path:
     try:
@@ -118,24 +117,40 @@ st.markdown("""
         font-size: 0.95rem !important;
         margin: 0 !important;
     }
+    
+    /* تصميم الشريط العلوي الثابت (Sticky Header) */
+    .sticky-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: #f8f9fa;
+        z-index: 999999;
+        padding: 10px 30px;
+        border-bottom: 1px solid #e0e0e0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    /* إبعاد المحتوى عن الشريط الثابت حتى لا يختفي تحته */
+    .block-container {
+        padding-top: 5rem !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
-# الشريط العلوي مع دعم عرض اللوجو المخصص إن وجد
-top_col1, top_col2, top_col3, top_col4 = st.columns([0.8, 3.2, 1.5, 1])
-with top_col1:
-    if current_logo_path:
-        st.image(current_logo_path, width=50)
-    else:
-        st.markdown("🧭")
-with top_col2:
-    st.markdown("### SUN PYRAMIDS TOURS")
-with top_col3:
-    st.markdown(f"🔔 **الطلبات:** `{pending_count}`")
-with top_col4:
-    st.markdown("👤 **SA**")
-
-st.markdown("---")
+# الشريط العلوي الثابت يحتوي على منبه الإشعارات والطلبات واسم الحساب بجانب بعضهما تماماً
+st.markdown(f"""
+    <div class="sticky-header">
+        <div style="font-size: 1rem; font-weight: bold; color: #333;">
+            🔔 <b>الطلبات المعلقة:</b> <span style="background-color: #e9ecef; padding: 2px 8px; border-radius: 6px; color: #d9534f;">{pending_count}</span>
+        </div>
+        <div style="font-size: 1rem; font-weight: bold; color: #333;">
+            👤 <b>SA</b>
+        </div>
+    </div>
+""", unsafe_allow_html=True)
 
 try:
     guides_df = pd.read_excel(GUIDES_FILE)
@@ -596,7 +611,6 @@ elif page == "إعدادات اللوجو":
     if logo_pass == "159753":
         st.success("تم التحقق بنجاح!")
         
-        # عرض اللوجو الحالي إن وجد
         current_logo = get_current_logo()
         if current_logo:
             st.write("**اللوجو الحالي المستخدم:**")
