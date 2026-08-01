@@ -77,7 +77,39 @@ if new_order_arrived:
     </script>
     """
 
-st.markdown(f"""
+# تجهيز جزء اللوجو كـ HTML منفصل وآمن
+if custom_logo_path and os.path.exists(custom_logo_path):
+    with open(custom_logo_path, "rb") as img_file:
+        encoded_logo = base64.b64encode(img_file.read()).decode("utf-8")
+    logo_html = f'<img src="data:image/png;base64,{encoded_logo}" style="height: 42px; object-fit: contain;" />'
+else:
+    logo_html = '''
+    <svg width="45" height="35" viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="60,10 100,75 20,75" fill="#f39c12" />
+        <polygon points="60,10 80,75 40,75" fill="#e67e22" opacity="0.6" />
+        <line x1="60" y1="10" x2="40" y2="75" stroke="#ffffff" stroke-width="2" />
+        <line x1="60" y1="10" x2="52" y2="75" stroke="#ffffff" stroke-width="1.5" />
+        <line x1="60" y1="10" x2="68" y2="75" stroke="#ffffff" stroke-width="1.5" />
+        <line x1="60" y1="55" x2="60" y2="35" stroke="#ffffff" stroke-width="2" />
+        <line x1="60" y1="55" x2="45" y2="40" stroke="#ffffff" stroke-width="1.8" />
+        <line x1="60" y1="55" x2="75" y2="40" stroke="#ffffff" stroke-width="1.8" />
+        <line x1="60" y1="55" x2="35" y2="50" stroke="#ffffff" stroke-width="1.5" />
+        <line x1="60" y1="55" x2="85" y2="50" stroke="#ffffff" stroke-width="1.5" />
+        <path d="M 12 75 Q 60 45 108 75 Z" fill="#00bcd4" />
+    </svg>
+    <div style="display: flex; flex-direction: column; justify-content: center; line-height: 1.1;">
+        <span style="font-family: Arial Black, sans-serif; font-style: italic; font-weight: 900; font-size: 1.2rem; color: #154580; letter-spacing: 1px;">
+            SUN PYRAMIDS
+        </span>
+        <div style="font-family: Arial, sans-serif; font-style: italic; font-weight: bold; font-size: 0.75rem; letter-spacing: 0.5px; display: flex; align-items: baseline; gap: 3px;">
+            <span style="color: #00bcd4; text-decoration: underline;">SINCE</span>
+            <span style="color: #f39c12; font-weight: 900;">TOURS</span>
+            <span style="color: #00bcd4; text-decoration: underline; margin-left: 1px;">1970</span>
+        </div>
+    </div>
+    '''
+
+topbar_html = f"""
     <style>
     .stApp {{
         margin-top: 70px !important;
@@ -199,31 +231,7 @@ st.markdown(f"""
     <div class="custom-topbar">
         <div class="topbar-left-group">
             <div style="display: flex; align-items: center; gap: 12px;">
-                {'<img src="data:image/png;base64,' + base64.b64encode(open(custom_logo_path, "rb").read()).decode("utf-8") + '" style="height: 42px; object-fit: contain;" />' if custom_logo_path and os.path.exists(custom_logo_path) else '''
-                <svg width="45" height="35" viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
-                    <polygon points="60,10 100,75 20,75" fill="#f39c12" />
-                    <polygon points="60,10 80,75 40,75" fill="#e67e22" opacity="0.6" />
-                    <line x1="60" y1="10" x2="40" y2="75" stroke="#ffffff" stroke-width="2" />
-                    <line x1="60" y1="10" x2="52" y2="75" stroke="#ffffff" stroke-width="1.5" />
-                    <line x1="60" y1="10" x2="68" y2="75" stroke="#ffffff" stroke-width="1.5" />
-                    <line x1="60" y1="55" x2="60" y2="35" stroke="#ffffff" stroke-width="2" />
-                    <line x1="60" y1="55" x2="45" y2="40" stroke="#ffffff" stroke-width="1.8" />
-                    <line x1="60" y1="55" x2="75" y2="40" stroke="#ffffff" stroke-width="1.8" />
-                    <line x1="60" y1="55" x2="35" y2="50" stroke="#ffffff" stroke-width="1.5" />
-                    <line x1="60" y1="55" x2="85" y2="50" stroke="#ffffff" stroke-width="1.5" />
-                    <path d="M 12 75 Q 60 45 108 75 Z" fill="#00bcd4" />
-                </svg>
-                <div style="display: flex; flex-direction: column; justify-content: center; line-height: 1.1;">
-                    <span style="font-family: Arial Black, sans-serif; font-style: italic; font-weight: 900; font-size: 1.2rem; color: #154580; letter-spacing: 1px;">
-                        SUN PYRAMIDS
-                    </span>
-                    <div style="font-family: Arial, sans-serif; font-style: italic; font-weight: bold; font-size: 0.75rem; letter-spacing: 0.5px; display: flex; align-items: baseline; gap: 3px;">
-                        <span style="color: #00bcd4; text-decoration: underline;">SINCE</span>
-                        <span style="color: #f39c12; font-weight: 900;">TOURS</span>
-                        <span style="color: #00bcd4; text-decoration: underline; margin-left: 1px;">1970</span>
-                    </div>
-                </div>
-                '''}
+                {logo_html}
             </div>
         </div>
         <div class="topbar-right-group">
@@ -237,7 +245,9 @@ st.markdown(f"""
         </div>
     </div>
     {alert_script}
-""", unsafe_allow_html=True)
+"""
+
+st.markdown(topbar_html, unsafe_allow_html=True)
 
 try:
     guides_df = pd.read_excel(GUIDES_FILE)
