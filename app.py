@@ -102,7 +102,7 @@ else:
         </svg>
     """
 
-st.markdown(f"""
+topbar_html = f"""
     <style>
     .stApp {{
         margin-top: 70px !important;
@@ -267,7 +267,9 @@ st.markdown(f"""
         </div>
     </div>
     {alert_script}
-""", unsafe_allow_html=True)
+"""
+
+st.markdown(topbar_html, unsafe_allow_html=True)
 
 try:
     guides_df = pd.read_excel(GUIDES_FILE)
@@ -411,7 +413,7 @@ if page == "نموذج تصفية المرشد":
                     for img in shop_images:
                         s_path = os.path.join(UPLOAD_DIR, f"{time.time()}_{img.name}")
                         with open(s_path, "wb") as f:
-                            f.write(s_path_bytes := img.getbuffer()) # fixed
+                            f.write(img.getbuffer())
                         shop_paths.append(s_path)
                 
                 options_summary_list = []
