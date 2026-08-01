@@ -84,14 +84,14 @@ st.markdown(f"""
         left: 0;
         width: 100%;
         height: 65px;
-        background-color: #114b21;
-        border-bottom: 2px solid #0d3818;
+        background-color: #ffffff;
+        border-bottom: 2px solid #e0e0e0;
         display: flex;
         align-items: center;
         justify-content: space-between;
         padding: 0 25px;
         z-index: 99999;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     }}
     .topbar-left-group {{
         display: flex;
@@ -124,15 +124,16 @@ st.markdown(f"""
     .user-profile-badge {{
         width: 36px;
         height: 36px;
-        background-color: #ffffff;
+        background-color: #f1f8f1;
         color: #114b21;
+        border: 1px solid #c8e6c9;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: bold;
         font-size: 0.9rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }}
     
     div.stFormSubmitButton > button, div.stButton > button {{
@@ -217,10 +218,10 @@ st.markdown(f"""
                     <line x1="50" y1="10" x2="55" y2="70" stroke="#fff" stroke-width="1.5" />
                     <path d="M10 70 Q 50 45 90 70 Z" fill="#00bcd4" />
                 </svg>
-                <!-- اسم الشركة بالتصميم المطلوب -->
+                <!-- اسم الشركة بالتصميم المطلوب مطابظاً للصورة -->
                 <div style="display: flex; flex-direction: column; justify-content: center;">
-                    <span style="font-family: 'Times New Roman', serif; font-style: italic; font-weight: bold; font-size: 1.35rem; color: #3498db; letter-spacing: 1px; line-height: 1.1;">SUN PYRAMIDS</span>
-                    <span style="font-family: 'Times New Roman', serif; font-size: 0.8rem; color: #f39c12; font-weight: bold; letter-spacing: 0.5px;"><span style="text-decoration: underline;">SINCE</span> TOURS <span style="text-decoration: underline;">1970</span></span>
+                    <span style="font-family: 'Times New Roman', serif; font-style: italic; font-weight: bold; font-size: 1.35rem; color: #2563eb; letter-spacing: 1px; line-height: 1.1;">SUN PYRAMIDS</span>
+                    <span style="font-family: 'Times New Roman', serif; font-size: 0.8rem; color: #f59e0b; font-weight: bold; letter-spacing: 0.5px;"><span style="text-decoration: underline;">SINCE</span> TOURS <span style="text-decoration: underline;">1970</span></span>
                 </div>
             </div>
         </div>
@@ -757,7 +758,7 @@ elif page == "الأرشيف":
                         st.warning(f"⚠️ هل أنت متأكد من رغبتك في حذف أرشيف الفايل رقم ({del_row_file}) نهائياً؟")
                         d_col1, d_col2 = st.columns(2)
                         with d_col1:
-                            if st.button("✔️ تأكيد الحذف النهائي", type="primary", key="confirm_del_arch_btn"):
+                            if st.button("✔️ تأكيد الحذف النهائي", key="confirm_del_arch_btn", type="primary"):
                                 archive_df = archive_df.drop(del_idx).reset_index(drop=True)
                                 overwrite_data(ARCHIVE_FILE, archive_df)
                                 st.session_state.confirming_del_arch = None
