@@ -136,7 +136,7 @@ st.markdown("""
         margin: 0 !important;
     }
     
-    /* تصميم الشريط العلوي الثابت مع جعل اللوجو أعرض وأثقل */
+    /* تصميم الشريط العلوي الثابت مع تحريك العناصر جهة اليمين قليلاً */
     .sticky-header {
         position: fixed;
         top: 0;
@@ -159,13 +159,13 @@ st.markdown("""
 
 logo_html = f'<img src="{logo_base64}" style="height: 48px; width: auto; max-width: 220px; object-fit: contain; filter: contrast(1.15) saturate(1.1);" />' if logo_base64 else '<span style="font-weight: bold; color: #1b5e20; font-size: 1.1rem;">Sun Pyramids</span>'
 
-# الشريط العلوي الثابت يضم اللوجو (أعرض وأثقل) على الشمال وعدد الطلبات بجوار المنبه على اليمين بدون كلمة "الطلبات المعلقة"
+# الشريط العلوي الثابت مع زحفة إضافية لجهة اليمين للعناصر
 st.markdown(f"""
     <div class="sticky-header">
         <div>
             {logo_html}
         </div>
-        <div style="display: flex; align-items: center; gap: 30px;">
+        <div style="display: flex; align-items: center; gap: 30px; margin-right: 35px;">
             <div style="font-size: 1rem; font-weight: bold; color: #333;">
                 🔔 <span style="background-color: #e9ecef; padding: 2px 8px; border-radius: 6px; color: #d9534f;">{pending_count}</span>
             </div>
