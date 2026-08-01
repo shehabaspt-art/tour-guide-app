@@ -46,6 +46,14 @@ def get_current_logo():
                 return path
     return None
 
+# تطبيق اللوجو في الشريط الجانبي لستريمليت إذا وجد
+current_logo_path = get_current_logo()
+if current_logo_path:
+    try:
+        st.logo(current_logo_path)
+    except:
+        pass
+
 if os.path.exists(SUBMISSIONS_FILE):
     try:
         init_sub_df = pd.read_excel(SUBMISSIONS_FILE)
@@ -78,7 +86,6 @@ if new_order_arrived:
     </script>
     """, unsafe_allow_html=True)
 
-# تنسيق القائمة الجانبية والشكل العام بدون أي أخطاء عرض
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -114,14 +121,17 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# الشريط العلوي النظيف باستخدام مكونات Streamlit الأصلية (آمن 100% ولا يظهر كود أبداً)
-top_col1, top_col2, top_col3, top_col4 = st.columns([4, 2, 1.5, 1])
+# الشريط العلوي مع دعم عرض اللوجو المخصص إن وجد
+top_col1, top_col2, top_col3, top_col4 = st.columns([0.8, 3.2, 1.5, 1])
 with top_col1:
-    st.markdown("### 🧭 SUN PYRAMIDS TOURS")
+    if current_logo_path:
+        st.image(current_logo_path, width=50)
+    else:
+        st.markdown("🧭")
 with top_col2:
-    st.markdown("")
+    st.markdown("### SUN PYRAMIDS TOURS")
 with top_col3:
-    st.markdown(f"🔔 **الطلبات المعلقة:** `{pending_count}`")
+    st.markdown(f"🔔 **الطلبات:** `{pending_count}`")
 with top_col4:
     st.markdown("👤 **SA**")
 
@@ -585,7 +595,14 @@ elif page == "إعدادات اللوجو":
     
     if logo_pass == "159753":
         st.success("تم التحقق بنجاح!")
-        uploaded_logo = st.file_uploader("اختر صورة اللوجو (PNG, JPG, JPEG)", type=["png", "jpg", "jpeg"])
+        
+        # عرض اللوجو الحالي إن وجد
+        current_logo = get_current_logo()
+        if current_logo:
+            st.write("**اللوجو الحالي المستخدم:**")
+            st.image(current_logo, width=120)
+            
+        uploaded_logo = st.file_uploader("اختر صورة اللوجو الجديدة (PNG, JPG, JPEG)", type=["png", "jpg", "jpeg"])
         
         if uploaded_logo is not None:
             st.image(uploaded_logo, caption="معاينة اللوجو الجديد", width=150)
@@ -597,5 +614,6 @@ elif page == "إعدادات اللوجو":
                 with open(LOGO_CONFIG_FILE, "w") as f:
                     f.write(logo_path)
                 
-                st.success("✅ تم حفظ وتطبيق اللوجو بنجاح!")
+                st.success("✅ تم حفظ وتطبيق اللوجو بنجاح! سيتم تحديث الشاشة الآن...")
+                time.sleep(1)
                 st.rerun()
