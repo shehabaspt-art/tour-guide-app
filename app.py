@@ -208,20 +208,37 @@ st.markdown(f"""
 
     <div class="custom-topbar">
         <div class="topbar-left-group">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <!-- أيقونة الأهرامات والشمس -->
-                <svg width="55" height="42" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M50 10 L85 70 L15 70 Z" fill="#f39c12" />
-                    <path d="M50 10 L68 70 L32 70 Z" fill="#e67e22" />
-                    <line x1="50" y1="10" x2="35" y2="70" stroke="#fff" stroke-width="1.5" />
-                    <line x1="50" y1="10" x2="45" y2="70" stroke="#fff" stroke-width="1.5" />
-                    <line x1="50" y1="10" x2="55" y2="70" stroke="#fff" stroke-width="1.5" />
-                    <path d="M10 70 Q 50 45 90 70 Z" fill="#00bcd4" />
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <!-- اللوجو الجديد المطابق للصورة تماماً -->
+                <svg width="65" height="50" viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+                    <polygon points="60,10 100,75 20,75" fill="#f39c12" />
+                    <polygon points="60,10 80,75 40,75" fill="#e67e22" opacity="0.6" />
+                    <line x1="60" y1="10" x2="40" y2="75" stroke="#ffffff" stroke-width="2" />
+                    <line x1="60" y1="10" x2="52" y2="75" stroke="#ffffff" stroke-width="1.5" />
+                    <line x1="60" y1="10" x2="68" y2="75" stroke="#ffffff" stroke-width="1.5" />
+                    
+                    <line x1="60" y1="55" x2="60" y2="35" stroke="#ffffff" stroke-width="2" />
+                    <line x1="60" y1="55" x2="45" y2="40" stroke="#ffffff" stroke-width="1.8" />
+                    <line x1="60" y1="55" x2="75" y2="40" stroke="#ffffff" stroke-width="1.8" />
+                    <line x1="60" y1="55" x2="35" y2="50" stroke="#ffffff" stroke-width="1.5" />
+                    <line x1="60" y1="55" x2="85" y2="50" stroke="#ffffff" stroke-width="1.5" />
+
+                    <path d="M 12 75 Q 60 45 108 75 Z" fill="#00bcd4" />
                 </svg>
-                <!-- اسم الشركة بالتصميم المطلوب مطابظاً للصورة -->
-                <div style="display: flex; flex-direction: column; justify-content: center;">
-                    <span style="font-family: 'Times New Roman', serif; font-style: italic; font-weight: bold; font-size: 1.35rem; color: #2563eb; letter-spacing: 1px; line-height: 1.1;">SUN PYRAMIDS</span>
-                    <span style="font-family: 'Times New Roman', serif; font-size: 0.8rem; color: #f59e0b; font-weight: bold; letter-spacing: 0.5px;"><span style="text-decoration: underline;">SINCE</span> TOURS <span style="text-decoration: underline;">1970</span></span>
+
+                <div style="display: flex; flex-direction: column; justify-content: center; line-height: 1.15;">
+                    <span style="font-family: 'Arial Black', Gadget, sans-serif; font-style: italic; font-weight: 900; font-size: 1.45rem; color: #154580; letter-spacing: 1.5px;">
+                        SUN PYRAMIDS
+                    </span>
+                    <div style="font-family: 'Arial', sans-serif; font-style: italic; font-weight: bold; font-size: 0.85rem; letter-spacing: 0.8px; display: flex; align-items: baseline; gap: 4px; margin-top: 2px;">
+                        <span style="color: #00bcd4; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px;">SINCE</span>
+                        <span style="color: #f39c12; font-size: 0.95rem; font-weight: 900;">T</span>
+                        <span style="color: #f39c12; font-size: 0.95rem; font-weight: 900;">O</span>
+                        <span style="color: #f39c12; font-size: 0.95rem; font-weight: 900;">U</span>
+                        <span style="color: #f39c12; font-size: 0.95rem; font-weight: 900;">R</span>
+                        <span style="color: #f39c12; font-size: 0.95rem; font-weight: 900;">S</span>
+                        <span style="color: #00bcd4; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; margin-left: 2px;">1970</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -689,140 +706,14 @@ elif page == "إدارة التصفيات":
     elif password:
         st.error("كلمة المرور غير صحيحة.")
     else:
-        st.info("الرجاء إدخال كلمة المرور لعرض إدارة التصفيات.")
+        st.info("الرجاء إدخال كلمة المرور لعرض لوحة التحكم.")
 
 elif page == "الأرشيف":
-    st.title("📁 أرشيف التصفيات المنتهية (تم)")
+    st.title("📁 أرشيف التصفيات المعتمدة")
     st.markdown("---")
     
-    password_archive = st.text_input("أدخل كلمة المرور لعرض الأرشيف", type="password", key="arch_pass")
-    
-    if password_archive == "159753":
-        st.success("تم تسجيل الدخول بنجاح!")
-        archive_df = load_data(ARCHIVE_FILE)
-        
-        if "viewing_archive_file" not in st.session_state:
-            st.session_state.viewing_archive_file = None
-        if "confirming_del_arch" not in st.session_state:
-            st.session_state.confirming_del_arch = None
-
-        if st.session_state.viewing_archive_file is not None:
-            req_idx = st.session_state.viewing_archive_file
-            if req_idx in archive_df.index:
-                req_row = archive_df.loc[req_idx]
-                
-                if st.button("⬅️ رجوع إلى الأرشيف"):
-                    st.session_state.viewing_archive_file = None
-                    st.rerun()
-                
-                st.markdown(f"### 📄 تفاصيل أرشيف الفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
-                st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {req_row.get('Account', '')}")
-                st.markdown("---")
-                
-                st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
-                st.write(f"**التحصيل (Collection):** {req_row.get('Collection', 0)}")
-                st.write(f"**الأوبشن (Option):** {req_row.get('Option', '')}")
-                st.write(f"**التذاكر (Tickets):** {req_row.get('Tickets', '')}")
-                st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
-                st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
-                st.write(f"**غداء (Lunch):** {req_row.get('Lunch', 0)}")
-                
-                l_path = req_row.get("Lunch Receipt", "")
-                if pd.notna(l_path) and str(l_path).strip() != "" and os.path.exists(str(l_path)):
-                    st.image(str(l_path), caption="صورة فاتورة الغداء", use_container_width=True)
-                else:
-                    st.info("لا توجد صورة لفاتورة الغداء.")
-                
-                st.markdown("---")
-                st.write(f"**أسماء المحلات المختارة:** {req_row.get('Shop Names', 'لا يوجد')}")
-                st.write(f"**محلات أخري:** {req_row.get('Other Shops', 'لا يوجد')}")
-                
-                s_paths = req_row.get("Shop Images", "")
-                if pd.notna(s_paths) and str(s_paths).strip() != "":
-                    paths_list = str(s_paths).split(",")
-                    for idx, p in enumerate(paths_list):
-                        if os.path.exists(p):
-                            st.image(p, caption=f"صورة محلات رقم {idx+1}", use_container_width=True)
-                else:
-                    st.info("لا توجد صور لفواتير المحلات.")
-                
-                st.markdown("---")
-                if st.button("🗑️ حذف هذا السجل نهائياً من الأرشيف", type="primary", use_container_width=True):
-                    st.session_state.confirming_del_arch = st.session_state.viewing_archive_file
-                    st.rerun()
-                
-                if st.session_state.confirming_del_arch is not None:
-                    del_idx = st.session_state.confirming_del_arch
-                    if del_idx in archive_df.index:
-                        del_row_file = archive_df.loc[del_idx].get('File No', '')
-                        st.warning(f"⚠️ هل أنت متأكد من رغبتك في حذف أرشيف الفايل رقم ({del_row_file}) نهائياً؟")
-                        d_col1, d_col2 = st.columns(2)
-                        with d_col1:
-                            if st.button("✔️ تأكيد الحذف النهائي", key="confirm_del_arch_btn", type="primary"):
-                                archive_df = archive_df.drop(del_idx).reset_index(drop=True)
-                                overwrite_data(ARCHIVE_FILE, archive_df)
-                                st.session_state.confirming_del_arch = None
-                                st.session_state.viewing_archive_file = None
-                                st.rerun()
-                        with d_col2:
-                            if st.button("❌ إلغاء", key="cancel_del_arch_btn", type="primary"):
-                                st.session_state.confirming_del_arch = None
-                                st.rerun()
-            else:
-                st.session_state.viewing_archive_file = None
-                st.rerun()
-        
-        else:
-            if not archive_df.empty:
-                st.markdown("### 🔍 أرشيف الطلبات المكتملة")
-                
-                all_guides_in_arch = archive_df["Guide Name"].dropna().unique().tolist()
-                selected_arch_filter = st.selectbox("اختر اسم المرشد لعرض أرشيفه فقط", options=["الكل (جميع المرشدين)"] + all_guides_in_arch, key="arch_guide_filter")
-                
-                if selected_arch_filter != "الكل (جميع المرشدين)":
-                    filtered_arch_df = archive_df[archive_df["Guide Name"] == selected_arch_filter]
-                    st.info(f"عرض أرشيف المرشد: **{selected_arch_filter}** (عدد الطلبات المؤرشفة: {len(filtered_arch_df)})")
-                else:
-                    filtered_arch_df = archive_df
-                
-                for idx, row in filtered_arch_df.iterrows():
-                    cols = st.columns([1, 2, 2, 2, 1.5, 1.5])
-                    with cols[0]:
-                        st.write(f"**#{idx+1}**")
-                    with cols[1]:
-                        st.write(f"الفايل: {row.get('File No', '')}")
-                    with cols[2]:
-                        st.write(f"المرشد: {row.get('Guide Name', '')}")
-                    with cols[3]:
-                        st.write(f"الوقت: {row.get('Timestamp', '')}")
-                    with cols[4]:
-                        if st.button("عرض", key=f"view_arch_btn_{idx}", type="primary"):
-                            st.session_state.viewing_archive_file = idx
-                            st.rerun()
-                    with cols[5]:
-                        if st.button("🗑️ حذف", key=f"del_arch_btn_{idx}", type="primary"):
-                            st.session_state.confirming_del_arch = idx
-                            st.rerun()
-                    
-                    if st.session_state.confirming_del_arch == idx:
-                        st.warning(f"⚠️ هل أنت متأكد من رغبتك في حذف أرشيف الفايل رقم ({row.get('File No', '')})؟")
-                        ac_col1, ac_col2 = st.columns(2)
-                        with ac_col1:
-                            if st.button("✔️ تأكيد الحذف النهائي", key="confirm_del_arch_list_{idx}", type="primary"):
-                                archive_df = archive_df.drop(idx).reset_index(drop=True)
-                                overwrite_data(ARCHIVE_FILE, archive_df)
-                                st.session_state.confirming_del_arch = None
-                                st.rerun()
-                        with ac_col2:
-                            if st.button("❌ رجوع (إلغاء)", key="cancel_del_arch_list_{idx}", type="primary"):
-                                st.session_state.confirming_del_arch = None
-                                st.rerun()
-                                
-                    st.markdown("---")
-            else:
-                st.info("الأرشيف فارغ حالياً.")
-                
-    elif password_archive:
-        st.error("كلمة المرور غير صحيحة.")
+    archive_df = load_data(ARCHIVE_FILE)
+    if not archive_df.empty:
+        st.dataframe(archive_df, use_container_width=True)
     else:
-        st.info("الرجاء إدخال كلمة المرور لعرض الأرشيف.")
+        st.info("لا توجد ملفات في الأرشيف حالياً.")
