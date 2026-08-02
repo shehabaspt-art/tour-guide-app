@@ -136,7 +136,7 @@ st.markdown("""
         margin: 0 !important;
     }
     
-    /* تصميم الشريط العلوي الثابت مع جعل اللوجو أعرض وأثقل */
+    /* تصميم الشريط العلوي الثابت مع زحفة إضافية لجهة اليمين للعناصر */
     .sticky-header {
         position: fixed;
         top: 0;
@@ -159,13 +159,13 @@ st.markdown("""
 
 logo_html = f'<img src="{logo_base64}" style="height: 48px; width: auto; max-width: 220px; object-fit: contain; filter: contrast(1.15) saturate(1.1);" />' if logo_base64 else '<span style="font-weight: bold; color: #1b5e20; font-size: 1.1rem;">Sun Pyramids</span>'
 
-# الشريط العلوي الثابت يضم اللوجو (أعرض وأثقل) على الشمال وعدد الطلبات بجوار المنبه على اليمين بدون كلمة "الطلبات المعلقة"
+# الشريط العلوي الثابت مع زحفة إضافية لجهة اليمين للعناصر
 st.markdown(f"""
     <div class="sticky-header">
         <div>
             {logo_html}
         </div>
-        <div style="display: flex; align-items: center; gap: 30px;">
+        <div style="display: flex; align-items: center; gap: 30px; margin-right: 35px;">
             <div style="font-size: 1rem; font-weight: bold; color: #333;">
                 🔔 <span style="background-color: #e9ecef; padding: 2px 8px; border-radius: 6px; color: #d9534f;">{pending_count}</span>
             </div>
@@ -194,7 +194,7 @@ SHOPS_LIST = [
 
 st.sidebar.markdown("<h2 style='color: #1b5e20; margin-bottom: 5px; font-size: 1.3rem;'>🧭 القائمة الرئيسية</h2>", unsafe_allow_html=True)
 st.sidebar.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1rem; margin-top: 5px; margin-bottom: 10px;'>اختر الصفحة</p>", unsafe_allow_html=True)
-page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف", "إعدادات اللوجو"], label_visibility="collapsed")
+page = st.sidebar.radio("اختر الصفحة", ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف"], label_visibility="collapsed")
 
 if page == "نموذج تصفية المرشد":
     st.title("🧭 نموذج تصفية المرشدين")
@@ -614,7 +614,7 @@ elif page == "إدارة التصفيات":
                                 st.rerun()
                         with ac2:
                             if st.button("❌ إلغاء", key="cancel_add_guide_final", type="primary"):
-                                st.session_state.confirming_add_guide = None
+                                st.session_state.confirming__add_guide = None
                                 st.rerun()
 
 elif page == "الأرشيف":
@@ -625,33 +625,3 @@ elif page == "الأرشيف":
         st.dataframe(archive_df, use_container_width=True)
     else:
         st.info("الأرشيف فارغ حالياً.")
-
-elif page == "إعدادات اللوجو":
-    st.title("🖼️ إعدادات اللوجو")
-    st.markdown("---")
-    
-    logo_pass = st.text_input("أدخل كلمة المرور لإدارة اللوجو", type="password", key="logo_pass")
-    
-    if logo_pass == "159753":
-        st.success("تم التحقق بنجاح!")
-        
-        current_logo = get_current_logo()
-        if current_logo:
-            st.write("**اللوجو الحالي المستخدم:**")
-            st.image(current_logo, width=120)
-            
-        uploaded_logo = st.file_uploader("اختر صورة اللوجو الجديدة (PNG, JPG, JPEG)", type=["png", "jpg", "jpeg"])
-        
-        if uploaded_logo is not None:
-            st.image(uploaded_logo, caption="معاينة اللوجو الجديد", width=150)
-            if st.button("💾 حفظ وتطبيق اللوجو الجديد", type="primary"):
-                logo_path = os.path.join(UPLOAD_DIR, f"logo_{int(time.time())}_{uploaded_logo.name}")
-                with open(logo_path, "wb") as f:
-                    f.write(uploaded_logo.getbuffer())
-                
-                with open(LOGO_CONFIG_FILE, "w") as f:
-                    f.write(logo_path)
-                
-                st.success("✅ تم حفظ وتطبيق اللوجو بنجاح! سيتم تحديث الشاشة الآن...")
-                time.sleep(1)
-                st.rerun()
