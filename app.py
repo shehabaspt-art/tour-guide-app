@@ -240,7 +240,7 @@ SHOPS_LIST = [
     "لازوريت",
 ]
 
-# تصميم القائمة الجانبية مع زرار إخفاء/إظهار أنيق بجانب العنوان
+# تصميم القائمة الجانبية مع زرار السهم الأنيق لإخفاء وإظهار القائمة وتوسيع الشاشة
 col_title, col_btn = st.sidebar.columns([3, 1])
 with col_title:
     st.markdown(
@@ -248,8 +248,8 @@ with col_title:
         unsafe_allow_html=True,
     )
 with col_btn:
-    toggle_label = "➖" if not st.session_state.sidebar_collapsed else "➕"
-    if st.button(toggle_label, key="toggle_sidebar_content"):
+    arrow_symbol = "◀️" if not st.session_state.sidebar_collapsed else "▶️"
+    if st.button(arrow_symbol, key="toggle_sidebar_content"):
         st.session_state.sidebar_collapsed = (
             not st.session_state.sidebar_collapsed
         )
@@ -266,7 +266,7 @@ if not st.session_state.sidebar_collapsed:
         label_visibility="collapsed",
     )
 else:
-    page = "نموذج تصفية المرشد"  # الصفحة الافتراضية في حال الإخفاء
+    page = "نموذج تصفية المرشد"  # الصفحة الافتراضية في حال تم تصغير/إخفاء القائمة
 
 if page == "نموذج تصفية المرشد":
     st.title("🧭 نموذج تصفية المرشدين")
