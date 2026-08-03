@@ -15,7 +15,6 @@ SUBMISSIONS_FILE = "submissions.xlsx"
 ARCHIVE_FILE = "archive.xlsx"
 GUIDES_FILE = "guides.xlsx"
 
-# تعديل مسار اللوجو ليكون مطابقاً للصورة المرفوعة sun_2.png مباشرة
 def get_current_logo():
     fixed_logo_path = "sun_2.png"
     if os.path.exists(fixed_logo_path):
@@ -201,16 +200,18 @@ if page == "نموذج تصفية المرشد":
 
     with st.form("guide_form", clear_on_submit=True):
         st.subheader("بيانات المرشد")
-        col_top1, col_top2, col_top3, col_top4 = st.columns(4)
+        
+        col_top1, col_top2, col_top3 = st.columns(3)
         with col_top1:
             account_options = [None] + guides_df[acc_column].astype(str).tolist()
             account_no = st.selectbox("رقم الحساب الخاص بالمرشد", options=account_options, index=0)
         with col_top2:
             file_no = st.text_input("رقم الفايل (File Number) *إلزامي*")
         with col_top3:
-            work_order_image = st.file_uploader("رفع صور أمر الشغل", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key="work_order_imgs")
-        with col_top4:
             advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0)
+            
+        # وضع خانة رفع صور أمر الشغل تحت الحقول السابقة في نفس المستطيل
+        work_order_image = st.file_uploader("رفع صور أمر الشغل", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key="work_order_imgs")
         
         st.markdown("---")
         st.subheader("التحصيل (Collection)")
@@ -406,7 +407,6 @@ elif page == "إدارة التصفيات":
                 st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {req_row.get('Account', '')}")
                 st.markdown("---")
                 
-                # عرض صور أمر الشغل
                 st.markdown("#### صور أمر الشغل:")
                 wo_paths = req_row.get("Work Order Images", "")
                 if pd.notna(wo_paths) and str(wo_paths).strip() != "":
