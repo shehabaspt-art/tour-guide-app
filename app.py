@@ -52,12 +52,11 @@ def overwrite_data(file_path, df):
 current_logo_path = get_current_logo()
 if current_logo_path:
     try:
-        # تكبير اللوجو باستخدام size="large"
         st.logo(current_logo_path, size="large")
     except:
         pass
 
-# تنسيق CSS لضبط السايدبار وتحكم أكبر في حجم اللوجو وإزالة الهوامش
+# تنسيق CSS لترك مسافة حوالي 2 سم فوق اللوجو والسايدبار
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -71,16 +70,16 @@ st.markdown("""
         color: white !important;
     }
     
-    /* ضبط السايدبار ليبدأ من تحت اللوجو مباشرة ويأخذ اللون الأخضر */
+    /* ضبط السايدبار وإضافة مسافة من الأعلى تقارب 2 سم (2rem) قبل اللوجو */
     [data-testid="stSidebar"] {
         background-color: #d8ebd8 !important;
         border-left: 2px solid #c2e0c2 !important;
     }
     [data-testid="stSidebar"] > div:first-child {
-        padding-top: 0rem !important;
+        padding-top: 2rem !important;
     }
     
-    /* تكبير صورة اللوجو داخل السايدبار إذا تم عرضها كـ img */
+    /* تكبير وتوسيط صورة اللوجو داخل السايدبار */
     [data-testid="stSidebar"] img {
         max-width: 100% !important;
         width: 220px !important;
