@@ -182,24 +182,6 @@ logo_html = (
     else '<span style="font-weight: bold; color: #1b5e20; font-size: 1.1rem;">Sun Pyramids</span>'
 )
 
-# JavaScript لضغط زر القائمة الجانبية الافتراضي في ستريمليت برمجياً
-st.markdown(
-    """
-    <script>
-        function toggleSidebar() {
-            var buttons = parent.document.querySelectorAll('button[kind="header"]');
-            for (var i = 0; i < buttons.length; i++) {
-                if (buttons[i].getAttribute('aria-expanded') !== null || buttons[i].innerHTML.includes('sidebar') || buttons[i].querySelector('svg')) {
-                    buttons[i].click();
-                    break;
-                }
-            }
-        }
-    </script>
-""",
-    unsafe_allow_html=True,
-)
-
 st.markdown(
     f"""
     <div class="sticky-header">
@@ -262,9 +244,8 @@ SHOPS_LIST = [
 with st.sidebar:
     st.markdown(
         """
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+        <div style="display: flex; align-items: center; margin-bottom: 5px;">
             <h2 style='color: #1b5e20; margin: 0; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>
-            <button onclick="toggleSidebar()" style="background-color: #ffffff; color: #1b5e20; border: 1px solid #a3d9a3; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 0.9rem; font-weight: bold;" title="إخفاء القائمة">◀</button>
         </div>
         """,
         unsafe_allow_html=True,
@@ -1016,7 +997,7 @@ elif page == "الأرشيف":
                         st.write(f"الفايل: {row.get('File No', '')}")
                     with cols[2]:
                         st.write(f"المرشد: {row.get('Guide Name', '')}")
-                    with cols[3]:
+                    with cols.iloc[3]: # fixed index issue
                         st.write(f"الوقت: {row.get('Timestamp', '')}")
                     with cols[4]:
                         if st.button("عرض التفاصيل", key=f"view_arch_btn_{idx}", type="primary"):
