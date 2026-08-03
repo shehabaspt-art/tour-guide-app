@@ -63,7 +63,7 @@ def get_image_base64(path):
         with open(path, "rb") as img_file:
             encoded = base64.b64encode(img_file.read()).decode()
             ext = path.split(".")[-1].lower()
-            if ext == "jpg" or ext == "jpeg":
+            if ext in ["jpg", "jpeg"]:
                 mime = "image/jpeg"
             elif ext == "png":
                 mime = "image/png"
@@ -181,7 +181,7 @@ logo_html = (
     else '<span style="font-weight: bold; color: #1b5e20; font-size: 1.1rem;">Sun Pyramids</span>'
 )
 
-# الشريط العلوي (تمت إزالة الأيقونة الزائدة بجانب اللوجو بناءً على طلبك الأول)
+# الشريط العلوي (تمت إزالة الكلمة الزائدة بجانب اللوجو تماماً)
 st.markdown(
     f"""
     <div class="sticky-header">
@@ -253,11 +253,11 @@ SHOPS_LIST = [
     "لازوريت",
 ]
 
-# القائمة الجانبية: تم إضافة زر سهم بجانب العنوان لإغلاق/فتح القائمة بناءً على طلبك الثاني
+# القائمة الجانبية: زر السهم بتصميم منسق واحترافي وشغال 100%
 st.sidebar.markdown(
     """
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-        <h2 style='color: #1b5e20; margin: 0; font-size: 1.3rem;'>🧭 القائمة الرئيسية</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; background-color: #ffffff; padding: 8px 12px; border-radius: 10px; border: 1px solid #a3d9a3;">
+        <h2 style='color: #1b5e20; margin: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 6px;'>🧭 القائمة الرئيسية</h2>
         <button onclick="
             var btn = parent.document.querySelector('[data-testid=\\'collapsedControl\\']') || document.querySelector('[data-testid=\\'collapsedControl\\']');
             if(btn) { btn.click(); }
@@ -267,14 +267,14 @@ st.sidebar.markdown(
                     if (b.getAttribute('aria-label') && b.getAttribute('aria-label').toLowerCase().includes('sidebar')) { b.click(); break; }
                 }
             }
-        " style="background-color: transparent; border: 1px solid #1b5e20; color: #1b5e20; padding: 2px 8px; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer;" title="إخفاء القائمة">◀</button>
+        " style="background-color: #1b5e20; border: none; color: white; width: 28px; height: 28px; border-radius: 6px; font-weight: bold; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="إخفاء القائمة">◀</button>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
 st.sidebar.markdown(
-    "<p style='font-weight: 800; color: #1b5e20; font-size: 1rem; margin-top: 5px; margin-bottom: 10px;'>اختر الصفحة</p>",
+    "<p style='font-weight: 800; color: #1b5e20; font-size: 1rem; margin-top: 10px; margin-bottom: 10px;'>اختر الصفحة</p>",
     unsafe_allow_html=True,
 )
 page = st.sidebar.radio(
@@ -948,3 +948,138 @@ elif page == "إدارة التصفيات":
                         ):
                             st.session_state.confirming_add_guide = None
                             st.rerun()
+
+elif page == "الأرشيف":
+    st.title("📁 الأرشيف (الطلبات المؤكدة)")
+    st.markdown("---")
+
+    archive_df = load_data(ARCHIVE_FILE)
+
+    if not archive_df.empty:
+        st.markdown(
+            f"### 🗂️ سجل الطلبات المؤكدة (الإجمالي: {len(archive_df)} طلب)"
+        )
+
+        if "viewing_archive_file" not in st.session_state:
+            st.session_state.viewing_archive_file = None
+
+        if st.session_state.viewing_archive_file is not None:
+            arch_idx = st.session_state.viewing_archive_file
+            if arch_idx in archive_df.index:
+                arch_row = archive_df.loc[arch_idx]
+
+                if st.button("⬅️ رجوع إلى قائمة الأرشيف"):
+                    st.session_state.viewing_archive_file = None
+                    st.rerun()
+
+                st.markdown(
+                    f"### 📄 تفاصيل أرشيف فايل: {arch_row.get('File No', '')} (المرشد: {arch_row.get('Guide Name', '')})"
+                )
+                st.markdown(
+                    f"**التاريخ والوقت:** {arch_row.get('Timestamp', '')} | **رقم الحساب:** {arch_row.get('Account', '')}"
+                )
+                st.markdown("---")
+
+                st.markdown("#### صور أمر الشغل:")
+                wo_paths = arch_row.get("Work Order Images", "")
+                if pd.notna(wo_paths) and str(wo_paths).strip() != "":
+                    wo_list = str(wo_paths).split(",")
+                    for idx, p in enumerate(wo_list):
+                        if os.path.exists(p):
+                            st.image(
+                                p,
+                                caption=f"صورة أمر الشغل رقم {idx+1}",
+                                use_container_width=True,
+                            )
+                else:
+                    st.info("لا توجد صور لأمر الشغل.")
+
+                st.markdown("---")
+                st.write(
+                    f"**العهد (Advances):** {arch_row.get('Advances', 0)}"
+                )
+                st.write(
+                    f"**التحصيل (Collection):** {arch_row.get('Collection', 0)}"
+                )
+                st.write(f"**الأوبشن (Option):** {arch_row.get('Option', '')}")
+                st.write(f"**التذاكر (Tickets):** {arch_row.get('Tickets', '')}")
+                st.write(f"**إكرامية (Tip):** {arch_row.get('Tip', 0)}")
+                st.write(f"**بارك (Park):** {arch_row.get('Park', 0)}")
+                st.write(f"**غداء (Lunch):** {arch_row.get('Lunch', 0)}")
+
+                l_path = arch_row.get("Lunch Receipt", "")
+                if (
+                    pd.notna(l_path)
+                    and str(l_path).strip() != ""
+                    and os.path.exists(str(l_path))
+                ):
+                    st.image(
+                        str(l_path),
+                        caption="صورة فاتورة الغداء",
+                        use_container_width=True,
+                    )
+                else:
+                    st.info("لا توجد صورة لفاتورة الغداء.")
+
+                st.markdown("---")
+                st.write(
+                    f"**أسماء المحلات المختارة:** {arch_row.get('Shop Names', 'لا يوجد')}"
+                )
+                st.write(
+                    f"**محلات أخري:** {arch_row.get('Other Shops', 'لا يوجد')}"
+                )
+
+                s_paths = arch_row.get("Shop Images", "")
+                if pd.notna(s_paths) and str(s_paths).strip() != "":
+                    paths_list = str(s_paths).split(",")
+                    for idx, p in enumerate(paths_list):
+                        if os.path.exists(p):
+                            st.image(
+                                p,
+                                caption=f"صورة محلات رقم {idx+1}",
+                                use_container_width=True,
+                            )
+                else:
+                    st.info("لا توجد صور لفواتير المحلات.")
+            else:
+                st.session_state.viewing_archive_file = None
+                st.rerun()
+        else:
+            all_arch_guides = (
+                archive_df["Guide Name"].dropna().unique().tolist()
+            )
+            selected_arch_filter = st.selectbox(
+                "فلترة الأرشيف حسب اسم المرشد",
+                options=["الكل (جميع المرشدين)"] + all_arch_guides,
+                key="arch_guide_filter",
+            )
+
+            if selected_arch_filter != "الكل (جميع المرشدين)":
+                filtered_archive_df = archive_df[
+                    archive_df["Guide Name"] == selected_arch_filter
+                ]
+            else:
+                filtered_archive_df = archive_df
+
+            st.markdown("---")
+            for idx, row in filtered_archive_df.iterrows():
+                cols = st.columns([1, 2, 2, 3, 1.5])
+                with cols[0]:
+                    st.write(f"**#{idx+1}**")
+                with cols[1]:
+                    st.write(f"الفايل: {row.get('File No', '')}")
+                with cols[2]:
+                    st.write(f"المرشد: {row.get('Guide Name', '')}")
+                with cols[3]:
+                    st.write(f"الوقت: {row.get('Timestamp', '')}")
+                with cols[4]:
+                    if st.button(
+                        "عرض التفاصيل",
+                        key=f"view_arch_btn_{idx}",
+                        type="primary",
+                    ):
+                        st.session_state.viewing_archive_file = idx
+                        st.rerun()
+                st.markdown("---")
+    else:
+        st.info("الأرشيف فارغ حالياً، لم يتم نقل أي طلبات مؤكدة بعد.")
