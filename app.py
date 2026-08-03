@@ -135,6 +135,19 @@ st.markdown("""
         margin: 0 !important;
     }
     
+    /* إظهار زر فتح وإغلاق القائمة الجانبية بوضوح تام على الهواتف والأجهزة كلها */
+    [data-testid="collapsedControl"] {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        color: #1b5e20 !important;
+        background-color: #ffffff !important;
+        border: 1px solid #a3d9a3 !important;
+        border-radius: 50% !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.15) !important;
+        z-index: 9999999 !important;
+    }
+    
     .sticky-header {
         position: fixed;
         top: 0;
@@ -376,7 +389,6 @@ elif page == "إدارة التصفيات":
     
     password = st.text_input("أدخل كلمة المرور لعرض لوحة الإدارة", type="password", key="mgr_pass")
     
-    # السماح بالدخول والاستعراض بأي كلمة مرور صحيحة (مثلاً 159753)
     if password == "159753":
         st.success("تم تسجيل الدخول للاستعراض بنجاح.")
         sub_df = load_data(SUBMISSIONS_FILE)
@@ -450,7 +462,6 @@ elif page == "إدارة التصفيات":
                 st.markdown("---")
                 st.markdown("### اتخاذ القرار بشأن الطلب (يتطلب صلاحية التعديل):")
                 
-                # التحقق من إدخال الميل الخاص بك لتنفيذ التعديل أو النقل للأرشيف
                 action_email = st.text_input("أدخل البريد الإلكتروني للمسؤول لتأكيد القرار", key="action_email_decision")
                 
                 col_btn1, col_btn2 = st.columns(2)
