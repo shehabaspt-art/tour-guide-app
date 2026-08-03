@@ -15,6 +15,8 @@ SUBMISSIONS_FILE = "submissions.xlsx"
 ARCHIVE_FILE = "archive.xlsx"
 GUIDES_FILE = "guides.xlsx"
 
+ADMIN_EMAIL = "shehab.a.spt@gmail.com"
+
 def get_current_logo():
     fixed_logo_path = "sun_2.png"
     if os.path.exists(fixed_logo_path):
@@ -210,7 +212,6 @@ if page == "نموذج تصفية المرشد":
         with col_top3:
             advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0)
             
-        # وضع خانة رفع صور أمر الشغل تحت الحقول السابقة في نفس المستطيل
         work_order_image = st.file_uploader("رفع صور أمر الشغل", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key="work_order_imgs")
         
         st.markdown("---")
@@ -373,10 +374,11 @@ elif page == "إدارة التصفيات":
     st.title("📊 إدارة التصفيات")
     st.markdown("---")
     
-    password = st.text_input("أدخل كلمة المرور", type="password", key="mgr_pass")
+    password = st.text_input("أدخل كلمة المرور لعرض لوحة الإدارة", type="password", key="mgr_pass")
     
+    # السماح بالدخول والاستعراض بأي كلمة مرور صحيحة (مثلاً 159753)
     if password == "159753":
-        st.success("تم تسجيل الدخول بنجاح!")
+        st.success("تم تسجيل الدخول للاستعراض بنجاح.")
         sub_df = load_data(SUBMISSIONS_FILE)
         
         if "viewing_file" not in st.session_state:
@@ -446,19 +448,27 @@ elif page == "إدارة التصفيات":
                     st.info("لا توجد صور لفواتير المحلات.")
                 
                 st.markdown("---")
-                st.markdown("### اتخاذ القرار بشأن الطلب:")
+                st.markdown("### اتخاذ القرار بشأن الطلب (يتطلب صلاحية التعديل):")
+                
+                # التحقق من إدخال الميل الخاص بك لتنفيذ التعديل أو النقل للأرشيف
+                action_email = st.text_input("أدخل البريد الإلكتروني للمسؤول لتأكيد القرار", key="action_email_decision")
+                
                 col_btn1, col_btn2 = st.columns(2)
                 
                 with col_btn1:
-                    if st.button("✅ تم", type="primary", use_container_width=True):
-                        archive_entry = req_row.to_dict()
-                        save_to_file(ARCHIVE_FILE, archive_entry)
-                        
-                        sub_df = sub_df.drop(req_idx).reset_index(drop=True)
-                        overwrite_data(SUBMISSIONS_FILE, sub_df)
-                        
-                        st.session_state.viewing_file = None
-                        st.rerun()
+                    if st.button("✅ تم (نقل للأرشيف)", type="primary", use_container_width=True):
+                        if action_email.strip().lower() == ADMIN_EMAIL.lower():
+                            archive_entry = req_row.to_dict()
+                            save_to_file(ARCHIVE_FILE, archive_entry)
+                            
+                            sub_df = sub_df.drop(req_idx).reset_index(drop=True)
+                            overwrite_data(SUBMISSIONS_FILE, sub_df)
+                            
+                            st.session_state.viewing_file = None
+                            st.success("✅ تم نقل الطلب للأرشيف بنجاح!")
+                            st.rerun()
+                        else:
+                            st.error("❌ مرفوض! البريد الإلكتروني المدخل غير مسموح له بتنفيذ التعديل أو نقل الطلبات.")
                 
                 with col_btn2:
                     if st.button("🔄 متابعة", use_container_width=True):
@@ -503,14 +513,19 @@ elif page == "إدارة التصفيات":
                             st.rerun()
                     
                     if st.session_state.confirming_del_sub == idx:
-                        st.warning(f"⚠️ هل أنت متأكد من رغبتك في حذف طلب الفايل رقم ({row.get('File No', '')})؟")
+                        st.warning(f"⚠️ تأكيد حذف طلب الفايل رقم ({row.get('File No', '')})؟")
+                        del_email_check = st.text_input("أدخل البريد الإلكتروني للمسؤول لتأكيد الحذف", key=f"del_email_sub_{idx}")
                         c_col1, c_col2 = st.columns(2)
                         with c_col1:
                             if st.button("✔️ تأكيد الحذف النهائي", key=f"confirm_del_sub_{idx}", type="primary"):
-                                sub_df = sub_df.drop(idx).reset_index(drop=True)
-                                overwrite_data(SUBMISSIONS_FILE, sub_df)
-                                st.session_state.confirming_del_sub = None
-                                st.rerun()
+                                if del_email_check.strip().lower() == ADMIN_EMAIL.lower():
+                                    sub_df = sub_df.drop(idx).reset_index(drop=True)
+                                    overwrite_data(SUBMISSIONS_FILE, sub_df)
+                                    st.session_state.confirming_del_sub = None
+                                    st.success("تم الحذف بنجاح.")
+                                    st.rerun()
+                                else:
+                                    st.error("❌ مرفوض! البريد الإلكتروني غير صحيح ولا تملك صلاحية الحذف.")
                         with c_col2:
                             if st.button("❌ رجوع (إلغاء)", key=f"cancel_del_sub_{idx}", type="primary"):
                                 st.session_state.confirming_del_sub = None
@@ -557,20 +572,25 @@ elif page == "إدارة التصفيات":
                     n_acc = st.session_state.confirming_edit_guide["new_acc"]
                     
                     if not n_acc.strip():
-                        st.error("⚠️ يرجى كتابة رقم الحساب الجديد أولاً قبل الحفظ!")
+                        st.error("⚠️ يرجى كتابة رقم الحساب الجديد أولاً!")
                         if st.button("❌ رجوع", type="primary"):
                             st.session_state.confirming_edit_guide = None
                             st.rerun()
                     else:
-                        st.warning(f"⚠️ هل أنت متأكد من رغبتك في تغيير رقم حساب المرشد (**{g_to_edit}**) إلى الرقم الجديد: **{n_acc}**؟")
+                        st.warning(f"⚠️ تأكيد تعديل حساب المرشد (**{g_to_edit}**) إلى: **{n_acc}**")
+                        edit_email_chk = st.text_input("أدخل البريد الإلكتروني للمسؤول لتأكيد التعديل", key="edit_email_chk_field")
                         ec1, ec2 = st.columns(2)
                         with ec1:
                             if st.button("✔️ تأكيد وحفظ التعديل", type="primary", key="confirm_save_guide_acc"):
-                                guides_df.loc[guides_df[name_column].astype(str) == g_to_edit, acc_column] = n_acc
-                                overwrite_data(GUIDES_FILE, guides_df)
-                                st.session_state.confirming_edit_guide = None
-                                st.session_state.clear_edit_input = True
-                                st.rerun()
+                                if edit_email_chk.strip().lower() == ADMIN_EMAIL.lower():
+                                    guides_df.loc[guides_df[name_column].astype(str) == g_to_edit, acc_column] = n_acc
+                                    overwrite_data(GUIDES_FILE, guides_df)
+                                    st.session_state.confirming_edit_guide = None
+                                    st.session_state.clear_edit_input = True
+                                    st.success("✅ تم التعديل بنجاح!")
+                                    st.rerun()
+                                else:
+                                    st.error("❌ مرفوض! البريد الإلكتروني غير مصرح له بتعديل الحسابات.")
                         with ec2:
                             if st.button("❌ إلغاء", key="cancel_save_guide_acc", type="primary"):
                                 st.session_state.confirming_edit_guide = None
@@ -579,14 +599,19 @@ elif page == "إدارة التصفيات":
                 if st.session_state.confirming_del_guide is not None:
                     g_to_del = st.session_state.confirming_del_guide["name"]
                     
-                    st.warning(f"⚠️ هل أنت متأكد تماماً من رغبتك في حذف المرشد (**{g_to_del}**) من قاعدة البيانات؟")
+                    st.warning(f"⚠️ تأكيد حذف المرشد (**{g_to_del}**) نهائياً؟")
+                    del_guide_email_chk = st.text_input("أدخل البريد الإلكتروني للمسؤول لتأكيد الحذف", key="del_guide_email_chk_field")
                     dc1, dc2 = st.columns(2)
                     with dc1:
                         if st.button("✔️ تأكيد الحذف النهائي", type="primary", key="confirm_del_guide_btn"):
-                            guides_df = guides_df[guides_df[name_column].astype(str) != g_to_del].reset_index(drop=True)
-                            overwrite_data(GUIDES_FILE, guides_df)
-                            st.session_state.confirming_del_guide = None
-                            st.rerun()
+                            if del_guide_email_chk.strip().lower() == ADMIN_EMAIL.lower():
+                                guides_df = guides_df[guides_df[name_column].astype(str) != g_to_del].reset_index(drop=True)
+                                overwrite_data(GUIDES_FILE, guides_df)
+                                st.session_state.confirming_del_guide = None
+                                st.success("تم حذف المرشد بنجاح.")
+                                st.rerun()
+                            else:
+                                st.error("❌ مرفوض! البريد الإلكتروني غير مصرح له بحذف المرشدين.")
                     with dc2:
                         if st.button("❌ إلغاء الحذف", key="cancel_del_guide_btn", type="primary"):
                             st.session_state.confirming_del_guide = None
@@ -615,32 +640,45 @@ elif page == "إدارة التصفيات":
                     a_acc = st.session_state.confirming_add_guide["acc"]
                     
                     if not a_name or not a_acc:
-                        st.error("⚠️ يرجى إدخال (اسم المرشد) و(رقم الحساب) معاً بشكل صحيح!")
+                        st.error("⚠️ يرجى إدخال (اسم المرشد) و(رقم الحساب) معاً!")
                         if st.button("❌ رجوع", type="primary", key="cancel_empty_add"):
                             st.session_state.confirming_add_guide = None
                             st.rerun()
                     else:
-                        st.warning(f"⚠️ هل أنت متأكد من رغبتك في إضافة المرشد (**{a_name}**) برقم حساب (**{a_acc}**)؟")
+                        st.warning(f"⚠️ تأكيد إضافة المرشد (**{a_name}**) برقم حساب (**{a_acc}**)؟")
+                        add_email_chk = st.text_input("أدخل البريد الإلكتروني للمسؤول لتأكيد الإضافة", key="add_email_chk_field")
                         ac1, ac2 = st.columns(2)
                         with ac1:
                             if st.button("✔️ تأكيد الإضافة", type="primary", key="confirm_add_guide_final"):
-                                new_row = pd.DataFrame({name_column: [a_name], acc_column: [a_acc]})
-                                guides_df = pd.concat([guides_df, new_row], ignore_index=True)
-                                overwrite_data(GUIDES_FILE, guides_df)
-                                st.session_state.confirming_add_guide = None
-                                st.session_state.clear_add_inputs = True
-                                st.success("✅ تم إضافة المرشد بنجاح!")
-                                st.rerun()
+                                if add_email_chk.strip().lower() == ADMIN_EMAIL.lower():
+                                    new_row = pd.DataFrame({name_column: [a_name], acc_column: [a_acc]})
+                                    guides_df = pd.concat([guides_df, new_row], ignore_index=True)
+                                    overwrite_data(GUIDES_FILE, guides_df)
+                                    st.session_state.confirming_add_guide = None
+                                    st.session_state.clear_add_inputs = True
+                                    st.success("✅ تم إضافة المرشد بنجاح!")
+                                    st.rerun()
+                                else:
+                                    st.error("❌ مرفوض! البريد الإلكتروني غير مصرح له بإضافة مرشدين جدد.")
                         with ac2:
                             if st.button("❌ إلغاء", key="cancel_add_guide_final", type="primary"):
                                 st.session_state.confirming_add_guide = None
                                 st.rerun()
+    elif password != "":
+        st.error("⚠️ كلمة المرور غير صحيحة!")
 
 elif page == "الأرشيف":
     st.title("📁 الأرشيف (الطلبات التي تم تصفيتها وتأكيدها)")
     st.markdown("---")
-    archive_df = load_data(ARCHIVE_FILE)
-    if not archive_df.empty:
-        st.dataframe(archive_df, use_container_width=True)
-    else:
-        st.info("الأرشيف فارغ حالياً.")
+    
+    arch_password = st.text_input("أدخل كلمة المرور لعرض الأرشيف", type="password", key="arch_pass")
+        
+    if arch_password == "159753":
+        st.success("تم تسجيل الدخول لعرض الأرشيف بنجاح.")
+        archive_df = load_data(ARCHIVE_FILE)
+        if not archive_df.empty:
+            st.dataframe(archive_df, use_container_width=True)
+        else:
+            st.info("الأرشيف فارغ حالياً.")
+    elif arch_password != "":
+        st.error("⚠️ كلمة المرور غير صحيحة!")
