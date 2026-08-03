@@ -171,29 +171,6 @@ st.markdown(
     .block-container {
         padding-top: 5rem !important;
     }
-
-    .custom-collapse-btn {
-        background-color: #ffffff;
-        border: 1px solid #a3d9a3;
-        color: #1b5e20;
-        font-size: 22px;
-        font-weight: bold;
-        width: 36px;
-        height: 36px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        transition: all 0.2s ease;
-        text-decoration: none !important;
-        line-height: 1;
-    }
-    .custom-collapse-btn:hover {
-        background-color: #d8ebd8;
-        border-color: #28a745;
-    }
     </style>
 """,
     unsafe_allow_html=True,
@@ -265,25 +242,10 @@ SHOPS_LIST = [
 ]
 
 with st.sidebar:
-    col_t1, col_t2 = st.columns([3, 1])
-    with col_t1:
-        st.markdown(
-            "<h2 style='color: #1b5e20; margin-bottom: 5px; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>",
-            unsafe_allow_html=True,
-        )
-    with col_t2:
-        st.markdown(
-            """
-            <button class="custom-collapse-btn" onclick="
-                var collapseBtn = window.parent.document.querySelector('[data-testid=\\'collapsedControl\\']');
-                if (!collapseBtn) {
-                    collapseBtn = window.parent.document.querySelector('button[kind=\\'header\\']');
-                }
-                if (collapseBtn) { collapseBtn.click(); }
-            ">‹</button>
-        """,
-            unsafe_allow_html=True,
-        )
+    st.markdown(
+        "<h2 style='color: #1b5e20; margin-bottom: 5px; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>",
+        unsafe_allow_html=True,
+    )
 
     st.markdown(
         "<p style='font-weight: 800; color: #1b5e20; font-size: 1rem; margin-top: 5px; margin-bottom: 10px;'>اختر الصفحة</p>",
