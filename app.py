@@ -1,16 +1,16 @@
+import streamlit as st
+import pandas as pd
+import os
 import base64
 from datetime import datetime
-import os
 import time
-import pandas as pd
-import streamlit as st
 
-# ضبط إعدادات الصفحة ووضع القائمة الجانبية
+# ضبط إعدادات الصفحة
 st.set_page_config(
     page_title="Sun Pyramids Tours",
     page_icon="🧭",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="expanded"
 )
 
 UPLOAD_DIR = "uploads"
@@ -21,27 +21,24 @@ SUBMISSIONS_FILE = "submissions.xlsx"
 ARCHIVE_FILE = "archive.xlsx"
 GUIDES_FILE = "guides.xlsx"
 
-
 def get_current_logo():
     fixed_logo_path = "sun_2.png"
     if os.path.exists(fixed_logo_path):
         return fixed_logo_path
     return None
 
-
 def load_data(file_path):
     if os.path.exists(file_path):
         try:
             df = pd.read_excel(file_path)
-            if "Guide Name" not in df.columns:
-                df["Guide Name"] = "غير معروف"
-            if "Timestamp" not in df.columns:
-                df["Timestamp"] = "غير محدد"
+            if 'Guide Name' not in df.columns:
+                df['Guide Name'] = 'غير معروف'
+            if 'Timestamp' not in df.columns:
+                df['Timestamp'] = 'غير محدد'
             return df
         except:
             return pd.DataFrame()
     return pd.DataFrame()
-
 
 def save_to_file(file_path, new_data):
     df = load_data(file_path)
@@ -49,10 +46,8 @@ def save_to_file(file_path, new_data):
     df = pd.concat([df, new_df], ignore_index=True)
     df.to_excel(file_path, index=False)
 
-
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
-
 
 current_logo_path = get_current_logo()
 if current_logo_path:
@@ -61,67 +56,8 @@ if current_logo_path:
     except:
         pass
 
-
-def get_image_base64(path):
-    if path and os.path.exists(path):
-        with open(path, "rb") as img_file:
-            encoded = base64.b64encode(img_file.read()).decode()
-            ext = path.split(".")[-1].lower()
-            if ext in ["jpg", "jpeg"]:
-                mime = "image/jpeg"
-            elif ext == "png":
-                mime = "image/png"
-            elif ext == "svg":
-                mime = "image/svg+xml"
-            else:
-                mime = "image/png"
-            return f"data:{mime};base64,{encoded}"
-    return ""
-
-
-logo_base64 = get_image_base64(current_logo_path)
-
-if os.path.exists(SUBMISSIONS_FILE):
-    try:
-        init_sub_df = pd.read_excel(SUBMISSIONS_FILE)
-        if not init_sub_df.empty and "File No" in init_sub_df.columns:
-            init_sub_df = init_sub_df[
-                ~init_sub_df["File No"]
-                .astype(str)
-                .isin(["51515", "99999"])
-            ].reset_index(drop=True)
-            init_sub_df.to_excel(SUBMISSIONS_FILE, index=False)
-    except:
-        pass
-
-if "last_pending_count" not in st.session_state:
-    sub_df_init = load_data(SUBMISSIONS_FILE)
-    st.session_state.last_pending_count = len(sub_df_init)
-
-sub_df_initial = load_data(SUBMISSIONS_FILE)
-pending_count = len(sub_df_initial)
-
-new_order_arrived = False
-if pending_count > st.session_state.last_pending_count:
-    new_order_arrived = True
-    st.session_state.last_pending_count = pending_count
-elif pending_count < st.session_state.last_pending_count:
-    st.session_state.last_pending_count = pending_count
-
-if new_order_arrived:
-    st.markdown(
-        """
-    <script>
-        document.title = "🚨 (طلب جديد!) Sun Pyramids Tours";
-        var audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-        audio.play().catch(e => console.log("Audio play blocked"));
-    </script>
-    """,
-        unsafe_allow_html=True,
-    )
-
-st.markdown(
-    """
+# تنسيق CSS لضبط السايدبار فقط ليبدأ من تحت اللوجو مباشرة بدون الهيدر العائم
+st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
         border-radius: 8px !important;
@@ -142,18 +78,6 @@ st.markdown(
     [data-testid="stSidebar"] > div:first-child {
         padding-top: 0rem !important;
     }
-    
-    /* ضبط زر القائمة الافتراضي في الـ Streamlit ليكون فوق الهيدر وواضح تماماً للموبايل */
-    [data-testid="collapsedControl"] {
-        display: block !important;
-        z-index: 99999999 !important;
-        position: fixed !important;
-        top: 12px !important;
-        left: 15px !important;
-        background-color: #ffffff !important;
-        border-radius: 50% !important;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.15) !important;
-    }
 
     [data-testid="stSidebar"] .stRadio > label {
         display: none !important;
@@ -171,112 +95,39 @@ st.markdown(
         font-size: 0.95rem !important;
         margin: 0 !important;
     }
-
-    .sticky-header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        background-color: #f8f9fa;
-        z-index: 999999;
-        padding: 8px 20px;
-        border-bottom: 1px solid #e0e0e0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-    .block-container {
-        padding-top: 5rem !important;
-    }
     </style>
-""",
-    unsafe_allow_html=True,
-)
-
-logo_html = (
-    f'<img src="{logo_base64}" style="height: 42px; width: auto; max-width: 180px; object-fit: contain; filter: contrast(1.15) saturate(1.1);" />'
-    if logo_base64
-    else '<span style="font-weight: bold; color: #1b5e20; font-size: 1.1rem;">Sun Pyramids</span>'
-)
-
-st.markdown(
-    f"""
-    <div class="sticky-header">
-        <div style="display: flex; align-items: center; gap: 15px;">
-            {logo_html}
-        </div>
-        <div style="display: flex; align-items: center; gap: 20px;">
-            <div style="font-size: 0.95rem; font-weight: bold; color: #333;">
-                🔔 <span style="background-color: #e9ecef; padding: 2px 6px; border-radius: 6px; color: #d9534f;">{pending_count}</span>
-            </div>
-            <div style="font-size: 0.95rem; font-weight: bold; color: #333;">
-                👤 <b>SA</b>
-            </div>
-        </div>
-    </div>
-""",
-    unsafe_allow_html=True,
-)
+""", unsafe_allow_html=True)
 
 try:
     guides_df = pd.read_excel(GUIDES_FILE)
 except:
-    guides_df = pd.DataFrame(
-        {
-            "Guide Name": ["أحمد", "محمود"],
-            "Account Number": [
-                "1805000493514500022",
-                "1805000493514500033",
-            ],
-        }
-    )
+    guides_df = pd.DataFrame({
+        "Guide Name": ["أحمد", "محمود"],
+        "Account Number": ["1805000493514500022", "1805000493514500033"]
+    })
     guides_df.to_excel(GUIDES_FILE, index=False)
 
-name_column = (
-    guides_df.columns[0] if len(guides_df.columns) > 0 else "Guide Name"
-)
-acc_column = (
-    guides_df.columns[1] if len(guides_df.columns) > 1 else guides_df.columns[0]
-)
+name_column = guides_df.columns[0] if len(guides_df.columns) > 0 else "Guide Name"
+acc_column = guides_df.columns[1] if len(guides_df.columns) > 1 else guides_df.columns[0]
 
 SHOPS_LIST = [
-    "وجية بردى",
-    "اخناتون سجاد",
-    "مينا للبرديات",
-    "رويال سجاد",
-    "اولد كايرو",
-    "رويال للعطور",
-    "خان الحلو للقطن",
-    "فلور قطن",
-    "طيبة للقطن",
-    "فيلة بازار",
-    "جولدن بيرد",
-    "مملوك",
-    "ريحانة توابل",
-    "كنور توابل",
-    "قصر العطور",
-    "لازوريت",
+    "وجية بردى", "اخناتون سجاد", "مينا للبرديات", "رويال سجاد", "اولد كايرو",
+    "رويال للعطور", "خان الحلو للقطن", "فلور قطن", "طيبة للقطن", "فيلة بازار",
+    "جولدن بيرد", "مملوك", "ريحانة توابل", "كنور توابل", "قصر العطور", "لازوريت"
 ]
 
 with st.sidebar:
-    st.markdown(
-        """
+    st.markdown("""
         <div style="display: flex; align-items: center; margin-top: 10px; margin-bottom: 5px;">
             <h2 style='color: #1b5e20; margin: 0; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    st.markdown(
-        "<p style='font-weight: 800; color: #1b5e20; font-size: 1rem; margin-top: 5px; margin-bottom: 10px;'>اختر الصفحة</p>",
-        unsafe_allow_html=True,
-    )
+        """, unsafe_allow_html=True)
+    
+    st.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1rem; margin-top: 5px; margin-bottom: 10px;'>اختر الصفحة</p>", unsafe_allow_html=True)
     page = st.radio(
         "اختر الصفحة",
         ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف"],
-        label_visibility="collapsed",
+        label_visibility="collapsed"
     )
 
 if page == "نموذج تصفية المرشد":
@@ -288,43 +139,30 @@ if page == "نموذج تصفية المرشد":
 
     with st.form("guide_form", clear_on_submit=True):
         st.subheader("بيانات المرشد")
-
+        
         col_top1, col_top2, col_top3 = st.columns(3)
         with col_top1:
             account_options = [None] + guides_df[acc_column].astype(str).tolist()
-            account_no = st.selectbox(
-                "رقم الحساب الخاص بالمرشد", options=account_options, index=0
-            )
+            account_no = st.selectbox("رقم الحساب الخاص بالمرشد", options=account_options, index=0)
         with col_top2:
             file_no = st.text_input("رقم الفايل (File Number) *إلزامي*")
         with col_top3:
-            advances = st.number_input(
-                "العهد (Advances)", min_value=0.0, step=10.0
-            )
+            advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0)
 
-        work_order_image = st.file_uploader(
-            "رفع صور أمر الشغل",
-            type=["png", "jpg", "jpeg"],
-            accept_multiple_files=True,
-            key="work_order_imgs",
-        )
+        work_order_image = st.file_uploader("رفع صور أمر الشغل", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key="work_order_imgs")
 
         st.markdown("---")
         st.subheader("التحصيل (Collection)")
-
+        
         col_c1, col_c2 = st.columns([2, 1])
         with col_c1:
-            collection_val = st.number_input(
-                "قيمة التحصيل", min_value=0.0, step=10.0
-            )
+            collection_val = st.number_input("قيمة التحصيل", min_value=0.0, step=10.0)
         with col_c2:
-            collection_curr = st.selectbox(
-                "عملة التحصيل", options=["جنية", "يورو", "دولار"]
-            )
+            collection_curr = st.selectbox("عملة التحصيل", options=["جنية", "يورو", "دولار"])
 
         st.markdown("---")
         st.subheader("الأوبشن (Option)")
-
+        
         option_data_list = []
         for i in range(st.session_state.option_rows_count):
             st.markdown(f"**أوبشن رقم ({i+1})**")
@@ -332,41 +170,21 @@ if page == "نموذج تصفية المرشد":
             with col_opt1:
                 opt_type = st.text_input("نوع الاوبشن", key=f"opt_type_{i}")
             with col_opt2:
-                opt_val = st.number_input(
-                    "قيمة الاوبشن", min_value=0.0, step=10.0, key=f"opt_val_{i}"
-                )
+                opt_val = st.number_input("قيمة الاوبشن", min_value=0.0, step=10.0, key=f"opt_val_{i}")
             with col_opt3:
-                opt_curr = st.selectbox(
-                    "عملة الاوبشن",
-                    options=["مصري", "دولار", "يورو"],
-                    key=f"opt_curr_{i}",
-                )
+                opt_curr = st.selectbox("عملة الاوبشن", options=["مصري", "دولار", "يورو"], key=f"opt_curr_{i}")
             with col_opt4:
-                opt_pay = st.selectbox(
-                    "طريقة الدفع",
-                    options=["كاش", "لينك"],
-                    key=f"opt_pay_{i}",
-                )
+                opt_pay = st.selectbox("طريقة الدفع", options=["كاش", "لينك"], key=f"opt_pay_{i}")
             with col_opt5:
                 cash_h = ""
                 if opt_pay == "كاش":
-                    cash_h = st.selectbox(
-                        "المبلغ",
-                        options=[None, "مع المرشد", "مع السواق"],
-                        key=f"cash_h_{i}",
-                    )
+                    cash_h = st.selectbox("المبلغ", options=[None, "مع المرشد", "مع السواق"], key=f"cash_h_{i}")
                 else:
                     st.markdown("")
-
-            option_data_list.append(
-                {
-                    "type": opt_type,
-                    "value": opt_val,
-                    "curr": opt_curr,
-                    "pay": opt_pay,
-                    "holder": cash_h,
-                }
-            )
+            
+            option_data_list.append({
+                "type": opt_type, "value": opt_val, "curr": opt_curr, "pay": opt_pay, "holder": cash_h
+            })
             if i < st.session_state.option_rows_count - 1:
                 st.markdown("---")
 
@@ -376,9 +194,7 @@ if page == "نموذج تصفية المرشد":
         st.subheader("مصاريف (Expenses)")
         col_tkt1, col_tkt2 = st.columns(2)
         with col_tkt1:
-            ticket_value = st.number_input(
-                "قيمة التذاكر", min_value=0.0, step=10.0, key="tkt_val"
-            )
+            ticket_value = st.number_input("قيمة التذاكر", min_value=0.0, step=10.0, key="tkt_val")
         with col_tkt2:
             ticket_type = st.text_input("نوع التذاكر")
 
@@ -391,22 +207,13 @@ if page == "نموذج تصفية المرشد":
         with col_misc3:
             lunch = st.number_input("غداء", min_value=0.0, step=10.0)
 
-        lunch_image = st.file_uploader(
-            "رفع صورة فاتورة الغداء", type=["png", "jpg", "jpeg"], key="lunch_img"
-        )
+        lunch_image = st.file_uploader("رفع صورة فاتورة الغداء", type=["png", "jpg", "jpeg"], key="lunch_img")
 
         st.markdown("---")
         st.subheader("فواتير ومحلات التسوق")
-        selected_shops = st.multiselect(
-            "اسم المحل (اختر من القائمة)", options=SHOPS_LIST
-        )
+        selected_shops = st.multiselect("اسم المحل (اختر من القائمة)", options=SHOPS_LIST)
         other_shops = st.text_input("محلات أخري (اكتبها يدوياً إن وجدت)")
-        shop_images = st.file_uploader(
-            "رفع صور فواتير المحلات",
-            type=["png", "jpg", "jpeg"],
-            accept_multiple_files=True,
-            key="shop_imgs",
-        )
+        shop_images = st.file_uploader("رفع صور فواتير المحلات", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key="shop_imgs")
 
         submitted = st.form_submit_button("إرسال الطلب للمدير", type="primary")
 
@@ -426,59 +233,35 @@ if page == "نموذج تصفية المرشد":
             if not account_no:
                 st.error("⚠️ عذراً، يجب اختيار (رقم الحساب) الخاص بك أولاً!")
             elif not file_no.strip():
-                st.error(
-                    "⚠️ عذراً، لا يمكن إرسال الطلب. يرجى إدخال (رقم الفايل) أولاً بشكل إلزامي!"
-                )
+                st.error("⚠️ عذراً، لا يمكن إرسال الطلب. يرجى إدخال (رقم الفايل) أولاً بشكل إلزامي!")
             elif validation_error:
-                st.error(
-                    "⚠️ عذراً، نظراً لاختيار طريقة الدفع (كاش) في أحد الأوبشنز، يجب اختيار (المبلغ) [مع المرشد / مع السواق] بشكل إلزامي لكل أوبشن كاش!"
-                )
-            elif (
-                shop_images
-                and not selected_shops
-                and not other_shops.strip()
-            ):
-                st.error(
-                    "⚠️ عذراً، نظراً لرفع صور فواتير المحلات، يجب اختيار (اسم المحل) من القائمة أو كتابته في (محلات أخري) بشكل إلزامي!"
-                )
+                st.error("⚠️ عذراً، نظراً لاختيار طريقة الدفع (كاش) في أحد الأوبشنز، يجب اختيار (المبلغ) [مع المرشد / مع السواق] بشكل إلزامي لكل أوبشن كاش!")
+            elif shop_images and not selected_shops and not other_shops.strip():
+                st.error("⚠️ عذراً، نظراً لرفع صور فواتير المحلات، يجب اختيار (اسم المحل) من القائمة أو كتابته في (محلات أخري) بشكل إلزامي!")
             else:
-                matched_guide = guides_df[
-                    guides_df[acc_column].astype(str) == str(account_no)
-                ]
-                guide_name = (
-                    matched_guide[name_column].values[0]
-                    if not matched_guide.empty
-                    else "غير معروف"
-                )
-
-                current_time_str = datetime.now().strftime(
-                    "%Y-%m-%d %I:%M %p"
-                )
-
+                matched_guide = guides_df[guides_df[acc_column].astype(str) == str(account_no)]
+                guide_name = matched_guide[name_column].values[0] if not matched_guide.empty else "غير معروف"
+                
+                current_time_str = datetime.now().strftime("%Y-%m-%d %I:%M %p")
+                
                 work_order_paths = []
                 if work_order_image:
                     for img in work_order_image:
-                        wo_path = os.path.join(
-                            UPLOAD_DIR, f"wo_{time.time()}_{img.name}"
-                        )
+                        wo_path = os.path.join(UPLOAD_DIR, f"wo_{time.time()}_{img.name}")
                         with open(wo_path, "wb") as f:
                             f.write(img.getbuffer())
                         work_order_paths.append(wo_path)
 
                 lunch_path = ""
                 if lunch_image is not None:
-                    lunch_path = os.path.join(
-                        UPLOAD_DIR, f"{time.time()}_{lunch_image.name}"
-                    )
+                    lunch_path = os.path.join(UPLOAD_DIR, f"{time.time()}_{lunch_image.name}")
                     with open(lunch_path, "wb") as f:
                         f.write(lunch_image.getbuffer())
 
                 shop_paths = []
                 if shop_images:
                     for img in shop_images:
-                        s_path = os.path.join(
-                            UPLOAD_DIR, f"{time.time()}_{img.name}"
-                        )
+                        s_path = os.path.join(UPLOAD_DIR, f"{time.time()}_{img.name}")
                         with open(s_path, "wb") as f:
                             f.write(img.getbuffer())
                         shop_paths.append(s_path)
@@ -491,7 +274,7 @@ if page == "نموذج تصفية المرشد":
                     o_curr = st.session_state.get(f"opt_curr_{i}", "مصري")
                     o_pay = st.session_state.get(f"opt_pay_{i}", "كاش")
                     o_holder = st.session_state.get(f"cash_h_{i}", "")
-
+                    
                     if o_type.strip() or o_val > 0:
                         option_types_list.append(o_type)
                         detail_str = f"{o_val} {o_curr} ({o_pay})"
@@ -506,9 +289,7 @@ if page == "نموذج تصفية المرشد":
                     "Guide Name": guide_name,
                     "Account": account_no,
                     "File No": file_no,
-                    "Work Order Images": ",".join(work_order_paths)
-                    if work_order_paths
-                    else "",
+                    "Work Order Images": ",".join(work_order_paths) if work_order_paths else "",
                     "Advances": advances,
                     "Collection": f"{collection_val} {collection_curr}",
                     "Option Type": ", ".join(option_types_list),
@@ -520,25 +301,19 @@ if page == "نموذج تصفية المرشد":
                     "Lunch Receipt": lunch_path,
                     "Shop Names": ", ".join(selected_shops),
                     "Other Shops": other_shops,
-                    "Shop Images": ",".join(shop_paths)
-                    if shop_paths
-                    else "",
+                    "Shop Images": ",".join(shop_paths) if shop_paths else ""
                 }
                 save_to_file(SUBMISSIONS_FILE, new_entry)
-
+                
                 st.session_state.option_rows_count = 1
-                st.success(
-                    "✅ تم إرسال الطلب للمدير بنجاح! جاهز لتسجيل تصفية جديدة..."
-                )
+                st.success("✅ تم إرسال الطلب للمدير بنجاح! جاهز لتسجيل تصفية جديدة...")
                 st.rerun()
 
 elif page == "إدارة التصفيات":
     st.title("📊 إدارة التصفيات")
     st.markdown("---")
 
-    password = st.text_input(
-        "أدخل كلمة المرور لعرض لوحة الإدارة", type="password", key="mgr_pass"
-    )
+    password = st.text_input("أدخل كلمة المرور لعرض لوحة الإدارة", type="password", key="mgr_pass")
 
     if password == "159753":
         st.success("تم تسجيل الدخول للاستعراض بنجاح.")
@@ -563,98 +338,66 @@ elif page == "إدارة التصفيات":
             req_idx = st.session_state.viewing_file
             if req_idx in sub_df.index:
                 req_row = sub_df.loc[req_idx]
-
+                
                 if st.button("⬅️ رجوع إلى إدارة التصفيات"):
                     st.session_state.viewing_file = None
                     st.rerun()
 
-                st.markdown(
-                    f"### 📄 تفاصيل تصفية الفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})"
-                )
-                st.markdown(
-                    f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {req_row.get('Account', '')}"
-                )
+                st.markdown(f"### 📄 تفاصيل تصفية الفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
+                st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {req_row.get('Account', '')}")
                 st.markdown("---")
 
                 st.markdown("#### صور أمر الشغل:")
-                wo_paths = req_row.get("Work Order Images", "")
+                wo_paths = req_row.get('Work Order Images', '')
                 if pd.notna(wo_paths) and str(wo_paths).strip() != "":
                     wo_list = str(wo_paths).split(",")
                     for idx, p in enumerate(wo_list):
                         if os.path.exists(p):
-                            st.image(
-                                p,
-                                caption=f"صورة أمر الشغل رقم {idx+1}",
-                                use_container_width=True,
-                            )
+                            st.image(p, caption=f"صورة أمر الشغل رقم {idx+1}", use_container_width=True)
                 else:
                     st.info("لا توجد صور لأمر الشغل.")
 
                 st.markdown("---")
                 st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
-                st.write(
-                    f"**التحصيل (Collection):** {req_row.get('Collection', 0)}"
-                )
+                st.write(f"**التحصيل (Collection):** {req_row.get('Collection', 0)}")
                 st.write(f"**الأوبشن (Option):** {req_row.get('Option', '')}")
                 st.write(f"**التذاكر (Tickets):** {req_row.get('Tickets', '')}")
                 st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
                 st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
                 st.write(f"**غداء (Lunch):** {req_row.get('Lunch', 0)}")
 
-                l_path = req_row.get("Lunch Receipt", "")
-                if (
-                    pd.notna(l_path)
-                    and str(l_path).strip() != ""
-                    and os.path.exists(str(l_path))
-                ):
-                    st.image(
-                        str(l_path),
-                        caption="صورة فاتورة الغداء",
-                        use_container_width=True,
-                    )
+                l_path = req_row.get('Lunch Receipt', '')
+                if pd.notna(l_path) and str(l_path).strip() != "" and os.path.exists(str(l_path)):
+                    st.image(str(l_path), caption="صورة فاتورة الغداء", use_container_width=True)
                 else:
                     st.info("لا توجد صورة لفاتورة الغداء.")
 
                 st.markdown("---")
-                st.write(
-                    f"**أسماء المحلات المختارة:** {req_row.get('Shop Names', 'لا يوجد')}"
-                )
-                st.write(
-                    f"**محلات أخري:** {req_row.get('Other Shops', 'لا يوجد')}"
-                )
+                st.write(f"**أسماء المحلات المختارة:** {req_row.get('Shop Names', 'لا يوجد')}")
+                st.write(f"**محلات أخري:** {req_row.get('Other Shops', 'لا يوجد')}")
 
-                s_paths = req_row.get("Shop Images", "")
+                s_paths = req_row.get('Shop Images', '')
                 if pd.notna(s_paths) and str(s_paths).strip() != "":
                     paths_list = str(s_paths).split(",")
                     for idx, p in enumerate(paths_list):
                         if os.path.exists(p):
-                            st.image(
-                                p,
-                                caption=f"صورة محلات رقم {idx+1}",
-                                use_container_width=True,
-                            )
+                            st.image(p, caption=f"صورة محلات رقم {idx+1}", use_container_width=True)
                 else:
                     st.info("لا توجد صور لفواتير المحلات.")
 
                 st.markdown("---")
                 st.markdown("### اتخاذ القرار بشأن الطلب:")
-
+                
                 col_btn1, col_btn2 = st.columns(2)
-
+                
                 with col_btn1:
-                    if st.button(
-                        "✅ تم (نقل للأرشيف)",
-                        type="primary",
-                        use_container_width=True,
-                    ):
+                    if st.button("✅ تم (نقل للأرشيف)", type="primary", use_container_width=True):
                         archive_entry = req_row.to_dict()
                         save_to_file(ARCHIVE_FILE, archive_entry)
-
-                        sub_df = sub_df.drop(req_idx).reset_index(
-                            drop=True
-                        )
+                        
+                        sub_df = sub_df.drop(req_idx).reset_index(drop=True)
                         overwrite_data(SUBMISSIONS_FILE, sub_df)
-
+                        
                         st.session_state.viewing_file = None
                         st.success("✅ تم نقل الطلب للأرشيف بنجاح!")
                         st.rerun()
@@ -670,22 +413,16 @@ elif page == "إدارة التصفيات":
         else:
             if not sub_df.empty:
                 st.markdown("### 🔍 فلترة وعرض تصفيات المرشدين")
-
-                all_guides_in_subs = (
-                    sub_df["Guide Name"].dropna().unique().tolist()
-                )
+                
+                all_guides_in_subs = sub_df['Guide Name'].dropna().unique().tolist()
                 selected_guide_filter = st.selectbox(
                     "اختر اسم المرشد لعرض جميع تصفياته وسجلاته",
-                    options=["الكل (جميع المرشدين)"] + all_guides_in_subs,
+                    options=["الكل (جميع المرشدين)"] + all_guides_in_subs
                 )
 
                 if selected_guide_filter != "الكل (جميع المرشدين)":
-                    filtered_sub_df = sub_df[
-                        sub_df["Guide Name"] == selected_guide_filter
-                    ]
-                    st.info(
-                        f"عرض التصفيات الخاصة بالمرشد: **{selected_guide_filter}** (عدد الطلبات: {len(filtered_sub_df)})"
-                    )
+                    filtered_sub_df = sub_df[sub_df['Guide Name'] == selected_guide_filter]
+                    st.info(f"عرض التصفيات الخاصة بالمرشد: **{selected_guide_filter}** (عدد الطلبات: {len(filtered_sub_df)})")
                 else:
                     filtered_sub_df = sub_df
 
@@ -702,42 +439,26 @@ elif page == "إدارة التصفيات":
                     with cols[3]:
                         st.write(f"الوقت: {row.get('Timestamp', '')}")
                     with cols[4]:
-                        if st.button(
-                            "عرض", key=f"view_btn_{idx}", type="primary"
-                        ):
+                        if st.button("عرض", key=f"view_btn_{idx}", type="primary"):
                             st.session_state.viewing_file = idx
                             st.rerun()
                     with cols[5]:
-                        if st.button(
-                            "🗑️ حذف", key=f"del_sub_btn_{idx}", type="primary"
-                        ):
+                        if st.button("🗑️ حذف", key=f"del_sub_btn_{idx}", type="primary"):
                             st.session_state.confirming_del_sub = idx
                             st.rerun()
 
                     if st.session_state.confirming_del_sub == idx:
-                        st.warning(
-                            f"⚠️ تأكيد حذف طلب الفايل رقم ({row.get('File No', '')})؟"
-                        )
+                        st.warning(f"⚠️ تأكيد حذف طلب الفايل رقم ({row.get('File No', '')})؟")
                         c_col1, c_col2 = st.columns(2)
                         with c_col1:
-                            if st.button(
-                                "✔️ تأكيد الحذف النهائي",
-                                key=f"confirm_del_sub_{idx}",
-                                type="primary",
-                            ):
-                                sub_df = sub_df.drop(idx).reset_index(
-                                    drop=True
-                                )
+                            if st.button("✔️ تأكيد الحذف النهائي", key=f"confirm_del_sub_{idx}", type="primary"):
+                                sub_df = sub_df.drop(idx).reset_index(drop=True)
                                 overwrite_data(SUBMISSIONS_FILE, sub_df)
                                 st.session_state.confirming_del_sub = None
                                 st.success("تم الحذف بنجاح.")
                                 st.rerun()
                         with c_col2:
-                            if st.button(
-                                "❌ رجوع (إلغاء)",
-                                key=f"cancel_del_sub_{idx}",
-                                type="primary",
-                            ):
+                            if st.button("❌ رجوع (إلغاء)", key=f"cancel_del_sub_{idx}", type="primary"):
                                 st.session_state.confirming_del_sub = None
                                 st.rerun()
 
@@ -746,9 +467,7 @@ elif page == "إدارة التصفيات":
                 st.info("لا توجد طلبات جديدة حتى الآن.")
 
             st.markdown("---")
-            st.markdown(
-                "### قاعدة بيانات المرشدين (إدارة وتعديل أرقام الحسابات)"
-            )
+            st.markdown("### قاعدة بيانات المرشدين (إدارة وتعديل أرقام الحسابات)")
             st.dataframe(guides_df, use_container_width=True)
 
             col_section_left, col_section_right = st.columns(2, gap="large")
@@ -756,32 +475,24 @@ elif page == "إدارة التصفيات":
             with col_section_left:
                 st.markdown("#### تعديل أو حذف رقم حساب مرشد:")
                 guide_names_list = guides_df[name_column].astype(str).tolist()
-                selected_guide_to_edit = st.selectbox(
-                    "اختر اسم المرشد", options=guide_names_list, key="sel_guide_edit"
-                )
+                selected_guide_to_edit = st.selectbox("اختر اسم المرشد", options=guide_names_list, key="sel_guide_edit")
 
                 if st.session_state.clear_edit_input:
                     st.session_state.clear_edit_input = False
                     st.session_state.new_acc_val_input = ""
 
-                new_acc_input = st.text_input(
-                    "رقم الحساب الجديد", key="new_acc_val_input", value=""
-                )
+                new_acc_input = st.text_input("رقم الحساب الجديد", key="new_acc_val_input", value="")
 
                 col_act1, col_act2 = st.columns(2)
                 with col_act1:
                     if st.button("💾 حفظ تعديل رقم الحساب", type="primary"):
                         st.session_state.confirming_edit_guide = {
                             "name": selected_guide_to_edit,
-                            "new_acc": new_acc_input,
+                            "new_acc": new_acc_input
                         }
                         st.rerun()
                 with col_act2:
-                    if st.button(
-                        "🗑️ حذف هذا المرشد",
-                        type="primary",
-                        key="del_guide_btn_main",
-                    ):
+                    if st.button("🗑️ حذف هذا المرشد", type="primary", key="del_guide_btn_main"):
                         st.session_state.confirming_del_guide = {
                             "name": selected_guide_to_edit
                         }
@@ -797,19 +508,11 @@ elif page == "إدارة التصفيات":
                             st.session_state.confirming_edit_guide = None
                             st.rerun()
                     else:
-                        st.warning(
-                            f"⚠️ تأكيد تعديل حساب المرشد (**{g_to_edit}**) إلى: **{n_acc}**"
-                        )
+                        st.warning(f"⚠️ تأكيد تعديل حساب المرشد (**{g_to_edit}**) إلى: **{n_acc}**")
                         ec1, ec2 = st.columns(2)
                         with ec1:
-                            if st.button(
-                                "✔️ تأكيد وحفظ التعديل",
-                                type="primary",
-                            ):
-                                guides_df.loc[
-                                    guides_df[name_column].astype(str) == str(g_to_edit),
-                                    acc_column,
-                                ] = n_acc
+                            if st.button("✔️ تأكيد وحفظ التعديل", type="primary"):
+                                guides_df.loc[guides_df[name_column].astype(str) == str(g_to_edit), acc_column] = n_acc
                                 guides_df.to_excel(GUIDES_FILE, index=False)
                                 st.session_state.confirming_edit_guide = None
                                 st.session_state.clear_edit_input = True
@@ -826,9 +529,7 @@ elif page == "إدارة التصفيات":
                     dc1, dc2 = st.columns(2)
                     with dc1:
                         if st.button("✔️ تأكيد الحذف النهائي للمرشد", type="primary"):
-                            guides_df = guides_df[
-                                guides_df[name_column].astype(str) != str(g_to_del)
-                            ].reset_index(drop=True)
+                            guides_df = guides_df[guides_df[name_column].astype(str) != str(g_to_del)].reset_index(drop=True)
                             guides_df.to_excel(GUIDES_FILE, index=False)
                             st.session_state.confirming_del_guide = None
                             st.success("✅ تم حذف المرشد بنجاح!")
