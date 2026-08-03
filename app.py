@@ -123,6 +123,11 @@ if new_order_arrived:
 st.markdown(
     """
     <style>
+    /* مساحة فارغة في أول الصفحة بحوالي 2 سم */
+    .block-container {
+        padding-top: 2rem !important;
+    }
+
     div.stFormSubmitButton > button, div.stButton > button {
         border-radius: 8px !important;
         background-color: #28a745 !important;
@@ -154,7 +159,7 @@ st.markdown(
         margin: 0 !important;
     }
 
-    /* هيدر طبيعي غير ثابت عشان ما يعطلش أي زرار للقائمة في الموبايل */
+    /* هيدر طبيعي مع مساحة مريحة وزر قائمة شغال تماماً */
     .normal-header {
         background-color: #f8f9fa;
         padding: 10px 20px;
