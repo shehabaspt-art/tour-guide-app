@@ -56,7 +56,7 @@ if current_logo_path:
     except:
         pass
 
-# تنسيق CSS لتعيين المسافة العلوية باللون الأبيض تماماً
+# تنسيق CSS الصحيح: لون السايدبار أخضر، والمسافة العلوية وحدها هي البيضاء
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -70,14 +70,25 @@ st.markdown("""
         color: white !important;
     }
     
-    /* ضبط السايدبار وإعطاء المسافة العلوية لون أبيض */
+    /* لون خلفية السايدبار الأصلي */
     [data-testid="stSidebar"] {
         background-color: #d8ebd8 !important;
         border-left: 2px solid #c2e0c2 !important;
     }
+    
+    /* جعل الجزء العلوي فقط الذي يسبق اللوجو أبيض اللون وبمسافة 2 سم */
     [data-testid="stSidebar"] > div:first-child {
         padding-top: 2rem !important;
         background-color: #ffffff !important;
+    }
+    
+    /* إرجاع لون الخلفية الأخضر لباقي محتوى السايدبار تحت اللوجو */
+    [data-testid="stSidebar"] > div:first-child > div:nth-child(2) {
+        background-color: #d8ebd8 !important;
+    }
+
+    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] {
+        background-color: transparent !important;
     }
     
     /* تكبير وتوسيط صورة اللوجو داخل السايدبار */
