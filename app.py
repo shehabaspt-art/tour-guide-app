@@ -665,58 +665,104 @@ elif page == "الأرشيف":
                 st.rerun()
         else:
             if not archive_df.empty:
-                st.markdown("### 🔍 فلترة وعرض الأرشيف حسب المرشد")
-                all_guides_in_arch = archive_df['Guide Name'].dropna().unique().tolist()
-                selected_guide_arch_filter = st.selectbox(
-                    "اختر اسم المرشد لعرض جميع أرشيفه",
-                    options=["الكل (جميع المرشدين)"] + all_guides_in_arch,
-                    key="arch_guide_filter"
+                st.markdown("### 🛍️ فلترة الأرشيف حسب المحل (معرفة المبيعات والفواتير للمرشدين)")
+                
+                selected_shop_filter = st.selectbox(
+                    "اختر المحل للفلترة",
+                    options=["الكل (جميع المحلات)"] + SHOPS_LIST
                 )
 
-                if selected_guide_arch_filter != "الكل (جميع المرشدين)":
-                    filtered_arch_df = archive_df[archive_df['Guide Name'] == selected_guide_arch_filter]
-                    st.info(f"عرض الأرشيف الخاص بالمرشد: **{selected_guide_arch_filter}** (عدد الطلبات: {len(filtered_arch_df)})")
+                if selected_shop_filter != "الكل (جميع المحلات)":
+                    # فلترة الصفوف التي تحتوي على اسم المحل في Shop Names أو Other Shops
+                    matched_arch_df = archive_df[
+                        archive_df['Shop Names'].astype(str).str.contains(selected_shop_filter, na=False) | 
+                        archive_df['Other Shops'].astype(str).str.contains(selected_shop_filter, na=False)
+                    ]
+                    
+                    st.info(f"نتائج البحث للمحل: **{selected_shop_filter}** (عدد العمليات: {len(matched_arch_df)})")
+                    
+                    if not matched_arch_df.empty:
+                        for idx, row in matched_arch_df.iterrows():
+                            st.markdown(f"#### 🏷️ فايل رقم: {row.get('File No', '')} | المرشد: **{row.get('Guide Name', '')}**")
+                            col_info1, col_info2 = st.columns(2)
+                            with col_info1:
+                                st.write(f"**تاريخ التصفية:** {row.get('Timestamp', '')}")
+                                st.write(f"**المحلات المختارة:** {row.get('Shop Names', 'لا يوجد')}")
+                                if pd.notna(row.get('Other Shops', '')) and str(row.get('Other Shops', '')).strip() != "":
+                                    st.write(f"**محلات أخري:** {row.get('Other Shops', '')}")
+                            with col_info2:
+                                st.write(f"**التحصيل / القيمة:** {row.get('Collection', '0')}")
+                                st.write(f"**الأوبشن:** {row.get('Option', 'لا يوجد')}")
+                            
+                            # عرض صور فواتير المحلات الخاصة بهذا الطلب
+                            s_paths = row.get('Shop Images', '')
+                            if pd.notna(s_paths) and str(s_paths).strip() != "":
+                                st.markdown("**📷 فواتير المحلات المرفوعة:**")
+                                paths_list = str(s_paths).split(",")
+                                img_cols = st.columns(min(len(paths_list), 3))
+                                for i, p in enumerate(paths_list):
+                                    if os.path.exists(p):
+                                        with img_cols[i % 3]:
+                                            st.image(p, caption=f"صورة الفاتورة {i+1}", use_container_width=True)
+                            else:
+                                st.info("لا توجد صور فواتير مرفوعة لهذا المحل.")
+                            
+                            st.markdown("---")
+                    else:
+                        st.warning("⚠️ لا توجد أي عمليات تسجيل أو مبيعات لهذا المحل في الأرشيف حتى الآن.")
                 else:
-                    filtered_arch_df = archive_df
+                    st.markdown("### 🔍 فلترة وعرض الأرشيف حسب المرشد")
+                    all_guides_in_arch = archive_df['Guide Name'].dropna().unique().tolist()
+                    selected_guide_arch_filter = st.selectbox(
+                        "اختر اسم المرشد لعرض جميع أرشيفه",
+                        options=["الكل (جميع المرشدين)"] + all_guides_in_arch,
+                        key="arch_guide_filter"
+                    )
 
-                st.markdown(f"إجمالي الطلبات المؤرشفة: {len(archive_df)}")
-                st.markdown("### سجلات الأرشيف")
+                    if selected_guide_arch_filter != "الكل (جميع المرشدين)":
+                        filtered_arch_df = archive_df[archive_df['Guide Name'] == selected_guide_arch_filter]
+                        st.info(f"عرض الأرشيف الخاص بالمرشد: **{selected_guide_arch_filter}** (عدد الطلبات: {len(filtered_arch_df)})")
+                    else:
+                        filtered_arch_df = archive_df
 
-                for idx, row in filtered_arch_df.iterrows():
-                    cols = st.columns([1, 2, 2, 2, 1.5, 1.5])
-                    with cols[0]:
-                        st.write(f"**#{idx+1}**")
-                    with cols[1]:
-                        st.write(f"الفايل: {row.get('File No', '')}")
-                    with cols[2]:
-                        st.write(f"المرشد: {row.get('Guide Name', '')}")
-                    with cols[3]:
-                        st.write(f"الوقت: {row.get('Timestamp', '')}")
-                    with cols[4]:
-                        if st.button("عرض", key=f"view_arch_btn_{idx}", type="primary"):
-                            st.session_state.viewing_archive_file = idx
-                            st.rerun()
-                    with cols[5]:
-                        if st.button("🗑️ حذف", key=f"del_arch_btn_{idx}", type="primary"):
-                            st.session_state.confirming_del_archive = idx
-                            st.rerun()
+                    st.markdown(f"إجمالي الطلبات المؤرشفة: {len(archive_df)}")
+                    st.markdown("### سجلات الأرشيف")
 
-                    if st.session_state.confirming_del_archive == idx:
-                        st.warning(f"⚠️ تأكيد حذف طلب الأرشيف للفايل رقم ({row.get('File No', '')})؟")
-                        ac_col1, ac_col2 = st.columns(2)
-                        with ac_col1:
-                            if st.button("✔️ تأكيد الحذف النهائي", key=f"confirm_del_arch_{idx}", type="primary"):
-                                archive_df = archive_df.drop(idx).reset_index(drop=True)
-                                overwrite_data(ARCHIVE_FILE, archive_df)
-                                st.session_state.confirming_del_archive = None
-                                st.success("تم الحذف من الأرشيف بنجاح.")
+                    for idx, row in filtered_arch_df.iterrows():
+                        cols = st.columns([1, 2, 2, 2, 1.5, 1.5])
+                        with cols[0]:
+                            st.write(f"**#{idx+1}**")
+                        with cols[1]:
+                            st.write(f"الفايل: {row.get('File No', '')}")
+                        with cols[2]:
+                            st.write(f"المرشد: {row.get('Guide Name', '')}")
+                        with cols[3]:
+                            st.write(f"الوقت: {row.get('Timestamp', '')}")
+                        with cols[4]:
+                            if st.button("عرض", key=f"view_arch_btn_{idx}", type="primary"):
+                                st.session_state.viewing_archive_file = idx
                                 st.rerun()
-                        with ac_col2:
-                            if st.button("❌ رجوع (إلغاء)", key=f"cancel_del_arch_{idx}", type="primary"):
-                                st.session_state.confirming_del_archive = None
+                        with cols[5]:
+                            if st.button("🗑️ حذف", key=f"del_arch_btn_{idx}", type="primary"):
+                                st.session_state.confirming_del_archive = idx
                                 st.rerun()
 
-                    st.markdown("---")
+                        if st.session_state.confirming_del_archive == idx:
+                            st.warning(f"⚠️ تأكيد حذف طلب الأرشيف للفايل رقم ({row.get('File No', '')})؟")
+                            ac_col1, ac_col2 = st.columns(2)
+                            with ac_col1:
+                                if st.button("✔️ تأكيد الحذف النهائي", key=f"confirm_del_arch_{idx}", type="primary"):
+                                    archive_df = archive_df.drop(idx).reset_index(drop=True)
+                                    overwrite_data(ARCHIVE_FILE, archive_df)
+                                    st.session_state.confirming_del_archive = None
+                                    st.success("تم الحذف من الأرشيف بنجاح.")
+                                    st.rerun()
+                            with ac_col2:
+                                if st.button("❌ رجوع (إلغاء)", key=f"cancel_del_arch_{idx}", type="primary"):
+                                    st.session_state.confirming_del_archive = None
+                                    st.rerun()
+
+                        st.markdown("---")
 
                 if st.button("🗑️ تفريغ الأرشيف بالكامل", type="primary"):
                     if os.path.exists(ARCHIVE_FILE):
