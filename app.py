@@ -181,7 +181,6 @@ logo_html = (
     else '<span style="font-weight: bold; color: #1b5e20; font-size: 1.1rem;">Sun Pyramids</span>'
 )
 
-# زر جافاسكريبت محسن لفتح القائمة على الموبايل والكمبيوتر بكل قوة وسلاسة
 st.markdown(
     f"""
     <div class="sticky-header">
@@ -836,99 +835,81 @@ elif page == "إدارة التصفيات":
                                         acc_column,
                                     ] = n_acc
                                     overwrite_data(GUIDES_FILE, guides_df)
-                                    st.session_state.confirming_edit_guide = (
-                                        None
-                                    )
+                                    st.session_state.confirming_edit_guide = None
                                     st.session_state.clear_edit_input = True
-                                    st.success("✅ تم التعديل بنجاح!")
+                                    st.success("✅ تم تعديل رقم الحساب بنجاح!")
                                     st.rerun()
                                 else:
-                                    st.error(
-                                        "❌ مرفوض! البريد الإلكتروني غير مصرح له بتعديل الحسابات."
-                                    )
+                                    st.error("❌ مرفوض! البريد الإلكتروني غير صحيح ولا تملك صلاحية التعديل.")
                         with ec2:
-                            if st.button(
-                                "❌ إلغاء",
-                                key="cancel_save_guide_acc",
-                                type="primary",
-                            ):
+                            if st.button("❌ إلغاء", type="primary", key="cancel_edit_guide_acc"):
                                 st.session_state.confirming_edit_guide = None
                                 st.rerun()
 
                 if st.session_state.confirming_del_guide is not None:
                     g_to_del = st.session_state.confirming_del_guide["name"]
-
-                    st.warning(f"⚠️ تأكيد حذف المرشد (**{g_to_del}**) نهائياً؟")
-                    del_guide_email_chk = st.text_input(
-                        "أدخل البريد الإلكتروني للمسؤول لتأكيد الحذف",
-                        key="del_guide_email_chk_field",
-                    )
+                    st.warning(f"⚠️ تأكيد حذف المرشد (**{g_to_del}**) من قاعدة البيانات؟")
+                    del_g_email_chk = st.text_input("أدخل البريد الإلكتروني للمسؤول لتأكيد الحذف", key="del_g_email_chk_field")
                     dc1, dc2 = st.columns(2)
                     with dc1:
-                        if st.button(
-                            "✔️ تأكيد الحذف النهائي",
-                            type="primary",
-                            key="confirm_del_guide_btn",
-                        ):
-                            if (
-                                del_guide_email_chk.strip().lower()
-                                == ADMIN_EMAIL.lower()
-                            ):
-                                guides_df = guides_df[
-                                    guides_df[name_column].astype(str)
-                                    != g_to_del
-                                ].reset_index(drop=True)
+                        if st.button("✔️ تأكيد وحذف المرشد", type="primary", key="confirm_del_guide_final"):
+                            if del_g_email_chk.strip().lower() == ADMIN_EMAIL.lower():
+                                guides_df = guides_df[guides_df[name_column].astype(str) != g_to_del].reset_index(drop=True)
                                 overwrite_data(GUIDES_FILE, guides_df)
                                 st.session_state.confirming_del_guide = None
-                                st.success("تم حذف المرشد بنجاح.")
+                                st.success("✅ تم حذف المرشد بنجاح!")
                                 st.rerun()
                             else:
-                                st.error(
-                                    "❌ مرفوض! البريد الإلكتروني غير مصرح له بحذف المرشدين."
-                                )
+                                st.error("❌ مرفوض! البريد الإلكتروني غير صحيح ولا تملك صلاحية الحذف.")
                     with dc2:
-                        if st.button(
-                            "❌ إلغاء الحذف",
-                            key="cancel_del_guide_btn",
-                            type="primary",
-                        ):
+                        if st.button("❌ إلغاء", type="primary", key="cancel_del_guide"):
                             st.session_state.confirming_del_guide = None
                             st.rerun()
 
             with col_section_right:
-                st.markdown("#### إضافة مرشد جديد لقاعدة البيانات:")
-
-                if st.session_state.clear_add_inputs:
-                    st.session_state.clear_add_inputs = False
-                    st.session_state.new_guide_name_input = ""
-                    st.session_state.new_guide_acc_input = ""
-
-                new_guide_name_input = st.text_input(
-                    "اسم المرشد الجديد", key="new_guide_name_input", value=""
-                )
-                new_guide_acc_input = st.text_input(
-                    "رقم الحساب الخاص بالمرشد الجديد",
-                    key="new_guide_acc_input",
-                    value="",
-                )
-
-                if st.button("➕ إضافة المرشد الجديد", type="primary"):
-                    st.session_state.confirming_add_guide = {
-                        "name": new_guide_name_input.strip(),
-                        "acc": new_guide_acc_input.strip(),
-                    }
-                    st.rerun()
+                st.markdown("#### إضافة مرشد جديد:")
+                new_guide_name = st.text_input("اسم المرشد الجديد", key="new_g_name_input")
+                new_guide_acc = st.text_input("رقم حساب المرشد الجديد", key="new_g_acc_input")
+                
+                if st.button("➕ إضافة المرشد للقاعدة", type="primary", key="add_new_guide_btn"):
+                    if not new_guide_name.strip() or not new_guide_acc.strip():
+                        st.error("⚠️ يجب إدخال اسم المرشد ورقم الحساب بشكل صحيح!")
+                    else:
+                        st.session_state.confirming_add_guide = {
+                            "name": new_guide_name,
+                            "acc": new_guide_acc
+                        }
+                        st.rerun()
 
                 if st.session_state.confirming_add_guide is not None:
-                    a_name = st.session_state.confirming_add_guide["name"]
-                    a_acc = st.session_state.confirming_add_guide["acc"]
-
-                    if not a_name or not a_acc:
-                        st.error(
-                            "⚠️ يرجى إدخال (اسم المرشد) و(رقم الحساب) معاً!"
-                        )
-                        if st.button(
-                            "❌ رجوع", type="primary", key="cancel_empty_add"
-                        ):
+                    ag_name = st.session_state.confirming_add_guide["name"]
+                    ag_acc = st.session_state.confirming_add_guide["acc"]
+                    
+                    st.warning(f"⚠️ تأكيد إضافة المرشد الجديد: **{ag_name}** برقم حساب: **{ag_acc}**؟")
+                    add_g_email_chk = st.text_input("أدخل البريد الإلكتروني للمسؤول لتأكيد الإضافة", key="add_g_email_chk_field")
+                    
+                    ac1, ac2 = st.columns(2)
+                    with ac1:
+                        if st.button("✔️ تأكيد وحفظ الإضافة", type="primary", key="confirm_add_guide_final"):
+                            if add_g_email_chk.strip().lower() == ADMIN_EMAIL.lower():
+                                new_row = pd.DataFrame({name_column: [ag_name], acc_column: [ag_acc]})
+                                guides_df = pd.concat([guides_df, new_row], ignore_index=True)
+                                overwrite_data(GUIDES_FILE, guides_df)
+                                st.session_state.confirming_add_guide = None
+                                st.success("✅ تم إضافة المرشد بنجاح!")
+                                st.rerun()
+                            else:
+                                st.error("❌ مرفوض! البريد الإلكتروني غير صحيح ولا تملك صلاحية الإضافة.")
+                    with ac2:
+                        if st.button("❌ إلغاء", type="primary", key="cancel_add_guide"):
                             st.session_state.confirming_add_guide = None
                             st.rerun()
+
+elif page == "الأرشيف":
+    st.title("📦 الأرشيف")
+    st.markdown("---")
+    archive_df = load_data(ARCHIVE_FILE)
+    if not archive_df.empty:
+        st.dataframe(archive_df, use_container_width=True)
+    else:
+        st.info("لا توجد طلبات مؤرشفة حتى الآن.")
