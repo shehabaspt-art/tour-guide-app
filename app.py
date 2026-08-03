@@ -56,7 +56,7 @@ if current_logo_path:
     except:
         pass
 
-# تنسيق CSS لترك مسافة حوالي 2 سم فوق اللوجو والسايدبار
+# تنسيق CSS لتعيين المسافة العلوية باللون الأبيض تماماً
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -70,13 +70,14 @@ st.markdown("""
         color: white !important;
     }
     
-    /* ضبط السايدبار وإضافة مسافة من الأعلى تقارب 2 سم (2rem) قبل اللوجو */
+    /* ضبط السايدبار وإعطاء المسافة العلوية لون أبيض */
     [data-testid="stSidebar"] {
         background-color: #d8ebd8 !important;
         border-left: 2px solid #c2e0c2 !important;
     }
     [data-testid="stSidebar"] > div:first-child {
         padding-top: 2rem !important;
+        background-color: #ffffff !important;
     }
     
     /* تكبير وتوسيط صورة اللوجو داخل السايدبار */
@@ -130,7 +131,6 @@ with st.sidebar:
         </div>
         """, unsafe_allow_html=True)
     
-    st.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1rem; margin-top: 5px; margin-bottom: 10px;'>اختر الصفحة</p>", unsafe_allow_html=True)
     page = st.radio(
         "اختر الصفحة",
         ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف"],
@@ -599,15 +599,132 @@ elif page == "الأرشيف":
     st.title("📁 أرشيف التصفيات المنتهية")
     st.markdown("---")
 
-    archive_df = load_data(ARCHIVE_FILE)
-    if not archive_df.empty:
-        st.info(f"إجمالي الطلبات المؤرشفة: {len(archive_df)}")
-        st.dataframe(archive_df, use_container_width=True)
+    password_arch = st.text_input("أدخل كلمة المرور لعرض الأرشيف", type="password", key="arch_pass")
 
-        if st.button("🗑️ تفريغ الأرشيف بالكامل", type="primary"):
-            if os.path.exists(ARCHIVE_FILE):
-                os.remove(ARCHIVE_FILE)
-            st.success("✅ تم تفريغ الأرشيف بنجاح!")
-            st.rerun()
+    if password_arch == "159753":
+        st.success("تم تسجيل الدخول للأرشيف بنجاح.")
+        archive_df = load_data(ARCHIVE_FILE)
+
+        if "viewing_archive_file" not in st.session_state:
+            st.session_state.viewing_archive_file = None
+        if "confirming_del_archive" not in st.session_state:
+            st.session_state.confirming_del_archive = None
+
+        if st.session_state.viewing_archive_file is not None:
+            req_idx = st.session_state.viewing_archive_file
+            if req_idx in archive_df.index:
+                req_row = archive_df.loc[req_idx]
+                
+                if st.button("⬅️ رجوع إلى قائمة الأرشيف", key="back_to_arch_list"):
+                    st.session_state.viewing_archive_file = None
+                    st.rerun()
+
+                st.markdown(f"### 📄 تفاصيل الأرشيف للفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
+                st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {req_row.get('Account', '')}")
+                st.markdown("---")
+
+                st.markdown("#### صور أمر الشغل:")
+                wo_paths = req_row.get('Work Order Images', '')
+                if pd.notna(wo_paths) and str(wo_paths).strip() != "":
+                    wo_list = str(wo_paths).split(",")
+                    for idx, p in enumerate(wo_list):
+                        if os.path.exists(p):
+                            st.image(p, caption=f"صورة أمر الشغل رقم {idx+1}", use_container_width=True)
+                else:
+                    st.info("لا توجد صور لأمر الشغل.")
+
+                st.markdown("---")
+                st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
+                st.write(f"**التحصيل (Collection):** {req_row.get('Collection', 0)}")
+                st.write(f"**الأوبشن (Option):** {req_row.get('Option', '')}")
+                st.write(f"**التذاكر (Tickets):** {req_row.get('Tickets', '')}")
+                st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
+                st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
+                st.write(f"**غداء (Lunch):** {req_row.get('Lunch', 0)}")
+
+                l_path = req_row.get('Lunch Receipt', '')
+                if pd.notna(l_path) and str(l_path).strip() != "" and os.path.exists(str(l_path)):
+                    st.image(str(l_path), caption="صورة فاتورة الغداء", use_container_width=True)
+                else:
+                    st.info("لا توجد صورة لفاتورة الغداء.")
+
+                st.markdown("---")
+                st.write(f"**أسماء المحلات المختارة:** {req_row.get('Shop Names', 'لا يوجد')}")
+                st.write(f"**محلات أخري:** {req_row.get('Other Shops', 'لا يوجد')}")
+
+                s_paths = req_row.get('Shop Images', '')
+                if pd.notna(s_paths) and str(s_paths).strip() != "":
+                    paths_list = str(s_paths).split(",")
+                    for idx, p in enumerate(paths_list):
+                        if os.path.exists(p):
+                            st.image(p, caption=f"صورة محلات رقم {idx+1}", use_container_width=True)
+                else:
+                    st.info("لا توجد صور لفواتير المحلات.")
+            else:
+                st.session_state.viewing_archive_file = None
+                st.rerun()
+        else:
+            if not archive_df.empty:
+                st.markdown("### 🔍 فلترة وعرض الأرشيف حسب المرشد")
+                all_guides_in_arch = archive_df['Guide Name'].dropna().unique().tolist()
+                selected_guide_arch_filter = st.selectbox(
+                    "اختر اسم المرشد لعرض جميع أرشيفه",
+                    options=["الكل (جميع المرشدين)"] + all_guides_in_arch,
+                    key="arch_guide_filter"
+                )
+
+                if selected_guide_arch_filter != "الكل (جميع المرشدين)":
+                    filtered_arch_df = archive_df[archive_df['Guide Name'] == selected_guide_arch_filter]
+                    st.info(f"عرض الأرشيف الخاص بالمرشد: **{selected_guide_arch_filter}** (عدد الطلبات: {len(filtered_arch_df)})")
+                else:
+                    filtered_arch_df = archive_df
+
+                st.markdown(f"إجمالي الطلبات المؤرشفة: {len(archive_df)}")
+                st.markdown("### سجلات الأرشيف")
+
+                for idx, row in filtered_arch_df.iterrows():
+                    cols = st.columns([1, 2, 2, 2, 1.5, 1.5])
+                    with cols[0]:
+                        st.write(f"**#{idx+1}**")
+                    with cols[1]:
+                        st.write(f"الفايل: {row.get('File No', '')}")
+                    with cols[2]:
+                        st.write(f"المرشد: {row.get('Guide Name', '')}")
+                    with cols[3]:
+                        st.write(f"الوقت: {row.get('Timestamp', '')}")
+                    with cols[4]:
+                        if st.button("عرض", key=f"view_arch_btn_{idx}", type="primary"):
+                            st.session_state.viewing_archive_file = idx
+                            st.rerun()
+                    with cols[5]:
+                        if st.button("🗑️ حذف", key=f"del_arch_btn_{idx}", type="primary"):
+                            st.session_state.confirming_del_archive = idx
+                            st.rerun()
+
+                    if st.session_state.confirming_del_archive == idx:
+                        st.warning(f"⚠️ تأكيد حذف طلب الأرشيف للفايل رقم ({row.get('File No', '')})؟")
+                        ac_col1, ac_col2 = st.columns(2)
+                        with ac_col1:
+                            if st.button("✔️ تأكيد الحذف النهائي", key=f"confirm_del_arch_{idx}", type="primary"):
+                                archive_df = archive_df.drop(idx).reset_index(drop=True)
+                                overwrite_data(ARCHIVE_FILE, archive_df)
+                                st.session_state.confirming_del_archive = None
+                                st.success("تم الحذف من الأرشيف بنجاح.")
+                                st.rerun()
+                        with ac_col2:
+                            if st.button("❌ رجوع (إلغاء)", key=f"cancel_del_arch_{idx}", type="primary"):
+                                st.session_state.confirming_del_archive = None
+                                st.rerun()
+
+                    st.markdown("---")
+
+                if st.button("🗑️ تفريغ الأرشيف بالكامل", type="primary"):
+                    if os.path.exists(ARCHIVE_FILE):
+                        os.remove(ARCHIVE_FILE)
+                    st.success("✅ تم تفريغ الأرشيف بالكامل!")
+                    st.rerun()
+            else:
+                st.info("لا توجد طلبات في الأرشيف حالياً.")
     else:
-        st.info("لا توجد طلبات في الأرشيف حالياً.")
+        if password_arch != "":
+            st.error("❌ كلمة المرور غير صحيحة!")
