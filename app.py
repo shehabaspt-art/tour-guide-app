@@ -5,12 +5,15 @@ import time
 import pandas as pd
 import streamlit as st
 
-# ضبط إعدادات الصفحة ووضع القائمة الجانبية
+# ضبط إعدادات الصفحة ووضع القائمة الجانبية بناءً على حالة الـ session
+if "sidebar_state" not in st.session_state:
+    st.session_state.sidebar_state = "expanded"
+
 st.set_page_config(
     page_title="Sun Pyramids Tours",
     page_icon="🧭",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state=st.session_state.sidebar_state,
 )
 
 UPLOAD_DIR = "uploads"
@@ -172,27 +175,12 @@ st.markdown(
         padding-top: 5rem !important;
     }
 
-    .custom-collapse-btn {
-        background-color: #ffffff;
-        border: 1px solid #a3d9a3;
-        color: #1b5e20;
-        font-size: 22px;
-        font-weight: bold;
-        width: 36px;
-        height: 36px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        transition: all 0.2s ease;
-        text-decoration: none !important;
-        line-height: 1;
-    }
-    .custom-collapse-btn:hover {
-        background-color: #d8ebd8;
-        border-color: #28a745;
+    /* ستايل زرار السهم العائم بره القائمة وجنب الهيدر بتاعها */
+    .floating-toggle-container {
+        position: fixed;
+        top: 12px;
+        left: 280px; /* مكان ثابت بجانب القائمة الجانبية */
+        z-index: 9999999;
     }
     </style>
 """,
@@ -271,19 +259,6 @@ with st.sidebar:
             "<h2 style='color: #1b5e20; margin-bottom: 5px; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>",
             unsafe_allow_html=True,
         )
-    with col_t2:
-        st.markdown(
-            """
-            <button class="custom-collapse-btn" onclick="
-                var collapseBtn = window.parent.document.querySelector('[data-testid=\\'collapsedControl\\']');
-                if (!collapseBtn) {
-                    collapseBtn = window.parent.document.querySelector('button[kind=\\'header\\']');
-                }
-                if (collapseBtn) { collapseBtn.click(); }
-            ">‹</button>
-        """,
-            unsafe_allow_html=True,
-        )
 
     st.markdown(
         "<p style='font-weight: 800; color: #1b5e20; font-size: 1rem; margin-top: 5px; margin-bottom: 10px;'>اختر الصفحة</p>",
@@ -294,6 +269,17 @@ with st.sidebar:
         ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف"],
         label_visibility="collapsed",
     )
+
+# زرار السهم العائم بره القائمة الجانبية تماماً للتحكم في فتحها وإغلاقها
+st.markdown('<div class="floating-toggle-container">', unsafe_allow_html=True)
+arrow_label = "‹" if st.session_state.sidebar_state == "expanded" else "›"
+if st.button(arrow_label, key="toggle_sidebar_btn"):
+    if st.session_state.sidebar_state == "expanded":
+        st.session_state.sidebar_state = "collapsed"
+    else:
+        st.session_state.sidebar_state = "expanded"
+    st.rerun()
+st.markdown("</div>", unsafe_allow_html=True)
 
 if page == "نموذج تصفية المرشد":
     st.title("🧭 نموذج تصفية المرشدين")
@@ -1011,7 +997,6 @@ elif page == "الأرشيف":
                 st.markdown(f"**عدد الطلبات في الأرشيف:** {len(archive_df)}")
                 st.markdown("---")
 
-                # استخراج أسماء المرشدين الموجودين في الأرشيف فقط
                 archive_guides = archive_df["Guide Name"].dropna().unique().tolist()
                 archive_guide_options = ["الكل (جميع المرشدين)"] + archive_guides
 
