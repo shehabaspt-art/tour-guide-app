@@ -5,16 +5,12 @@ import time
 import pandas as pd
 import streamlit as st
 
-# ضبط إعدادات الصفحة ووضع القائمة الجانبية لتكون قابلة للتحكم
-sidebar_state = "expanded"
-if "sidebar_collapsed" in st.session_state and st.session_state.sidebar_collapsed:
-    sidebar_state = "collapsed"
-
+# ضبط إعدادات الصفحة ووضع القائمة الجانبية
 st.set_page_config(
     page_title="Sun Pyramids Tours",
     page_icon="🧭",
     layout="wide",
-    initial_sidebar_state=sidebar_state,
+    initial_sidebar_state="expanded",
 )
 
 UPLOAD_DIR = "uploads"
@@ -73,7 +69,7 @@ def get_image_base64(path):
         with open(path, "rb") as img_file:
             encoded = base64.b64encode(img_file.read()).decode()
             ext = path.split(".")[-1].lower()
-            if ext == "jpg" or ext == "jpeg":
+            if ext in ["jpg", "jpeg"]:
                 mime = "image/jpeg"
             elif ext == "png":
                 mime = "image/png"
@@ -126,9 +122,7 @@ if new_order_arrived:
         unsafe_allow_html=True,
     )
 
-if "sidebar_collapsed" not in st.session_state:
-    st.session_state.sidebar_collapsed = False
-
+# تظبيط الـ CSS المتقدم لإخفاء السايدبار بالكامل وتصميم السهم المطلوب بالضبط
 st.markdown(
     """
     <style>
@@ -179,6 +173,30 @@ st.markdown(
     }
     .block-container {
         padding-top: 5rem !important;
+    }
+
+    /* تنسيق زرار السهم الأنيق للتحكم في إخفاء وإظهار السايدبار */
+    .custom-collapse-btn {
+        background-color: #ffffff;
+        border: 1px solid #a3d9a3;
+        color: #1b5e20;
+        font-size: 22px;
+        font-weight: bold;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        transition: all 0.2s ease;
+        text-decoration: none !important;
+        line-height: 1;
+    }
+    .custom-collapse-btn:hover {
+        background-color: #d8ebd8;
+        border-color: #28a745;
     }
     </style>
 """,
@@ -250,31 +268,38 @@ SHOPS_LIST = [
     "لازوريت",
 ]
 
-# تصميم القائمة الجانبية مع زرار السهم الأنيق لإخفاء وإظهار القائمة تماماً
-col_title, col_btn = st.sidebar.columns([3, 1])
-with col_title:
+# محتوى القائمة الجانبية مع زرار السهم المضبوط جافاسكريبت لإخفائها تماماً
+with st.sidebar:
+    col_t1, col_t2 = st.columns([3, 1])
+    with col_t1:
+        st.markdown(
+            "<h2 style='color: #1b5e20; margin-bottom: 5px; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>",
+            unsafe_allow_html=True,
+        )
+    with col_t2:
+        # زرار سهم بنفس الشكل المطلوب تماماً يقوم بالضغط على زر إخفاء السايدبار الأصلي في ستريمليت برمجياً
+        st.markdown(
+            """
+            <button class="custom-collapse-btn" onclick="
+                var collapseBtn = window.parent.document.querySelector('[data-testid=\\'collapsedControl\\']');
+                if (!collapseBtn) {
+                    collapseBtn = window.parent.document.querySelector('button[kind=\\'header\\']');
+                }
+                if (collapseBtn) { collapseBtn.click(); }
+            ">‹</button>
+        """,
+            unsafe_allow_html=True,
+        )
+
     st.markdown(
-        "<h2 style='color: #1b5e20; margin-bottom: 5px; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>",
+        "<p style='font-weight: 800; color: #1b5e20; font-size: 1rem; margin-top: 5px; margin-bottom: 10px;'>اختر الصفحة</p>",
         unsafe_allow_html=True,
     )
-with col_btn:
-    # استخدام السهم المطلوب (‹ للإخفاء و › للإظهار)
-    arrow_symbol = "‹" if not st.session_state.sidebar_collapsed else "›"
-    if st.button(arrow_symbol, key="toggle_sidebar_content"):
-        st.session_state.sidebar_collapsed = (
-            not st.session_state.sidebar_collapsed
-        )
-        st.rerun()
-
-st.sidebar.markdown(
-    "<p style='font-weight: 800; color: #1b5e20; font-size: 1rem; margin-top: 5px; margin-bottom: 10px;'>اختر الصفحة</p>",
-    unsafe_allow_html=True,
-)
-page = st.sidebar.radio(
-    "اختر الصفحة",
-    ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف"],
-    label_visibility="collapsed",
-)
+    page = st.radio(
+        "اختر الصفحة",
+        ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف"],
+        label_visibility="collapsed",
+    )
 
 if page == "نموذج تصفية المرشد":
     st.title("🧭 نموذج تصفية المرشدين")
@@ -421,9 +446,7 @@ if page == "نموذج تصفية المرشد":
                     break
 
             if not account_no:
-                st.error(
-                    "⚠️ عذراً، يجب اختيار (رقم الحساب) الخاص بك أولاً!"
-                )
+                st.error("⚠️ عذراً، يجب اختيار (رقم الحساب) الخاص بك أولاً!")
             elif not file_no.strip():
                 st.error(
                     "⚠️ عذراً، لا يمكن إرسال الطلب. يرجى إدخال (رقم الفايل) أولاً بشكل إلزامي!"
@@ -850,68 +873,126 @@ elif page == "إدارة التصفيات":
                                     st.success("✅ تم تعديل رقم الحساب بنجاح!")
                                     st.rerun()
                                 else:
-                                    st.error("❌ مرفوض! البريد الإلكتروني غير صحيح ولا تملك صلاحية التعديل.")
+                                    st.error(
+                                        "❌ مرفوض! البريد الإلكتروني غير صحيح ولا تملك صلاحية التعديل."
+                                    )
                         with ec2:
-                            if st.button("❌ إلغاء", type="primary", key="cancel_edit_guide_acc"):
+                            if st.button(
+                                "❌ إلغاء",
+                                type="primary",
+                                key="cancel_edit_guide_acc",
+                            ):
                                 st.session_state.confirming_edit_guide = None
                                 st.rerun()
 
                 if st.session_state.confirming_del_guide is not None:
                     g_to_del = st.session_state.confirming_del_guide["name"]
-                    st.warning(f"⚠️ تأكيد حذف المرشد (**{g_to_del}**) من قاعدة البيانات؟")
-                    del_g_email_chk = st.text_input("أدخل البريد الإلكتروني للمسؤول لتأكيد الحذف", key="del_g_email_chk_field")
+                    st.warning(
+                        f"⚠️ تأكيد حذف المرشد (**{g_to_del}**) من قاعدة البيانات؟"
+                    )
+                    del_g_email_chk = st.text_input(
+                        "أدخل البريد الإلكتروني للمسؤول لتأكيد الحذف",
+                        key="del_g_email_chk_field",
+                    )
                     dc1, dc2 = st.columns(2)
                     with dc1:
-                        if st.button("✔️ تأكيد وحذف المرشد", type="primary", key="confirm_del_guide_final"):
-                            if del_g_email_chk.strip().lower() == ADMIN_EMAIL.lower():
-                                guides_df = guides_df[guides_df[name_column].astype(str) != g_to_del].reset_index(drop=True)
+                        if st.button(
+                            "✔️ تأكيد وحذف المرشد",
+                            type="primary",
+                            key="confirm_del_guide_final",
+                        ):
+                            if (
+                                del_g_email_chk.strip().lower()
+                                == ADMIN_EMAIL.lower()
+                            ):
+                                guides_df = guides_df[
+                                    guides_df[name_column].astype(str)
+                                    != g_to_del
+                                ].reset_index(drop=True)
                                 overwrite_data(GUIDES_FILE, guides_df)
                                 st.session_state.confirming_del_guide = None
                                 st.success("✅ تم حذف المرشد بنجاح!")
                                 st.rerun()
                             else:
-                                st.error("❌ مرفوض! البريد الإلكتروني غير صحيح ولا تملك صلاحية الحذف.")
+                                st.error(
+                                    "❌ مرفوض! البريد الإلكتروني غير صحيح ولا تملك صلاحية الحذف."
+                                )
                     with dc2:
-                        if st.button("❌ إلغاء", type="primary", key="cancel_del_guide"):
+                        if st.button(
+                            "❌ إلغاء", type="primary", key="cancel_del_guide"
+                        ):
                             st.session_state.confirming_del_guide = None
                             st.rerun()
 
             with col_section_right:
                 st.markdown("#### إضافة مرشد جديد:")
-                new_guide_name = st.text_input("اسم المرشد الجديد", key="new_g_name_input")
-                new_guide_acc = st.text_input("رقم حساب المرشد الجديد", key="new_g_acc_input")
-                
-                if st.button("➕ إضافة المرشد للقاعدة", type="primary", key="add_new_guide_btn"):
+                new_guide_name = st.text_input(
+                    "اسم المرشد الجديد", key="new_g_name_input"
+                )
+                new_guide_acc = st.text_input(
+                    "رقم حساب المرشد الجديد", key="new_g_acc_input"
+                )
+
+                if st.button(
+                    "➕ إضافة المرشد للقاعدة",
+                    type="primary",
+                    key="add_new_guide_btn",
+                ):
                     if not new_guide_name.strip() or not new_guide_acc.strip():
-                        st.error("⚠️ يجب إدخال اسم المرشد ورقم الحساب بشكل صحيح!")
+                        st.error(
+                            "⚠️ يجب إدخال اسم المرشد ورقم الحساب بشكل صحيح!"
+                        )
                     else:
                         st.session_state.confirming_add_guide = {
                             "name": new_guide_name,
-                            "acc": new_guide_acc
+                            "acc": new_guide_acc,
                         }
                         st.rerun()
 
                 if st.session_state.confirming_add_guide is not None:
                     ag_name = st.session_state.confirming_add_guide["name"]
                     ag_acc = st.session_state.confirming_add_guide["acc"]
-                    
-                    st.warning(f"⚠️ تأكيد إضافة المرشد الجديد: **{ag_name}** برقم حساب: **{ag_acc}**؟")
-                    add_g_email_chk = st.text_input("أدخل البريد الإلكتروني للمسؤول لتأكيد الإضافة", key="add_g_email_chk_field")
-                    
+
+                    st.warning(
+                        f"⚠️ تأكيد إضافة المرشد الجديد: **{ag_name}** برقم حساب: **{ag_acc}**؟"
+                    )
+                    add_g_email_chk = st.text_input(
+                        "أدخل البريد الإلكتروني للمسؤول لتأكيد الإضافة",
+                        key="add_g_email_chk_field",
+                    )
+
                     ac1, ac2 = st.columns(2)
                     with ac1:
-                        if st.button("✔️ تأكيد وحفظ الإضافة", type="primary", key="confirm_add_guide_final"):
-                            if add_g_email_chk.strip().lower() == ADMIN_EMAIL.lower():
-                                new_row = pd.DataFrame({name_column: [ag_name], acc_column: [ag_acc]})
-                                guides_df = pd.concat([guides_df, new_row], ignore_index=True)
+                        if st.button(
+                            "✔️ تأكيد وحفظ الإضافة",
+                            type="primary",
+                            key="confirm_add_guide_final",
+                        ):
+                            if (
+                                add_g_email_chk.strip().lower()
+                                == ADMIN_EMAIL.lower()
+                            ):
+                                new_row = pd.DataFrame(
+                                    {
+                                        name_column: [ag_name],
+                                        acc_column: [ag_acc],
+                                    }
+                                )
+                                guides_df = pd.concat(
+                                    [guides_df, new_row], ignore_index=True
+                                )
                                 overwrite_data(GUIDES_FILE, guides_df)
                                 st.session_state.confirming_add_guide = None
                                 st.success("✅ تم إضافة المرشد بنجاح!")
                                 st.rerun()
                             else:
-                                st.error("❌ مرفوض! البريد الإلكتروني غير صحيح ولا تملك صلاحية الإضافة.")
+                                st.error(
+                                    "❌ مرفوض! البريد الإلكتروني غير صحيح ولا تملك صلاحية الإضافة."
+                                )
                     with ac2:
-                        if st.button("❌ إلغاء", type="primary", key="cancel_add_guide"):
+                        if st.button(
+                            "❌ إلغاء", type="primary", key="cancel_add_guide"
+                        ):
                             st.session_state.confirming_add_guide = None
                             st.rerun()
 
