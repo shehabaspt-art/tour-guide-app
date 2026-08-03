@@ -201,13 +201,15 @@ if page == "نموذج تصفية المرشد":
 
     with st.form("guide_form", clear_on_submit=True):
         st.subheader("بيانات المرشد")
-        col_top1, col_top2, col_top3 = st.columns(3)
+        col_top1, col_top2, col_top3, col_top4 = st.columns(4)
         with col_top1:
             account_options = [None] + guides_df[acc_column].astype(str).tolist()
             account_no = st.selectbox("رقم الحساب الخاص بالمرشد", options=account_options, index=0)
         with col_top2:
             file_no = st.text_input("رقم الفايل (File Number) *إلزامي*")
         with col_top3:
+            work_order_image = st.file_uploader("رفع صور أمر الشغل", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key="work_order_imgs")
+        with col_top4:
             advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0)
         
         st.markdown("---")
@@ -301,6 +303,14 @@ if page == "نموذج تصفية المرشد":
                 
                 current_time_str = datetime.now().strftime("%Y-%m-%d %I:%M %p")
                 
+                work_order_paths = []
+                if work_order_image:
+                    for img in work_order_image:
+                        wo_path = os.path.join(UPLOAD_DIR, f"wo_{time.time()}_{img.name}")
+                        with open(wo_path, "wb") as f:
+                            f.write(img.getbuffer())
+                        work_order_paths.append(wo_path)
+
                 lunch_path = ""
                 if lunch_image is not None:
                     lunch_path = os.path.join(UPLOAD_DIR, f"{time.time()}_{lunch_image.name}")
@@ -338,6 +348,7 @@ if page == "نموذج تصفية المرشد":
                     "Guide Name": guide_name,
                     "Account": account_no,
                     "File No": file_no,
+                    "Work Order Images": ",".join(work_order_paths) if work_order_paths else "",
                     "Advances": advances,
                     "Collection": f"{collection_val} {collection_curr}",
                     "Option Type": ", ".join(option_types_list),
@@ -395,6 +406,18 @@ elif page == "إدارة التصفيات":
                 st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {req_row.get('Account', '')}")
                 st.markdown("---")
                 
+                # عرض صور أمر الشغل
+                st.markdown("#### صور أمر الشغل:")
+                wo_paths = req_row.get("Work Order Images", "")
+                if pd.notna(wo_paths) and str(wo_paths).strip() != "":
+                    wo_list = str(wo_paths).split(",")
+                    for idx, p in enumerate(wo_list):
+                        if os.path.exists(p):
+                            st.image(p, caption=f"صورة أمر الشغل رقم {idx+1}", use_container_width=True)
+                else:
+                    st.info("لا توجد صور لأمر الشغل.")
+                
+                st.markdown("---")
                 st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
                 st.write(f"**التحصيل (Collection):** {req_row.get('Collection', 0)}")
                 st.write(f"**الأوبشن (Option):** {req_row.get('Option', '')}")
