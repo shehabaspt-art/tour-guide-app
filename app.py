@@ -56,7 +56,7 @@ if current_logo_path:
     except:
         pass
 
-# تنسيق CSS المضبوط للسايدبار والأزرار بدون أي مشاكل في العرض
+# تنسيق CSS لترك مسافة حوالي 2 سم فوق اللوجو والسايدبار
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -70,10 +70,20 @@ st.markdown("""
         color: white !important;
     }
     
-    /* ضبط السايدبار والخلفية الخضراء الهادئة */
+    /* ضبط السايدبار وإضافة مسافة من الأعلى تقارب 2 سم (2rem) قبل اللوجو */
     [data-testid="stSidebar"] {
         background-color: #d8ebd8 !important;
         border-left: 2px solid #c2e0c2 !important;
+    }
+    [data-testid="stSidebar"] > div:first-child {
+        padding-top: 2rem !important;
+    }
+    
+    /* تكبير وتوسيط صورة اللوجو داخل السايدبار */
+    [data-testid="stSidebar"] img {
+        max-width: 100% !important;
+        width: 220px !important;
+        height: auto !important;
     }
 
     [data-testid="stSidebar"] .stRadio > label {
@@ -114,15 +124,13 @@ SHOPS_LIST = [
 ]
 
 with st.sidebar:
-    # مسافة بيضاء مرتبة فوق القائمة الرئيسية مباشرة
-    st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
-    
     st.markdown("""
-        <div style="display: flex; align-items: center; margin-bottom: 5px;">
+        <div style="display: flex; align-items: center; margin-top: 10px; margin-bottom: 5px;">
             <h2 style='color: #1b5e20; margin: 0; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>
         </div>
         """, unsafe_allow_html=True)
     
+    st.markdown("<p style='font-weight: 800; color: #1b5e20; font-size: 1rem; margin-top: 5px; margin-bottom: 10px;'>اختر الصفحة</p>", unsafe_allow_html=True)
     page = st.radio(
         "اختر الصفحة",
         ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف"],
