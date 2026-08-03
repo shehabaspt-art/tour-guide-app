@@ -102,6 +102,10 @@ if new_order_arrived:
     </script>
     """, unsafe_allow_html=True)
 
+# إدارة حالة إظهار أو إخفاء القائمة الجانبية عبر الجافاسكريبت المخصص للتحكم بـ Streamlit
+if "sidebar_state" not in st.session_state:
+    st.session_state.sidebar_state = "expanded"
+
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -135,19 +139,6 @@ st.markdown("""
         margin: 0 !important;
     }
     
-    /* إظهار زر فتح وإغلاق القائمة الجانبية بوضوح تام على الهواتف والأجهزة كلها */
-    [data-testid="collapsedControl"] {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        color: #1b5e20 !important;
-        background-color: #ffffff !important;
-        border: 1px solid #a3d9a3 !important;
-        border-radius: 50% !important;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.15) !important;
-        z-index: 9999999 !important;
-    }
-    
     .sticky-header {
         position: fixed;
         top: 0;
@@ -155,7 +146,7 @@ st.markdown("""
         width: 100%;
         background-color: #f8f9fa;
         z-index: 999999;
-        padding: 8px 30px;
+        padding: 8px 20px;
         border-bottom: 1px solid #e0e0e0;
         display: flex;
         justify-content: space-between;
@@ -168,18 +159,31 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-logo_html = f'<img src="{logo_base64}" style="height: 48px; width: auto; max-width: 220px; object-fit: contain; filter: contrast(1.15) saturate(1.1);" />' if logo_base64 else '<span style="font-weight: bold; color: #1b5e20; font-size: 1.1rem;">Sun Pyramids</span>'
+logo_html = f'<img src="{logo_base64}" style="height: 42px; width: auto; max-width: 180px; object-fit: contain; filter: contrast(1.15) saturate(1.1);" />' if logo_base64 else '<span style="font-weight: bold; color: #1b5e20; font-size: 1.1rem;">Sun Pyramids</span>'
 
+# زر جافاسكريبت لضغط زر الـ Sidebar الأصلي الخاص بـ Streamlit لضمان عمله بكل قوة
 st.markdown(f"""
     <div class="sticky-header">
-        <div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <button onclick="
+                var btn = document.querySelector('[data-testid=\\'collapsedControl\\']') || parent.document.querySelector('[data-testid=\\'collapsedControl\\']');
+                if(btn) {{ btn.click(); }}
+                else {{
+                    var toggleIcons = window.parent.document.getElementsByTagName('button');
+                    for (let b of toggleIcons) {{
+                        if (b.getAttribute('aria-label') && b.getAttribute('aria-label').includes('sidebar')) {{ b.click(); break; }}
+                    }}
+                }}
+            " style="background-color: #1b5e20; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                ☰ القائمة
+            </button>
             {logo_html}
         </div>
-        <div style="display: flex; align-items: center; gap: 30px; margin-right: 35px;">
-            <div style="font-size: 1rem; font-weight: bold; color: #333;">
-                🔔 <span style="background-color: #e9ecef; padding: 2px 8px; border-radius: 6px; color: #d9534f;">{pending_count}</span>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <div style="font-size: 0.95rem; font-weight: bold; color: #333;">
+                🔔 <span style="background-color: #e9ecef; padding: 2px 6px; border-radius: 6px; color: #d9534f;">{pending_count}</span>
             </div>
-            <div style="font-size: 1rem; font-weight: bold; color: #333;">
+            <div style="font-size: 0.95rem; font-weight: bold; color: #333;">
                 👤 <b>SA</b>
             </div>
         </div>
