@@ -137,14 +137,19 @@ st.markdown(
         background-color: #d8ebd8;
         border-left: 2px solid #c2e0c2;
     }
-    /* إظهار زر فتح القائمة الجانبية بوضوح على الموبايل والشاشات الصغيرة */
+    
+    /* ضبط زر القائمة الافتراضي في الـ Streamlit ليكون فوق الهيدر وواضح تماماً للموبايل بدون إضافات خارجية */
     [data-testid="collapsedControl"] {
         display: block !important;
-        z-index: 9999999;
-        top: 15px !important;
+        z-index: 99999999 !important;
+        position: fixed !important;
+        top: 12px !important;
         left: 15px !important;
-        color: #1b5e20 !important;
+        background-color: #ffffff !important;
+        border-radius: 50% !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.15) !important;
     }
+
     [data-testid="stSidebar"] .stRadio > label {
         display: none !important;
     }
