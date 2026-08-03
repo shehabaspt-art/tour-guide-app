@@ -181,7 +181,7 @@ logo_html = (
     else '<span style="font-weight: bold; color: #1b5e20; font-size: 1.1rem;">Sun Pyramids</span>'
 )
 
-# زر جافاسكريبت محسن لفتح القائمة على الموبايل والكمبيوتر بكل قوة وسلاسة
+# الشريط العلوي (تمت إزالة الأيقونة الزائدة بجانب اللوجو بناءً على طلبك الأول)
 st.markdown(
     f"""
     <div class="sticky-header">
@@ -253,10 +253,26 @@ SHOPS_LIST = [
     "لازوريت",
 ]
 
+# القائمة الجانبية: تم إضافة زر سهم بجانب العنوان لإغلاق/فتح القائمة بناءً على طلبك الثاني
 st.sidebar.markdown(
-    "<h2 style='color: #1b5e20; margin-bottom: 5px; font-size: 1.3rem;'>🧭 القائمة الرئيسية</h2>",
+    """
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+        <h2 style='color: #1b5e20; margin: 0; font-size: 1.3rem;'>🧭 القائمة الرئيسية</h2>
+        <button onclick="
+            var btn = parent.document.querySelector('[data-testid=\\'collapsedControl\\']') || document.querySelector('[data-testid=\\'collapsedControl\\']');
+            if(btn) { btn.click(); }
+            else {
+                var toggleIcons = window.parent.document.getElementsByTagName('button');
+                for (let b of toggleIcons) {
+                    if (b.getAttribute('aria-label') && b.getAttribute('aria-label').toLowerCase().includes('sidebar')) { b.click(); break; }
+                }
+            }
+        " style="background-color: transparent; border: 1px solid #1b5e20; color: #1b5e20; padding: 2px 8px; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer;" title="إخفاء القائمة">◀</button>
+    </div>
+    """,
     unsafe_allow_html=True,
 )
+
 st.sidebar.markdown(
     "<p style='font-weight: 800; color: #1b5e20; font-size: 1rem; margin-top: 5px; margin-bottom: 10px;'>اختر الصفحة</p>",
     unsafe_allow_html=True,
