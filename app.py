@@ -183,9 +183,9 @@ if page == "نموذج تصفية المرشد":
             with col_opt4:
                 opt_pay = st.selectbox("طريقة الدفع", options=[None, "كاش", "لينك"], key=f"opt_pay_{i}")
             with col_opt5:
-                cash_h = ""
+                cash_h = None
                 if opt_pay == "كاش":
-                    cash_h = st.selectbox("المبلغ", options=[None, "مع المرشد", "مع السواق"], key=f"cash_h_{i}")
+                    cash_h = st.selectbox("المبلغ مع", options=[None, "مع المرشد", "مع السواق"], key=f"cash_h_{i}")
                 else:
                     st.markdown("")
             
@@ -236,7 +236,6 @@ if page == "نموذج تصفية المرشد":
                 p_val = st.session_state.get(f"opt_pay_{i}", None)
                 c_h = st.session_state.get(f"cash_h_{i}", None)
                 
-                # لو فيه قيمة للأوبشنال أو كتب نوع، يبقاشي إلزامي يختار طريقة الدفع
                 o_type = st.session_state.get(f"opt_type_{i}", "")
                 if (o_val > 0 or o_type.strip()) and not p_val:
                     validation_pay_error = True
@@ -253,7 +252,7 @@ if page == "نموذج تصفية المرشد":
             elif validation_pay_error:
                 st.error("⚠️ عذراً، نظراً لإدخال قيمة أو نوع في أحد الأوبشنالز، يجب اختيار (طريقة الدفع) [كاش / لينك] بشكل إلزامي!")
             elif validation_error:
-                st.error("⚠️ عذراً، نظراً لاختيار طريقة الدفع (كاش) في أحد الأوبشنالز، يجب اختيار (المبلغ) [مع المرشد / مع السواق] بشكل إلزامي لكل أوبشنال كاش!")
+                st.error("⚠️ عذراً، نظراً لاختيار طريقة الدفع (كاش) في أحد الأوبشنالز، يجب اختيار مكان المبلغ [مع المرشد / مع السواق] بشكل إلزامي!")
             elif shop_images and not selected_shops and not other_shops.strip():
                 st.error("⚠️ عذراً، نظراً لرفع صور فواتير المحلات، يجب اختيار (اسم المحل) من القائمة أو كتابته في (محلات أخري) بشكل إلزامي!")
             else:
