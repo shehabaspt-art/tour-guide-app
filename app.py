@@ -154,6 +154,11 @@ st.markdown(
         margin: 0 !important;
     }
     
+    /* إخفاء زرار الـ Sidebar الافتراضي القديم في الشريط العلوي */
+    [data-testid="collapsedControl"] {
+        display: none !important;
+    }
+
     .sticky-header {
         position: fixed;
         top: 0;
@@ -242,9 +247,26 @@ SHOPS_LIST = [
 ]
 
 with st.sidebar:
+    # زرار الإغلاق المصنوع بجريء واحترافية داخل الجزء الأخضر
+    if st.button("❌ إغلاق القائمة", use_container_width=True):
+        st.markdown(
+            """
+            <script>
+                // محاكاة الضغط على زر القائمة الافتراضي لإخفائها برمجياً
+                const trigger = window.parent.document.querySelector('[data-testid="collapsedControl"]');
+                if (trigger) { trigger.click(); }
+                else {
+                    const altTrigger = window.parent.document.querySelector('button[kind="header"]');
+                    if (altTrigger) { altTrigger.click(); }
+                }
+            </script>
+            """,
+            unsafe_allow_html=True,
+        )
+
     st.markdown(
         """
-        <div style="display: flex; align-items: center; margin-bottom: 5px;">
+        <div style="display: flex; align-items: center; margin-top: 10px; margin-bottom: 5px;">
             <h2 style='color: #1b5e20; margin: 0; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>
         </div>
         """,
@@ -997,7 +1019,7 @@ elif page == "الأرشيف":
                         st.write(f"الفايل: {row.get('File No', '')}")
                     with cols[2]:
                         st.write(f"المرشد: {row.get('Guide Name', '')}")
-                    with cols.iloc[3]: # fixed index issue
+                    with cols[3]:
                         st.write(f"الوقت: {row.get('Timestamp', '')}")
                     with cols[4]:
                         if st.button("عرض التفاصيل", key=f"view_arch_btn_{idx}", type="primary"):
