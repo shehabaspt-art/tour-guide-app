@@ -920,23 +920,162 @@ elif page == "الأرشيف":
     if archive_password == "159753":
         st.success("تم تسجيل الدخول للأرشيف بنجاح.")
         archive_df = load_data(ARCHIVE_FILE)
-        if not archive_df.empty:
-            st.markdown(f"**عدد الطلبات في الأرشيف:** {len(archive_df)}")
-            st.dataframe(archive_df, use_container_width=True)
 
-            st.markdown("---")
-            search_file_no = st.text_input("بحث برقم الفايل في الأرشيف")
-            if search_file_no.strip():
-                matched_archive = archive_df[
-                    archive_df["File No"].astype(str).str.contains(search_file_no.strip(), na=False)
-                ]
-                if not matched_archive.empty:
-                    st.success(f"تم العثور على {len(matched_archive)} نتيجة مطابقة:")
-                    st.dataframe(matched_archive, use_container_width=True)
+        if "viewing_archive_file" not in st.session_state:
+            st.session_state.viewing_archive_file = None
+        if "confirming_del_archive" not in st.session_state:
+            st.session_state.confirming_del_archive = None
+
+        if st.session_state.viewing_archive_file is not None:
+            req_idx = st.session_state.viewing_archive_file
+            if req_idx in archive_df.index:
+                req_row = archive_df.loc[req_idx]
+
+                if st.button("⬅️ رجوع إلى الأرشيف"):
+                    st.session_state.viewing_archive_file = None
+                    st.rerun()
+
+                st.markdown(
+                    f"### 📄 تفاصيل أرشيف الفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})"
+                )
+                st.markdown(
+                    f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {req_row.get('Account', '')}"
+                )
+                st.markdown("---")
+
+                st.markdown("#### صور أمر الشغل:")
+                wo_paths = req_row.get("Work Order Images", "")
+                if pd.notna(wo_paths) and str(wo_paths).strip() != "":
+                    wo_list = str(wo_paths).split(",")
+                    for idx, p in enumerate(wo_list):
+                        if os.path.exists(p):
+                            st.image(
+                                p,
+                                caption=f"صورة أمر الشغل رقم {idx+1}",
+                                use_container_width=True,
+                            )
+                else:
+                    st.info("لا توجد صور لأمر الشغل.")
+
+                st.markdown("---")
+                st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
+                st.write(
+                    f"**التحصيل (Collection):** {req_row.get('Collection', 0)}"
+                )
+                st.write(f"**الأوبشن (Option):** {req_row.get('Option', '')}")
+                st.write(f"**التذاكر (Tickets):** {req_row.get('Tickets', '')}")
+                st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
+                st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
+                st.write(f"**غداء (Lunch):** {req_row.get('Lunch', 0)}")
+
+                l_path = req_row.get("Lunch Receipt", "")
+                if (
+                    pd.notna(l_path)
+                    and str(l_path).strip() != ""
+                    and os.path.exists(str(l_path))
+                ):
+                    st.image(
+                        str(l_path),
+                        caption="صورة فاتورة الغداء",
+                        use_container_width=True,
+                    )
+                else:
+                    st.info("لا توجد صورة لفاتورة الغداء.")
+
+                st.markdown("---")
+                st.write(
+                    f"**أسماء المحلات المختارة:** {req_row.get('Shop Names', 'لا يوجد')}"
+                )
+                st.write(
+                    f"**محلات أخري:** {req_row.get('Other Shops', 'لا يوجد')}"
+                )
+
+                s_paths = req_row.get("Shop Images", "")
+                if pd.notna(s_paths) and str(s_paths).strip() != "":
+                    paths_list = str(s_paths).split(",")
+                    for idx, p in enumerate(paths_list):
+                        if os.path.exists(p):
+                            st.image(
+                                p,
+                                caption=f"صورة محلات رقم {idx+1}",
+                                use_container_width=True,
+                            )
+                else:
+                    st.info("لا توجد صور لفواتير المحلات.")
+            else:
+                st.session_state.viewing_archive_file = None
+                st.rerun()
+
+        else:
+            if not archive_df.empty:
+                st.markdown(f"**عدد الطلبات في الأرشيف:** {len(archive_df)}")
+                st.markdown("---")
+
+                search_file_no = st.text_input("بحث برقم الفايل في الأرشيف")
+                
+                if search_file_no.strip():
+                    display_archive_df = archive_df[
+                        archive_df["File No"].astype(str).str.contains(search_file_no.strip(), na=False)
+                    ]
+                else:
+                    display_archive_df = archive_df
+
+                if not display_archive_df.empty:
+                    for idx, row in display_archive_df.iterrows():
+                        cols = st.columns([1, 2, 2, 2, 1.5, 1.5])
+                        with cols[0]:
+                            st.write(f"**#{idx+1}**")
+                        with cols[1]:
+                            st.write(f"الفايل: {row.get('File No', '')}")
+                        with cols[2]:
+                            st.write(f"المرشد: {row.get('Guide Name', '')}")
+                        with cols[3]:
+                            st.write(f"الوقت: {row.get('Timestamp', '')}")
+                        with cols[4]:
+                            if st.button(
+                                "عرض", key=f"view_archive_btn_{idx}", type="primary"
+                            ):
+                                st.session_state.viewing_archive_file = idx
+                                st.rerun()
+                        with cols[5]:
+                            if st.button(
+                                "🗑️ حذف", key=f"del_archive_btn_{idx}", type="primary"
+                            ):
+                                st.session_state.confirming_del_archive = idx
+                                st.rerun()
+
+                        if st.session_state.confirming_del_archive == idx:
+                            st.warning(
+                                f"⚠️ تأكيد حذف طلب الأرشيف للفايل رقم ({row.get('File No', '')})؟"
+                            )
+                            c_col1, c_col2 = st.columns(2)
+                            with c_col1:
+                                if st.button(
+                                    "✔️ تأكيد الحذف النهائي",
+                                    key=f"confirm_del_arch_{idx}",
+                                    type="primary",
+                                ):
+                                    archive_df = archive_df.drop(idx).reset_index(
+                                        drop=True
+                                    )
+                                    overwrite_data(ARCHIVE_FILE, archive_df)
+                                    st.session_state.confirming_del_archive = None
+                                    st.success("تم الحذف من الأرشيف بنجاح.")
+                                    st.rerun()
+                            with c_col2:
+                                if st.button(
+                                    "❌ رجوع (إلغاء)",
+                                    key=f"cancel_del_arch_{idx}",
+                                    type="primary",
+                                ):
+                                    st.session_state.confirming_del_archive = None
+                                    st.rerun()
+
+                        st.markdown("---")
                 else:
                     st.info("لا توجد نتائج مطابقة برقم الفايل المدخل.")
-        else:
-            st.info("الأرشيف فارغ حالياً. لا توجد تصفيات تم أرشفتها بعد.")
+            else:
+                st.info("الأرشيف فارغ حالياً. لا توجد تصفيات تم أرشفتها بعد.")
     else:
         if archive_password:
             st.error("❌ كلمة المرور غير صحيحة.")
