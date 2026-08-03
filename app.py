@@ -137,6 +137,14 @@ st.markdown(
         background-color: #d8ebd8;
         border-left: 2px solid #c2e0c2;
     }
+    /* إظهار زر فتح القائمة الجانبية بوضوح على الموبايل والشاشات الصغيرة */
+    [data-testid="collapsedControl"] {
+        display: block !important;
+        z-index: 9999999;
+        top: 15px !important;
+        left: 15px !important;
+        color: #1b5e20 !important;
+    }
     [data-testid="stSidebar"] .stRadio > label {
         display: none !important;
     }
