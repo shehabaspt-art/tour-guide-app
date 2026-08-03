@@ -153,11 +153,6 @@ st.markdown(
         font-size: 0.95rem !important;
         margin: 0 !important;
     }
-    
-    /* إخفاء زرار الـ Sidebar الافتراضي القديم في الشريط العلوي */
-    [data-testid="collapsedControl"] {
-        display: none !important;
-    }
 
     .sticky-header {
         position: fixed;
@@ -247,23 +242,6 @@ SHOPS_LIST = [
 ]
 
 with st.sidebar:
-    # زرار الإغلاق المصنوع بجريء واحترافية داخل الجزء الأخضر
-    if st.button("❌ إغلاق القائمة", use_container_width=True):
-        st.markdown(
-            """
-            <script>
-                // محاكاة الضغط على زر القائمة الافتراضي لإخفائها برمجياً
-                const trigger = window.parent.document.querySelector('[data-testid="collapsedControl"]');
-                if (trigger) { trigger.click(); }
-                else {
-                    const altTrigger = window.parent.document.querySelector('button[kind="header"]');
-                    if (altTrigger) { altTrigger.click(); }
-                }
-            </script>
-            """,
-            unsafe_allow_html=True,
-        )
-
     st.markdown(
         """
         <div style="display: flex; align-items: center; margin-top: 10px; margin-bottom: 5px;">
