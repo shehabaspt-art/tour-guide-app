@@ -133,12 +133,17 @@ st.markdown(
         background-color: #218838 !important;
         color: white !important;
     }
+    
+    /* ضبط السايدبار ليبدأ من تحت اللوجو مباشرة ويأخذ اللون الأخضر */
     [data-testid="stSidebar"] {
-        background-color: #d8ebd8;
-        border-left: 2px solid #c2e0c2;
+        background-color: #d8ebd8 !important;
+        border-left: 2px solid #c2e0c2 !important;
+    }
+    [data-testid="stSidebar"] > div:first-child {
+        padding-top: 0rem !important;
     }
     
-    /* ضبط زر القائمة الافتراضي في الـ Streamlit ليكون فوق الهيدر وواضح تماماً للموبايل بدون إضافات خارجية */
+    /* ضبط زر القائمة الافتراضي في الـ Streamlit ليكون فوق الهيدر وواضح تماماً للموبايل */
     [data-testid="collapsedControl"] {
         display: block !important;
         z-index: 99999999 !important;
@@ -846,208 +851,55 @@ elif page == "إدارة التصفيات":
                 if st.button("➕ إضافة المرشد للقاعدة", type="primary"):
                     st.session_state.confirming_add_guide = {
                         "name": new_g_name,
-                        "acc": new_g_acc,
+                        "acc": new_g_acc
                     }
                     st.rerun()
 
                 if st.session_state.confirming_add_guide is not None:
-                    ng_name = st.session_state.confirming_add_guide["name"]
-                    ng_acc = st.session_state.confirming_add_guide["acc"]
+                    add_g_name = st.session_state.confirming_add_guide["name"]
+                    add_g_acc = st.session_state.confirming_add_guide["acc"]
 
-                    if not ng_name.strip() or not ng_acc.strip():
-                        st.error("⚠️ يرجى كتابة اسم المرشد ورقم الحساب بشكل كامل!")
-                        if st.button("❌ رجوع لإدخال البيانات", type="primary"):
+                    if not add_g_name.strip() or not add_g_acc.strip():
+                        st.error("⚠️ يرجى إدخال (اسم المرشد) و(رقم الحساب) بشكل كامل!")
+                        if st.button("❌ رجوع للقاعدة", type="primary"):
                             st.session_state.confirming_add_guide = None
                             st.rerun()
                     else:
-                        st.warning(f"⚠️ تأكيد إضافة المرشد (**{ng_name}**) برقم حساب (**{ng_acc}**)؟")
+                        st.warning(f"⚠️ تأكيد إضافة المرشد (**{add_g_name}**) برقم حساب (**{add_g_acc}**)؟")
                         ac1, ac2 = st.columns(2)
                         with ac1:
-                            if st.button("✔️ تأكيد وحفظ الإضافة", type="primary"):
-                                new_row = pd.DataFrame(
-                                    {
-                                        name_column: [ng_name],
-                                        acc_column: [ng_acc],
-                                    }
-                                )
-                                guides_df = pd.concat(
-                                    [guides_df, new_row], ignore_index=True
-                                )
+                            if st.button("✔️ تأكيد وإضافة نهائية", type="primary"):
+                                new_row = pd.DataFrame({
+                                    name_column: [add_g_name],
+                                    acc_column: [add_g_acc]
+                                })
+                                guides_df = pd.concat([guides_df, new_row], ignore_index=True)
                                 guides_df.to_excel(GUIDES_FILE, index=False)
                                 st.session_state.confirming_add_guide = None
                                 st.session_state.clear_add_inputs = True
-                                st.success("✅ تم إضافة المرشد بنجاح!")
+                                st.success("✅ تمت إضافة المرشد بنجاح!")
                                 st.rerun()
                         with ac2:
                             if st.button("❌ إلغاء الإضافة", type="primary"):
                                 st.session_state.confirming_add_guide = None
                                 st.rerun()
+    else:
+        if password != "":
+            st.error("❌ كلمة المرور غير صحيحة!")
 
 elif page == "الأرشيف":
     st.title("📁 أرشيف التصفيات المنتهية")
     st.markdown("---")
 
-    archive_password = st.text_input(
-        "أدخل كلمة المرور لعرض الأرشيف", type="password", key="arch_pass"
-    )
+    archive_df = load_data(ARCHIVE_FILE)
+    if not archive_df.empty:
+        st.info(f"إجمالي الطلبات المؤرشفة: {len(archive_df)}")
+        st.dataframe(archive_df, use_container_width=True)
 
-    if archive_password == "159753":
-        st.success("تم تسجيل الدخول للأرشيف بنجاح.")
-        archive_df = load_data(ARCHIVE_FILE)
-        if not archive_df.empty:
-            if "viewing_archive_file" not in st.session_state:
-                st.session_state.viewing_archive_file = None
-            if "confirming_del_archive" not in st.session_state:
-                st.session_state.confirming_del_archive = None
-
-            if st.session_state.viewing_archive_file is not None:
-                req_idx = st.session_state.viewing_archive_file
-                if req_idx in archive_df.index:
-                    req_row = archive_df.loc[req_idx]
-
-                    if st.button("⬅️ رجوع إلى الأرشيف"):
-                        st.session_state.viewing_archive_file = None
-                        st.rerun()
-
-                    st.markdown(
-                        f"### 📄 تفاصيل الأرشيف للفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})"
-                    )
-                    st.markdown(
-                        f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {req_row.get('Account', '')}"
-                    )
-                    st.markdown("---")
-
-                    st.markdown("#### صور أمر الشغل:")
-                    wo_paths = req_row.get("Work Order Images", "")
-                    if pd.notna(wo_paths) and str(wo_paths).strip() != "":
-                        wo_list = str(wo_paths).split(",")
-                        for idx, p in enumerate(wo_list):
-                            if os.path.exists(p):
-                                st.image(
-                                    p,
-                                    caption=f"صورة أمر الشغل رقم {idx+1}",
-                                    use_container_width=True,
-                                )
-                    else:
-                        st.info("لا توجد صور لأمر الشغل.")
-
-                    st.markdown("---")
-                    st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
-                    st.write(
-                        f"**التحصيل (Collection):** {req_row.get('Collection', 0)}"
-                    )
-                    st.write(f"**الأوبشن (Option):** {req_row.get('Option', '')}")
-                    st.write(f"**التذاكر (Tickets):** {req_row.get('Tickets', '')}")
-                    st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
-                    st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
-                    st.write(f"**غداء (Lunch):** {req_row.get('Lunch', 0)}")
-
-                    l_path = req_row.get("Lunch Receipt", "")
-                    if (
-                        pd.notna(l_path)
-                        and str(l_path).strip() != ""
-                        and os.path.exists(str(l_path))
-                    ):
-                        st.image(
-                            str(l_path),
-                            caption="صورة فاتورة الغداء",
-                            use_container_width=True,
-                        )
-                    else:
-                        st.info("لا توجد صورة لفاتورة الغداء.")
-
-                    st.markdown("---")
-                    st.write(
-                        f"**أسماء المحلات المختارة:** {req_row.get('Shop Names', 'لا يوجد')}"
-                    )
-                    st.write(
-                        f"**محلات أخري:** {req_row.get('Other Shops', 'لا يوجد')}"
-                    )
-
-                    s_paths = req_row.get("Shop Images", "")
-                    if pd.notna(s_paths) and str(s_paths).strip() != "":
-                        paths_list = str(s_paths).split(",")
-                        for idx, p in enumerate(paths_list):
-                            if os.path.exists(p):
-                                st.image(
-                                    p,
-                                    caption=f"صورة محلات رقم {idx+1}",
-                                    use_container_width=True,
-                                )
-                    else:
-                        st.info("لا توجد صور لفواتير المحلات.")
-                else:
-                    st.session_state.viewing_archive_file = None
-                    st.rerun()
-            else:
-                st.markdown("### 🔍 فلترة وعرض الأرشيف")
-                all_guides_in_arch = (
-                    archive_df["Guide Name"].dropna().unique().tolist()
-                )
-                selected_guide_arch_filter = st.selectbox(
-                    "اختر اسم المرشد لعرض أرشيفه",
-                    options=["الكل (جميع المرشدين)"] + all_guides_in_arch,
-                    key="arch_guide_filter",
-                )
-
-                if selected_guide_arch_filter != "الكل (جميع المرشدين)":
-                    filtered_arch_df = archive_df[
-                        archive_df["Guide Name"] == selected_guide_arch_filter
-                    ]
-                    st.info(
-                        f"عرض الأرشيف الخاص بالمرشد: **{selected_guide_arch_filter}** (عدد الملفات: {len(filtered_arch_df)})"
-                    )
-                else:
-                    filtered_arch_df = archive_df
-
-                st.markdown("### الملفات المؤرشفة")
-
-                for idx, row in filtered_arch_df.iterrows():
-                    cols = st.columns([1, 2, 2, 2, 1.5, 1.5])
-                    with cols[0]:
-                        st.write(f"**#{idx+1}**")
-                    with cols[1]:
-                        st.write(f"الفايل: {row.get('File No', '')}")
-                    with cols[2]:
-                        st.write(f"المرشد: {row.get('Guide Name', '')}")
-                    with cols[3]:
-                        st.write(f"الوقت: {row.get('Timestamp', '')}")
-                    with cols[4]:
-                        if st.button("عرض التفاصيل", key=f"view_arch_btn_{idx}", type="primary"):
-                            st.session_state.viewing_archive_file = idx
-                            st.rerun()
-                    with cols[5]:
-                        if st.button("🗑️ حذف من الأرشيف", key=f"del_arch_btn_{idx}", type="primary"):
-                            st.session_state.confirming_del_archive = idx
-                            st.rerun()
-
-                    if st.session_state.confirming_del_archive == idx:
-                        st.warning(
-                            f"⚠️ تأكيد حذف ملف الأرشيف للفايل رقم ({row.get('File No', '')})؟"
-                        )
-                        ac_col1, ac_col2 = st.columns(2)
-                        with ac_col1:
-                            if st.button(
-                                "✔️ تأكيد الحذف النهائي",
-                                key=f"confirm_del_arch_{idx}",
-                                type="primary",
-                            ):
-                                archive_df = archive_df.drop(idx).reset_index(
-                                    drop=True
-                                )
-                                overwrite_data(ARCHIVE_FILE, archive_df)
-                                st.session_state.confirming_del_archive = None
-                                st.success("تم الحذف من الأرشيف بنجاح.")
-                                st.rerun()
-                        with ac_col2:
-                            if st.button(
-                                "❌ رجوع (إلغاء)",
-                                key=f"cancel_del_arch_{idx}",
-                                type="primary",
-                            ):
-                                st.session_state.confirming_del_archive = None
-                                st.rerun()
-
-                    st.markdown("---")
-        else:
-            st.info("لا توجد ملفات في الأرشيف حتى الآن.")
+        if st.button("🗑️ تفريغ الأرشيف بالكامل", type="primary"):
+            if os.path.exists(ARCHIVE_FILE):
+                os.remove(ARCHIVE_FILE)
+            st.success("✅ تم تفريغ الأرشيف بنجاح!")
+            st.rerun()
+    else:
+        st.info("لا توجد طلبات في الأرشيف حالياً.")
