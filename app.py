@@ -1,12 +1,9 @@
-import streamlit as st
-
-st.set_page_config(layout="wide", page_title="Sun Pyramids Tours - تصفية المرشدين")
-
-html_code = """
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sun Pyramids Tours - تصفية المرشدين</title>
     <style>
         * {
             box-sizing: border-box;
@@ -18,6 +15,8 @@ html_code = """
         body {
             background-color: #f4f7f6;
             color: #333;
+            display: flex;
+            flex-direction: column;
             height: 100vh;
             overflow: hidden;
         }
@@ -32,22 +31,23 @@ html_code = """
             padding: 10px 20px;
             height: 70px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
             z-index: 10;
         }
 
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
         .logo-container img {
-            height: 45px;
+            height: 50px;
         }
 
         /* المحتوى الرئيسي */
         .main-container {
             display: flex;
-            margin-top: 70px;
-            height: calc(100vh - 70px);
+            flex: 1;
             position: relative;
             overflow: hidden;
         }
@@ -92,6 +92,7 @@ html_code = """
             color: #1b4d2e;
         }
 
+        /* زر السهم لإخفاء/إظهار الشريط */
         .toggle-btn {
             background-color: #1b4d2e;
             color: white;
@@ -103,6 +104,7 @@ html_code = """
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: background 0.2s;
         }
 
         .toggle-btn:hover {
@@ -126,9 +128,9 @@ html_code = """
             display: flex;
             align-items: center;
             gap: 10px;
+            transition: all 0.2s;
             font-weight: 500;
             color: #1b4d2e;
-            transition: 0.2s;
         }
 
         .nav-item:hover {
@@ -136,12 +138,16 @@ html_code = """
             border-color: #1b4d2e;
         }
 
-        /* مساحة العرض */
+        .nav-item input[type="radio"] {
+            accent-color: #1b4d2e;
+        }
+
+        /* مساحة العرض الرئيسية */
         .content-area {
             flex: 1;
             padding: 30px;
             overflow-y: auto;
-            margin-right: 280px;
+            margin-right: 280px; /* نفس عرض الشريط الجانبي */
             transition: margin-right 0.3s ease;
         }
 
@@ -167,7 +173,7 @@ html_code = """
             margin-bottom: 20px;
         }
 
-        /* نافذة الباسورد */
+        /* نافذة إدخال الباسورد */
         .password-modal {
             display: none;
             position: fixed;
@@ -190,6 +196,11 @@ html_code = """
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
+        .password-box h3 {
+            margin-bottom: 15px;
+            color: #1b4d2e;
+        }
+
         .password-box input {
             width: 100%;
             padding: 10px;
@@ -209,63 +220,97 @@ html_code = """
             cursor: pointer;
             font-weight: bold;
         }
+
+        .password-box button:hover {
+            background-color: #12351f;
+        }
+
+        .error-msg {
+            color: red;
+            font-size: 12px;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            display: none;
+        }
     </style>
 </head>
 <body>
 
+    <!-- الهيدر العلوي (تمت إزالة كلمة القائمة تماماً وبقاء اللوجو) -->
     <header>
         <div class="logo-container">
-            <img src="https://via.placeholder.com/150x45?text=Sun+Pyramids+Tours" alt="Sun Pyramids Tours">
+            <!-- ضع رابط أو اسم اللوجو الخاص بك هنا -->
+            <img src="https://via.placeholder.com/150x50?text=Sun+Pyramids" alt="Sun Pyramids Tours">
         </div>
     </header>
 
+    <!-- المحتوى الرئيسي -->
     <div class="main-container">
+        
+        <!-- الشريط الجانبي -->
         <sidebar id="sidebar">
             <div class="sidebar-header">
-                <div class="sidebar-title"><span>🧭</span> القائمة الرئيسية</div>
-                <button class="toggle-btn" onclick="toggleSidebar()">◀</button>
+                <div class="sidebar-title">
+                    <span>🧭</span> القائمة الرئيسية
+                </div>
+                <!-- زر السهم لإخفاء الشريط -->
+                <button class="toggle-btn" onclick="toggleSidebar()" title="إخفاء القائمة">◀</button>
             </div>
 
             <div class="nav-section-title">اختر الصفحة</div>
 
-            <div class="nav-item" onclick="switchPage('filterPage', false)">
-                <span>⚪ نموذج تصفية المرشد</span>
-            </div>
-            <div class="nav-item" onclick="switchPage('managePage', true)">
-                <span>🔒 إدارة التصفيات</span>
-            </div>
-            <div class="nav-item" onclick="switchPage('archivePage', true)">
-                <span>🔒 الأرشيف</span>
-            </div>
+            <label class="nav-item">
+                <input type="radio" name="pageNav" checked onclick="switchPage('filterPage', false)">
+                <span>نموذج تصفية المرشد</span>
+            </label>
+
+            <label class="nav-item">
+                <input type="radio" name="pageNav" onclick="switchPage('managePage', true)">
+                <span>إدارة التصفيات</span>
+            </label>
+
+            <label class="nav-item">
+                <input type="radio" name="pageNav" onclick="switchPage('archivePage', true)">
+                <span>الأرشيف</span>
+            </label>
         </sidebar>
 
-        <button id="showSidebarBtn" onclick="toggleSidebar()" style="position: fixed; right: 15px; top: 85px; z-index: 4; display: none; background: #1b4d2e; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer;">
+        <!-- زر إظهار الشريط الجانبي في حال كان مخفياً (اختياري يظهر ع الشاشة) -->
+        <button id="showSidebarBtn" onclick="toggleSidebar()" style="position: absolute; right: 15px; top: 15px; z-index: 4; display: none; background: #1b4d2e; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer;">
             ▶ إظهار القائمة
         </button>
 
+        <!-- مساحة العرض -->
         <div class="content-area" id="contentArea">
+            
+            <!-- صفحة نموذج تصفية المرشد -->
             <div id="filterPage" class="page-content active">
                 <h2>نموذج تصفية المرشد</h2>
                 <p>هنا يتم عرض نموذج تصفية وإدخال بيانات المرشدين السياحيين والمصاريف.</p>
             </div>
 
+            <!-- صفحة إدارة التصفيات -->
             <div id="managePage" class="page-content">
                 <h2>إدارة التصفيات</h2>
                 <p>هنا يتم إدارة ومراجعة التصفيات المسجلة.</p>
             </div>
 
+            <!-- صفحة الأرشيف -->
             <div id="archivePage" class="page-content">
                 <h2>الأرشيف</h2>
                 <p>هنا يتم عرض الأرشيف والسجلات القديمة.</p>
             </div>
+
         </div>
     </div>
 
+    <!-- نافذة طلب الباسورد للإدارة والأرشيف -->
     <div class="password-modal" id="passwordModal">
         <div class="password-box">
             <h3>يرجى إدخال كلمة المرور</h3>
             <input type="password" id="passInput" placeholder="كلمة المرور">
-            <div id="errorMsg" style="color:red; font-size:12px; display:none; margin-bottom:10px;">كلمة المرور غير صحيحة!</div>
+            <div class="error-msg" id="errorMsg">كلمة المرور غير صحيحة!</div>
+            <br>
             <button onclick="verifyPassword()">دخول</button>
             <button onclick="cancelPassword()" style="background: #ccc; color: #333; margin-right: 5px;">إلغاء</button>
         </div>
@@ -273,8 +318,10 @@ html_code = """
 
     <script>
         let targetPageId = '';
-        const correctPassword = "159753";
+        let targetRadio = null;
+        const correctPassword = "123"; // يمكنك تغيير الباسورد من هنا بسهولة
 
+        // دالة إخفاء وإظهار الشريط الجانبي
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const contentArea = document.getElementById('contentArea');
@@ -290,9 +337,13 @@ html_code = """
             }
         }
 
+        // التنقل بين الصفحات مع التحقق من الباسورد للصفحات المحمية
         function switchPage(pageId, requiresPassword) {
+            const radios = document.querySelectorAll('input[name="pageNav"]');
+            
             if (requiresPassword) {
                 targetPageId = pageId;
+                // حفظ الراديو الحالي لنفترض لو أخطأ في الباسورد نرجع الراديو لصفحة التصفية
                 document.getElementById('passwordModal').style.display = 'flex';
                 document.getElementById('passInput').value = '';
                 document.getElementById('errorMsg').style.display = 'none';
@@ -303,9 +354,11 @@ html_code = """
         }
 
         function executePageSwitch(pageId) {
+            // إخفاء كل الصفحات
             document.querySelectorAll('.page-content').forEach(page => {
                 page.classList.remove('active');
             });
+            // إظهار الصفحة المطلوبة
             document.getElementById(pageId).classList.add('active');
         }
 
@@ -321,11 +374,18 @@ html_code = """
 
         function cancelPassword() {
             document.getElementById('passwordModal').style.display = 'none';
+            // إعادة تفعيل زر "نموذج تصفية المرشد" إذا ألغى الباسورد
+            const radios = document.querySelectorAll('input[name="pageNav"]');
+            radios[0].checked = true;
             executePageSwitch('filterPage');
         }
+
+        // السماح بالدخول عبر مفتاح Enter
+        document.getElementById('passInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                verifyPassword();
+            }
+        });
     </script>
 </body>
 </html>
-"""
-
-st.components.v1.html(html_code, height=750, scrolling=True)
