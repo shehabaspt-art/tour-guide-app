@@ -181,7 +181,7 @@ if page == "نموذج تصفية المرشد":
             with col_opt3:
                 opt_curr = st.selectbox("عملة الأوبشنال", options=["مصري", "دولار", "يورو"], key=f"opt_curr_{i}")
             with col_opt4:
-                opt_pay = st.selectbox("طريقة الدفع", options=["كاش", "لينك"], key=f"opt_pay_{i}")
+                opt_pay = st.selectbox("طريقة الدفع", options=[None, "كاش", "لينك"], key=f"opt_pay_{i}")
             with col_opt5:
                 cash_h = ""
                 if opt_pay == "كاش":
@@ -230,9 +230,18 @@ if page == "نموذج تصفية المرشد":
 
         if submitted:
             validation_error = False
+            validation_pay_error = False
             for i in range(st.session_state.option_rows_count):
-                p_val = st.session_state.get(f"opt_pay_{i}", "كاش")
+                o_val = st.session_state.get(f"opt_val_{i}", 0.0)
+                p_val = st.session_state.get(f"opt_pay_{i}", None)
                 c_h = st.session_state.get(f"cash_h_{i}", None)
+                
+                # لو فيه قيمة للأوبشنال أو كتب نوع، يبقاشي إلزامي يختار طريقة الدفع
+                o_type = st.session_state.get(f"opt_type_{i}", "")
+                if (o_val > 0 or o_type.strip()) and not p_val:
+                    validation_pay_error = True
+                    break
+                
                 if p_val == "كاش" and not c_h:
                     validation_error = True
                     break
@@ -241,6 +250,8 @@ if page == "نموذج تصفية المرشد":
                 st.error("⚠️ عذراً، يجب اختيار (رقم الحساب) الخاص بك أولاً!")
             elif not file_no.strip():
                 st.error("⚠️ عذراً، لا يمكن إرسال الطلب. يرجى إدخال (رقم الفايل) أولاً بشكل إلزامي!")
+            elif validation_pay_error:
+                st.error("⚠️ عذراً، نظراً لإدخال قيمة أو نوع في أحد الأوبشنالز، يجب اختيار (طريقة الدفع) [كاش / لينك] بشكل إلزامي!")
             elif validation_error:
                 st.error("⚠️ عذراً، نظراً لاختيار طريقة الدفع (كاش) في أحد الأوبشنالز، يجب اختيار (المبلغ) [مع المرشد / مع السواق] بشكل إلزامي لكل أوبشنال كاش!")
             elif shop_images and not selected_shops and not other_shops.strip():
@@ -279,12 +290,13 @@ if page == "نموذج تصفية المرشد":
                     o_type = st.session_state.get(f"opt_type_{i}", "")
                     o_val = st.session_state.get(f"opt_val_{i}", 0.0)
                     o_curr = st.session_state.get(f"opt_curr_{i}", "مصري")
-                    o_pay = st.session_state.get(f"opt_pay_{i}", "كاش")
+                    o_pay = st.session_state.get(f"opt_pay_{i}", None)
                     o_holder = st.session_state.get(f"cash_h_{i}", "")
                     
                     if o_type.strip() or o_val > 0:
                         option_types_list.append(o_type)
-                        detail_str = f"{o_val} {o_curr} ({o_pay})"
+                        pay_str = f"({o_pay})" if o_pay else ""
+                        detail_str = f"{o_val} {o_curr} {pay_str}".strip()
                         if o_pay == "كاش" and o_holder:
                             detail_str += f" - [{o_holder}]"
                         if o_type:
