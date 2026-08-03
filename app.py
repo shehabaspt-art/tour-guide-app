@@ -5,7 +5,17 @@ import time
 import pandas as pd
 import streamlit as st
 
-st.set_page_config(page_title="Sun Pyramids Tours", page_icon="🧭", layout="wide")
+# ضبط إعدادات الصفحة ووضع القائمة الجانبية لتكون قابلة للتحكم
+sidebar_state = "expanded"
+if "sidebar_collapsed" in st.session_state and st.session_state.sidebar_collapsed:
+    sidebar_state = "collapsed"
+
+st.set_page_config(
+    page_title="Sun Pyramids Tours",
+    page_icon="🧭",
+    layout="wide",
+    initial_sidebar_state=sidebar_state,
+)
 
 UPLOAD_DIR = "uploads"
 if not os.path.exists(UPLOAD_DIR):
@@ -240,7 +250,7 @@ SHOPS_LIST = [
     "لازوريت",
 ]
 
-# تصميم القائمة الجانبية مع زرار السهم الأنيق لإخفاء وإظهار القائمة وتوسيع الشاشة
+# تصميم القائمة الجانبية مع زرار السهم الأنيق لإخفاء وإظهار القائمة تماماً
 col_title, col_btn = st.sidebar.columns([3, 1])
 with col_title:
     st.markdown(
@@ -248,25 +258,23 @@ with col_title:
         unsafe_allow_html=True,
     )
 with col_btn:
-    arrow_symbol = "◀️" if not st.session_state.sidebar_collapsed else "▶️"
+    # استخدام السهم المطلوب (‹ للإخفاء و › للإظهار)
+    arrow_symbol = "‹" if not st.session_state.sidebar_collapsed else "›"
     if st.button(arrow_symbol, key="toggle_sidebar_content"):
         st.session_state.sidebar_collapsed = (
             not st.session_state.sidebar_collapsed
         )
         st.rerun()
 
-if not st.session_state.sidebar_collapsed:
-    st.sidebar.markdown(
-        "<p style='font-weight: 800; color: #1b5e20; font-size: 1rem; margin-top: 5px; margin-bottom: 10px;'>اختر الصفحة</p>",
-        unsafe_allow_html=True,
-    )
-    page = st.sidebar.radio(
-        "اختر الصفحة",
-        ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف"],
-        label_visibility="collapsed",
-    )
-else:
-    page = "نموذج تصفية المرشد"  # الصفحة الافتراضية في حال تم تصغير/إخفاء القائمة
+st.sidebar.markdown(
+    "<p style='font-weight: 800; color: #1b5e20; font-size: 1rem; margin-top: 5px; margin-bottom: 10px;'>اختر الصفحة</p>",
+    unsafe_allow_html=True,
+)
+page = st.sidebar.radio(
+    "اختر الصفحة",
+    ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف"],
+    label_visibility="collapsed",
+)
 
 if page == "نموذج تصفية المرشد":
     st.title("🧭 نموذج تصفية المرشدين")
