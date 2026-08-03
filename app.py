@@ -123,41 +123,44 @@ if new_order_arrived:
         unsafe_allow_html=True,
     )
 
+# حساب مكان الزرار بناءً على حالة القائمة عشان يبقوا ملزوقين في بعض صح من بره
+sidebar_left_pos = "315px" if st.session_state.sidebar_state == "expanded" else "15px"
+
 st.markdown(
-    """
+    f"""
     <style>
-    div.stFormSubmitButton > button, div.stButton > button {
+    div.stFormSubmitButton > button, div.stButton > button {{
         border-radius: 8px !important;
         background-color: #28a745 !important;
         color: white !important;
         border: none !important;
-    }
-    div.stFormSubmitButton > button:hover, div.stButton > button:hover {
+    }}
+    div.stFormSubmitButton > button:hover, div.stButton > button:hover {{
         background-color: #218838 !important;
         color: white !important;
-    }
-    [data-testid="stSidebar"] {
+    }}
+    [data-testid="stSidebar"] {{
         background-color: #d8ebd8;
         border-left: 2px solid #c2e0c2;
-    }
-    [data-testid="stSidebar"] .stRadio > label {
+    }}
+    [data-testid="stSidebar"] .stRadio > label {{
         display: none !important;
-    }
-    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label {
+    }}
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label {{
         background-color: #ffffff !important;
         padding: 10px 14px !important;
         border-radius: 10px !important;
         border: 1px solid #a3d9a3 !important;
         margin-bottom: 8px !important;
-    }
-    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label p {
+    }}
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label p {{
         font-weight: 700 !important;
         color: #1b5e20 !important;
         font-size: 0.95rem !important;
         margin: 0 !important;
-    }
+    }}
     
-    .sticky-header {
+    .sticky-header {{
         position: fixed;
         top: 0;
         left: 0;
@@ -170,18 +173,40 @@ st.markdown(
         justify-content: space-between;
         align-items: center;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-    .block-container {
+    }}
+    .block-container {{
         padding-top: 5rem !important;
-    }
+    }}
 
-    /* ستايل زرار السهم العائم بره القائمة وجنب الهيدر بتاعها */
-    .floating-toggle-container {
+    /* تصميم زرار السهمين الشيك والبارز بره القائمة تماماً */
+    .floating-toggle-container {{
         position: fixed;
-        top: 12px;
-        left: 280px; /* مكان ثابت بجانب القائمة الجانبية */
+        top: 85px;
+        left: {sidebar_left_pos};
         z-index: 9999999;
-    }
+        transition: left 0.3s ease-in-out;
+    }}
+    .floating-toggle-container button {{
+        background-color: #ffffff !important;
+        color: #1b5e20 !important;
+        border: 2px solid #28a745 !important;
+        border-radius: 50% !important;
+        width: 42px !important;
+        height: 42px !important;
+        font-size: 1.3rem !important;
+        font-weight: bold !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.12) !important;
+        cursor: pointer !important;
+        padding: 0 !important;
+    }}
+    .floating-toggle-container button:hover {{
+        background-color: #28a745 !important;
+        color: #ffffff !important;
+        border-color: #1b5e20 !important;
+    }}
     </style>
 """,
     unsafe_allow_html=True,
@@ -270,9 +295,9 @@ with st.sidebar:
         label_visibility="collapsed",
     )
 
-# زرار السهم العائم بره القائمة الجانبية تماماً للتحكم في فتحها وإغلاقها
+# زرار السهمين العائم بره القائمة تماماً وبأشكال سهمين مزدوجين (« / »)
 st.markdown('<div class="floating-toggle-container">', unsafe_allow_html=True)
-arrow_label = "‹" if st.session_state.sidebar_state == "expanded" else "›"
+arrow_label = "«" if st.session_state.sidebar_state == "expanded" else "»"
 if st.button(arrow_label, key="toggle_sidebar_btn"):
     if st.session_state.sidebar_state == "expanded":
         st.session_state.sidebar_state = "collapsed"
@@ -800,7 +825,7 @@ elif page == "إدارة التصفيات":
                             st.rerun()
                     else:
                         st.warning(
-                            f"⚠️ تأكيد تعديل حساب المرشد (**{g_to_edit}**) إلى: **{n_acc}**"
+                            f"⚠️ تأكيد حساب المرشد (**{g_to_edit}**) إلى: **{n_acc}**"
                         )
                         ec1, ec2 = st.columns(2)
                         with ec1:
