@@ -1011,12 +1011,20 @@ elif page == "الأرشيف":
                 st.markdown(f"**عدد الطلبات في الأرشيف:** {len(archive_df)}")
                 st.markdown("---")
 
-                search_file_no = st.text_input("بحث برقم الفايل في الأرشيف")
+                # استخراج أسماء المرشدين الموجودين في الأرشيف فقط
+                archive_guides = archive_df["Guide Name"].dropna().unique().tolist()
+                archive_guide_options = ["الكل (جميع المرشدين)"] + archive_guides
+
+                selected_archive_guide = st.selectbox(
+                    "بحث وتصفية الأرشيف باسم المرشد",
+                    options=archive_guide_options
+                )
                 
-                if search_file_no.strip():
+                if selected_archive_guide != "الكل (جميع المرشدين)":
                     display_archive_df = archive_df[
-                        archive_df["File No"].astype(str).str.contains(search_file_no.strip(), na=False)
+                        archive_df["Guide Name"] == selected_archive_guide
                     ]
+                    st.info(f"عرض أرشيف المرشد: **{selected_archive_guide}** (عدد الطلبات: {len(display_archive_df)})")
                 else:
                     display_archive_df = archive_df
 
@@ -1073,7 +1081,7 @@ elif page == "الأرشيف":
 
                         st.markdown("---")
                 else:
-                    st.info("لا توجد نتائج مطابقة برقم الفايل المدخل.")
+                    st.info("لا توجد طلبات مسجلة لهذا المرشد في الأرشيف.")
             else:
                 st.info("الأرشيف فارغ حالياً. لا توجد تصفيات تم أرشفتها بعد.")
     else:
