@@ -185,18 +185,6 @@ st.markdown(
     f"""
     <div class="sticky-header">
         <div style="display: flex; align-items: center; gap: 12px;">
-            <button onclick="
-                var btn = parent.document.querySelector('[data-testid=\\'collapsedControl\\']') || document.querySelector('[data-testid=\\'collapsedControl\\']');
-                if(btn) {{ btn.click(); }}
-                else {{
-                    var toggleIcons = window.parent.document.getElementsByTagName('button');
-                    for (let b of toggleIcons) {{
-                        if (b.getAttribute('aria-label') && b.getAttribute('aria-label').toLowerCase().includes('sidebar')) {{ b.click(); break; }}
-                    }}
-                }}
-            " style="background-color: #1b5e20; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 5px;">
-                ☰ القائمة
-            </button>
             {logo_html}
         </div>
         <div style="display: flex; align-items: center; gap: 20px;">
