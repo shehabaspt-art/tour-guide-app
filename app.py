@@ -52,11 +52,12 @@ def overwrite_data(file_path, df):
 current_logo_path = get_current_logo()
 if current_logo_path:
     try:
-        st.logo(current_logo_path)
+        # تكبير اللوجو باستخدام size="large"
+        st.logo(current_logo_path, size="large")
     except:
         pass
 
-# تنسيق CSS لضبط السايدبار فقط ليبدأ من تحت اللوجو مباشرة بدون الهيدر العائم
+# تنسيق CSS لضبط السايدبار وتحكم أكبر في حجم اللوجو وإزالة الهوامش
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -77,6 +78,13 @@ st.markdown("""
     }
     [data-testid="stSidebar"] > div:first-child {
         padding-top: 0rem !important;
+    }
+    
+    /* تكبير صورة اللوجو داخل السايدبار إذا تم عرضها كـ img */
+    [data-testid="stSidebar"] img {
+        max-width: 100% !important;
+        width: 220px !important;
+        height: auto !important;
     }
 
     [data-testid="stSidebar"] .stRadio > label {
