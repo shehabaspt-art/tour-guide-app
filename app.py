@@ -1,383 +1,271 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sun Pyramids Tours - تصفية المرشدين</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Arial', sans-serif;
-        }
+import streamlit as st
 
-        body {
-            background-color: #f4f7f6;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
+# ضبط إعدادات الصفحة لتكون عريضة
+st.set_page_config(layout="wide", page_title="Sun Pyramids Tours - تصفية المرشدين")
 
-        /* الهيدر العلوي */
-        header {
-            background-color: #ffffff;
-            border-bottom: 2px solid #e0e0e0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 20px;
-            height: 70px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            z-index: 10;
-        }
+# حقن كود الـ CSS والتصميم داخل Streamlit
+st.markdown("""
+<style>
+    /* إخفاء عناصر ستريملايت الافتراضية لعمل واجهة مخصصة بالكامل */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    .stApp { background-color: #f4f7f6; }
 
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Arial', sans-serif;
+    }
 
-        .logo-container img {
-            height: 50px;
-        }
+    /* الهيدر العلوي */
+    .custom-header {
+        background-color: #ffffff;
+        border-bottom: 2px solid #e0e0e0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 20px;
+        height: 70px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        width: 100%;
+        position: fixed;
+        top: 0;
+        right: 0;
+        z-index: 100;
+    }
 
-        /* المحتوى الرئيسي */
-        .main-container {
-            display: flex;
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-        }
+    .logo-container img {
+        height: 45px;
+    }
 
-        /* الشريط الجانبي */
-        sidebar {
-            width: 280px;
-            background-color: #e8f0eb;
-            border-left: 1px solid #d0ded3;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            transition: transform 0.3s ease;
-            position: absolute;
-            height: 100%;
-            right: 0;
-            z-index: 5;
-            box-shadow: -2px 0 5px rgba(0,0,0,0.05);
-        }
+    /* المحتوى الرئيسي */
+    .main-container {
+        display: flex;
+        position: relative;
+        margin-top: 70px;
+        height: calc(100vh - 70px);
+        overflow: hidden;
+    }
 
-        sidebar.hidden {
-            transform: translateX(100%);
-        }
+    /* الشريط الجانبي */
+    .custom-sidebar {
+        width: 280px;
+        background-color: #e8f0eb;
+        border-left: 1px solid #d0ded3;
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+        transition: transform 0.3s ease;
+        position: absolute;
+        height: 100%;
+        right: 0;
+        z-index: 50;
+        box-shadow: -2px 0 5px rgba(0,0,0,0.05);
+    }
 
-        .sidebar-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #ffffff;
-            padding: 10px 15px;
-            border-radius: 8px;
-            border: 1px solid #c8dcd0;
-            margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
+    .custom-sidebar.hidden {
+        transform: translateX(100%);
+    }
 
-        .sidebar-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: bold;
-            color: #1b4d2e;
-        }
+    .sidebar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #ffffff;
+        padding: 10px 15px;
+        border-radius: 8px;
+        border: 1px solid #c8dcd0;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
 
-        /* زر السهم لإخفاء/إظهار الشريط */
-        .toggle-btn {
-            background-color: #1b4d2e;
-            color: white;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
-        }
+    .sidebar-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: bold;
+        color: #1b4d2e;
+    }
 
-        .toggle-btn:hover {
-            background-color: #12351f;
-        }
+    /* زر السهم لإخفاء الشريط */
+    .toggle-btn {
+        background-color: #1b4d2e;
+        color: white;
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+    }
 
-        .nav-section-title {
-            font-size: 14px;
-            color: #1b4d2e;
-            margin-bottom: 12px;
-            font-weight: bold;
-        }
+    .toggle-btn:hover {
+        background-color: #12351f;
+    }
 
-        .nav-item {
-            background: #ffffff;
-            border: 1px solid #c8dcd0;
-            padding: 12px 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.2s;
-            font-weight: 500;
-            color: #1b4d2e;
-        }
+    .nav-section-title {
+        font-size: 14px;
+        color: #1b4d2e;
+        margin-bottom: 12px;
+        font-weight: bold;
+    }
 
-        .nav-item:hover {
-            background-color: #f0f7f2;
-            border-color: #1b4d2e;
-        }
+    /* مساحة العرض الرئيسية */
+    .content-area {
+        flex: 1;
+        padding: 30px;
+        overflow-y: auto;
+        margin-right: 280px;
+        transition: margin-right 0.3s ease;
+        background-color: #f4f7f6;
+        height: 100%;
+    }
 
-        .nav-item input[type="radio"] {
-            accent-color: #1b4d2e;
-        }
+    .content-area.expanded {
+        margin-right: 0;
+    }
 
-        /* مساحة العرض الرئيسية */
-        .content-area {
-            flex: 1;
-            padding: 30px;
-            overflow-y: auto;
-            margin-right: 280px; /* نفس عرض الشريط الجانبي */
-            transition: margin-right 0.3s ease;
-        }
+    .page-box {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        min-height: 400px;
+    }
 
-        .content-area.expanded {
-            margin-right: 0;
-        }
+    h2 {
+        color: #1b4d2e;
+        margin-bottom: 20px;
+    }
+</style>
+""", unsafe_allow_html=True)
 
-        .page-content {
-            display: none;
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            min-height: 400px;
-        }
+# إدارة حالة التطبيق (الصفحة الحالية، حالة الشريط الجانبي، وحالة تسجيل الدخول)
+if 'current_page' not in st.session_state:
+    st.session_state.current_page = 'filter'
+if 'sidebar_hidden' not in st.session_state:
+    st.session_state.sidebar_hidden = False
+if 'authenticated_page' not in st.session_state:
+    st.session_state.authenticated_page = None
 
-        .page-content.active {
-            display: block;
-        }
+# معالجة الضغط على أزرار JavaScript المحاكاة عبر Streamlit Query Params أو الأزرار
+query_params = st.query_params
+if "action" in query_params:
+    action = query_params["action"]
+    if action == "toggle_sidebar":
+        st.session_state.sidebar_hidden = not st.session_state.sidebar_hidden
+        st.query_params.clear()
+        st.rerun()
+    elif action == "navigate":
+        page = query_params.get("page", "filter")
+        if page in ["manage", "archive"]:
+            if st.session_state.authenticated_page == page:
+                st.session_state.current_page = page
+            else:
+                st.session_state.pending_page = page
+        else:
+            st.session_state.current_page = page
+            st.session_state.authenticated_page = None
+        st.query_params.clear()
+        st.rerun()
 
-        h2 {
-            color: #1b4d2e;
-            margin-bottom: 20px;
-        }
-
-        /* نافذة إدخال الباسورد */
-        .password-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
-
-        .password-box {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            text-align: center;
-            width: 320px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .password-box h3 {
-            margin-bottom: 15px;
-            color: #1b4d2e;
-        }
-
-        .password-box input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 16px;
-        }
-
-        .password-box button {
-            background-color: #1b4d2e;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .password-box button:hover {
-            background-color: #12351f;
-        }
-
-        .error-msg {
-            color: red;
-            font-size: 12px;
-            margin-top: -10px;
-            margin-bottom: 10px;
-            display: none;
-        }
-    </style>
-</head>
-<body>
-
-    <!-- الهيدر العلوي (بدون كلمة القائمة) -->
-    <header>
+# الهيدر العلوي (بدون كلمة القائمة)
+st.markdown("""
+    <div class="custom-header">
         <div class="logo-container">
-            <img src="https://via.placeholder.com/150x50?text=Sun+Pyramids" alt="Sun Pyramids Tours">
+            <img src="https://via.placeholder.com/150x45?text=Sun+Pyramids+Tours" alt="Sun Pyramids Tours">
         </div>
-    </header>
+    </div>
+""", unsafe_allow_html=True)
 
-    <!-- المحتوى الرئيسي -->
-    <div class="main-container">
-        
-        <!-- الشريط الجانبي -->
-        <sidebar id="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-title">
-                    <span>🧭</span> القائمة الرئيسية
-                </div>
-                <!-- زر السهم لإخفاء الشريط -->
-                <button class="toggle-btn" onclick="toggleSidebar()" title="إخفاء القائمة">◀</button>
+# تحديد كلاسات الإخفاء
+sidebar_class = "custom-sidebar hidden" if st.session_state.sidebar_hidden else "custom-sidebar"
+content_class = "content-area expanded" if st.session_state.sidebar_hidden else "content-area"
+
+# زر إظهار الشريط الجانبي إذا كان مخفياً
+if st.session_state.sidebar_hidden:
+    if st.button("▶ إظهار القائمة", key="show_sidebar_top"):
+        st.session_state.sidebar_hidden = False
+        st.rerun()
+
+# هيكل الشريط الجانبي وصفحات التنقل
+sidebar_html = f"""
+    <div class="{sidebar_class}" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">
+                <span>🧭</span> القائمة الرئيسية
             </div>
+            <button class="toggle-btn" onclick="window.location.href='?action=toggle_sidebar'" title="إخفاء القائمة">◀</button>
+        </div>
 
-            <div class="nav-section-title">اختر الصفحة</div>
+        <div class="nav-section-title">اختر الصفحة</div>
+        
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <button onclick="window.location.href='?action=navigate&page=filter'" style="padding: 12px; text-align: right; background: {'#f0f7f2' if st.session_state.current_page == 'filter' else 'white'}; border: 1px solid {'#1b4d2e' if st.session_state.current_page == 'filter' else '#c8dcd0'}; border-radius: 8px; cursor: pointer; font-weight: bold; color: #1b4d2e;">
+                ⚪ نموذج تصفية المرشد
+            </button>
+            <button onclick="window.location.href='?action=navigate&page=manage'" style="padding: 12px; text-align: right; background: {'#f0f7f2' if st.session_state.current_page == 'manage' else 'white'}; border: 1px solid {'#1b4d2e' if st.session_state.current_page == 'manage' else '#c8dcd0'}; border-radius: 8px; cursor: pointer; font-weight: bold; color: #1b4d2e;">
+                🔒 إدارة التصفيات
+            </button>
+            <button onclick="window.location.href='?action=navigate&page=archive'" style="padding: 12px; text-align: right; background: {'#f0f7f2' if st.session_state.current_page == 'archive' else 'white'}; border: 1px solid {'#1b4d2e' if st.session_state.current_page == 'archive' else '#c8dcd0'}; border-radius: 8px; cursor: pointer; font-weight: bold; color: #1b4d2e;">
+                🔒 الأرشيف
+            </button>
+        </div>
+    </div>
+"""
+st.markdown(sidebar_html, unsafe_allow_html=True)
 
-            <label class="nav-item">
-                <input type="radio" name="pageNav" checked onclick="switchPage('filterPage', false)">
-                <span>نموذج تصفية المرشد</span>
-            </label>
+# نافذة إدخال كلمة المرور للصفحات المحمية (إدارة التصفيات والأرشيف)
+if 'pending_page' in st.session_state:
+    st.markdown("---")
+    st.warning("⚠️ هذه الصفحة محمية بكلمة المرور (159753)")
+    entered_pass = st.text_input("أدخل كلمة المرور:", type="password", key="pass_box")
+    col_1, col_2 = st.columns(2)
+    with col_1:
+        if st.button("دخول"):
+            if entered_pass == "159753":
+                st.session_state.authenticated_page = st.session_state.pending_page
+                st.session_state.current_page = st.session_state.pending_page
+                del st.session_state.pending_page
+                st.rerun()
+            else:
+                st.error("كلمة المرور غير صحيحة!")
+    with col_2:
+        if st.button("إلغاء"):
+            del st.session_state.pending_page
+            st.rerun()
 
-            <label class="nav-item">
-                <input type="radio" name="pageNav" onclick="switchPage('managePage', true)">
-                <span>إدارة التصفيات</span>
-            </label>
-
-            <label class="nav-item">
-                <input type="radio" name="pageNav" onclick="switchPage('archivePage', true)">
-                <span>الأرشيف</span>
-            </label>
-        </sidebar>
-
-        <!-- زر إظهار الشريط الجانبي في حال كان مخفياً -->
-        <button id="showSidebarBtn" onclick="toggleSidebar()" style="position: absolute; right: 15px; top: 15px; z-index: 4; display: none; background: #1b4d2e; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer;">
-            ▶ إظهار القائمة
-        </button>
-
-        <!-- مساحة العرض -->
-        <div class="content-area" id="contentArea">
-            
-            <!-- صفحة نموذج تصفية المرشد -->
-            <div id="filterPage" class="page-content active">
+else:
+    # عرض محتوى الصفحة الحالية
+    st.markdown(f'<div class="{content_class}">', unsafe_allow_html=True)
+    
+    if st.session_state.current_page == 'filter':
+        st.markdown("""
+            <div class="page-box">
                 <h2>نموذج تصفية المرشد</h2>
                 <p>هنا يتم عرض نموذج تصفية وإدخال بيانات المرشدين السياحيين والمصاريف.</p>
             </div>
-
-            <!-- صفحة إدارة التصفيات -->
-            <div id="managePage" class="page-content">
+        """, unsafe_allow_html=True)
+        
+    elif st.session_state.current_page == 'manage':
+        st.markdown("""
+            <div class="page-box">
                 <h2>إدارة التصفيات</h2>
                 <p>هنا يتم إدارة ومراجعة التصفيات المسجلة.</p>
             </div>
-
-            <!-- صفحة الأرشيف -->
-            <div id="archivePage" class="page-content">
+        """, unsafe_allow_html=True)
+        
+    elif st.session_state.current_page == 'archive':
+        st.markdown("""
+            <div class="page-box">
                 <h2>الأرشيف</h2>
-                <p>هنا يتم عرض الأرشيف والسجلات القديمة.</p>
+                <p>هنا يتم عرض الأرشيف والسجلات القديمة بأمان.</p>
             </div>
-
-        </div>
-    </div>
-
-    <!-- نافذة طلب الباسورد للإدارة والأرشيف -->
-    <div class="password-modal" id="passwordModal">
-        <div class="password-box">
-            <h3>يرجى إدخال كلمة المرور</h3>
-            <input type="password" id="passInput" placeholder="كلمة المرور">
-            <div class="error-msg" id="errorMsg">كلمة المرور غير صحيحة!</div>
-            <br>
-            <button onclick="verifyPassword()">دخول</button>
-            <button onclick="cancelPassword()" style="background: #ccc; color: #333; margin-right: 5px;">إلغاء</button>
-        </div>
-    </div>
-
-    <script>
-        let targetPageId = '';
-        const correctPassword = "159753"; // كلمة المرور الموحدة لإدارة التصفيات والأرشيف
-
-        // دالة إخفاء وإظهار الشريط الجانبي
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const contentArea = document.getElementById('contentArea');
-            const showBtn = document.getElementById('showSidebarBtn');
-
-            sidebar.classList.toggle('hidden');
-            contentArea.classList.toggle('expanded');
-
-            if (sidebar.classList.contains('hidden')) {
-                showBtn.style.display = 'block';
-            } else {
-                showBtn.style.display = 'none';
-            }
-        }
-
-        // التنقل بين الصفحات مع التحقق من الباسورد للصفحات المحمية
-        function switchPage(pageId, requiresPassword) {
-            if (requiresPassword) {
-                targetPageId = pageId;
-                document.getElementById('passwordModal').style.display = 'flex';
-                document.getElementById('passInput').value = '';
-                document.getElementById('errorMsg').style.display = 'none';
-                document.getElementById('passInput').focus();
-            } else {
-                executePageSwitch(pageId);
-            }
-        }
-
-        function executePageSwitch(pageId) {
-            document.querySelectorAll('.page-content').forEach(page => {
-                page.classList.remove('active');
-            });
-            document.getElementById(pageId).classList.add('active');
-        }
-
-        function verifyPassword() {
-            const inputVal = document.getElementById('passInput').value;
-            if (inputVal === correctPassword) {
-                document.getElementById('passwordModal').style.display = 'none';
-                executePageSwitch(targetPageId);
-            } else {
-                document.getElementById('errorMsg').style.display = 'block';
-            }
-        }
-
-        function cancelPassword() {
-            document.getElementById('passwordModal').style.display = 'none';
-            const radios = document.querySelectorAll('input[name="pageNav"]');
-            radios[0].checked = true;
-            executePageSwitch('filterPage');
-        }
-
-        // السماح بالدخول عبر مفتاح Enter
-        document.getElementById('passInput').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                verifyPassword();
-            }
-        });
-    </script>
-</body>
-</html>
+        """, unsafe_allow_html=True)
+        
+    st.markdown('</div>', unsafe_allow_html=True)
