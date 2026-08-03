@@ -168,18 +168,18 @@ if page == "نموذج تصفية المرشد":
             collection_curr = st.selectbox("عملة التحصيل", options=["جنية", "يورو", "دولار"])
 
         st.markdown("---")
-        st.subheader("الأوبشن (Option)")
+        st.subheader("أوبشنال (Optional)")
         
         option_data_list = []
         for i in range(st.session_state.option_rows_count):
-            st.markdown(f"**أوبشن رقم ({i+1})**")
+            st.markdown(f"**أوبشنال رقم ({i+1})**")
             col_opt1, col_opt2, col_opt3, col_opt4, col_opt5 = st.columns(5)
             with col_opt1:
-                opt_type = st.text_input("نوع الاوبشن", key=f"opt_type_{i}")
+                opt_type = st.text_input("نوع الأوبشنال", key=f"opt_type_{i}")
             with col_opt2:
-                opt_val = st.number_input("قيمة الاوبشن", min_value=0.0, step=10.0, key=f"opt_val_{i}")
+                opt_val = st.number_input("قيمة الأوبشنال", min_value=0.0, step=10.0, key=f"opt_val_{i}")
             with col_opt3:
-                opt_curr = st.selectbox("عملة الاوبشن", options=["مصري", "دولار", "يورو"], key=f"opt_curr_{i}")
+                opt_curr = st.selectbox("عملة الأوبشنال", options=["مصري", "دولار", "يورو"], key=f"opt_curr_{i}")
             with col_opt4:
                 opt_pay = st.selectbox("طريقة الدفع", options=["كاش", "لينك"], key=f"opt_pay_{i}")
             with col_opt5:
@@ -195,7 +195,7 @@ if page == "نموذج تصفية المرشد":
             if i < st.session_state.option_rows_count - 1:
                 st.markdown("---")
 
-        add_more_option = st.form_submit_button("➕ إضافة أوبشن آخر")
+        add_more_option = st.form_submit_button("➕ إضافة أوبشنال آخر")
 
         st.markdown("---")
         st.subheader("مصاريف (Expenses)")
@@ -242,7 +242,7 @@ if page == "نموذج تصفية المرشد":
             elif not file_no.strip():
                 st.error("⚠️ عذراً، لا يمكن إرسال الطلب. يرجى إدخال (رقم الفايل) أولاً بشكل إلزامي!")
             elif validation_error:
-                st.error("⚠️ عذراً، نظراً لاختيار طريقة الدفع (كاش) في أحد الأوبشنز، يجب اختيار (المبلغ) [مع المرشد / مع السواق] بشكل إلزامي لكل أوبشن كاش!")
+                st.error("⚠️ عذراً، نظراً لاختيار طريقة الدفع (كاش) في أحد الأوبشنالز، يجب اختيار (المبلغ) [مع المرشد / مع السواق] بشكل إلزامي لكل أوبشنال كاش!")
             elif shop_images and not selected_shops and not other_shops.strip():
                 st.error("⚠️ عذراً، نظراً لرفع صور فواتير المحلات، يجب اختيار (اسم المحل) من القائمة أو كتابته في (محلات أخري) بشكل إلزامي!")
             else:
@@ -367,7 +367,7 @@ elif page == "إدارة التصفيات":
                 st.markdown("---")
                 st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
                 st.write(f"**التحصيل (Collection):** {req_row.get('Collection', 0)}")
-                st.write(f"**الأوبشن (Option):** {req_row.get('Option', '')}")
+                st.write(f"**الأوبشنال (Optional):** {req_row.get('Option', '')}")
                 st.write(f"**التذاكر (Tickets):** {req_row.get('Tickets', '')}")
                 st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
                 st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
@@ -636,7 +636,7 @@ elif page == "الأرشيف":
                 st.markdown("---")
                 st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
                 st.write(f"**التحصيل (Collection):** {req_row.get('Collection', 0)}")
-                st.write(f"**الأوبشن (Option):** {req_row.get('Option', '')}")
+                st.write(f"**الأوبشنال (Optional):** {req_row.get('Option', '')}")
                 st.write(f"**التذاكر (Tickets):** {req_row.get('Tickets', '')}")
                 st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
                 st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
@@ -673,7 +673,6 @@ elif page == "الأرشيف":
                 )
 
                 if selected_shop_filter != "الكل (جميع المحلات)":
-                    # فلترة الصفوف التي تحتوي على اسم المحل في Shop Names أو Other Shops
                     matched_arch_df = archive_df[
                         archive_df['Shop Names'].astype(str).str.contains(selected_shop_filter, na=False) | 
                         archive_df['Other Shops'].astype(str).str.contains(selected_shop_filter, na=False)
@@ -692,9 +691,8 @@ elif page == "الأرشيف":
                                     st.write(f"**محلات أخري:** {row.get('Other Shops', '')}")
                             with col_info2:
                                 st.write(f"**التحصيل / القيمة:** {row.get('Collection', '0')}")
-                                st.write(f"**الأوبشن:** {row.get('Option', 'لا يوجد')}")
+                                st.write(f"**الأوبشنال:** {row.get('Option', 'لا يوجد')}")
                             
-                            # عرض صور فواتير المحلات الخاصة بهذا الطلب
                             s_paths = row.get('Shop Images', '')
                             if pd.notna(s_paths) and str(s_paths).strip() != "":
                                 st.markdown("**📷 فواتير المحلات المرفوعة:**")
