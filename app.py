@@ -116,8 +116,8 @@ if new_order_arrived:
         unsafe_allow_html=True,
     )
 
-if "sidebar_state" not in st.session_state:
-    st.session_state.sidebar_state = "expanded"
+if "sidebar_collapsed" not in st.session_state:
+    st.session_state.sidebar_collapsed = False
 
 st.markdown(
     """
@@ -240,19 +240,33 @@ SHOPS_LIST = [
     "لازوريت",
 ]
 
-st.sidebar.markdown(
-    "<h2 style='color: #1b5e20; margin-bottom: 5px; font-size: 1.3rem;'>🧭 القائمة الرئيسية</h2>",
-    unsafe_allow_html=True,
-)
-st.sidebar.markdown(
-    "<p style='font-weight: 800; color: #1b5e20; font-size: 1rem; margin-top: 5px; margin-bottom: 10px;'>اختر الصفحة</p>",
-    unsafe_allow_html=True,
-)
-page = st.sidebar.radio(
-    "اختر الصفحة",
-    ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف"],
-    label_visibility="collapsed",
-)
+# تصميم القائمة الجانبية مع زرار إخفاء/إظهار أنيق بجانب العنوان
+col_title, col_btn = st.sidebar.columns([3, 1])
+with col_title:
+    st.markdown(
+        "<h2 style='color: #1b5e20; margin-bottom: 5px; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>",
+        unsafe_allow_html=True,
+    )
+with col_btn:
+    toggle_label = "➖" if not st.session_state.sidebar_collapsed else "➕"
+    if st.button(toggle_label, key="toggle_sidebar_content"):
+        st.session_state.sidebar_collapsed = (
+            not st.session_state.sidebar_collapsed
+        )
+        st.rerun()
+
+if not st.session_state.sidebar_collapsed:
+    st.sidebar.markdown(
+        "<p style='font-weight: 800; color: #1b5e20; font-size: 1rem; margin-top: 5px; margin-bottom: 10px;'>اختر الصفحة</p>",
+        unsafe_allow_html=True,
+    )
+    page = st.sidebar.radio(
+        "اختر الصفحة",
+        ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف"],
+        label_visibility="collapsed",
+    )
+else:
+    page = "نموذج تصفية المرشد"  # الصفحة الافتراضية في حال الإخفاء
 
 if page == "نموذج تصفية المرشد":
     st.title("🧭 نموذج تصفية المرشدين")
