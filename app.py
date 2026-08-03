@@ -56,9 +56,16 @@ if current_logo_path:
     except:
         pass
 
-# تنسيق CSS لتعيين لون خلفية السايدبار باللون الأخضر الفاتح تماماً زي الأول
+# تنسيق CSS لتعيين المسافة البيضاء في أول الصفحة (2 سم تقريباً) مع خط فاصل ولون السايدبار الأخضر
 st.markdown("""
     <style>
+    /* مسافة بيضاء في أول الصفحة بمقدار 2 سم يتبعها خط فاصل */
+    .top-spacer {
+        margin-top: 2cm;
+        border-bottom: 2px solid #e0e0e0;
+        margin-bottom: 1.5rem;
+    }
+
     div.stFormSubmitButton > button, div.stButton > button {
         border-radius: 8px !important;
         background-color: #28a745 !important;
@@ -138,6 +145,7 @@ with st.sidebar:
     )
 
 if page == "نموذج تصفية المرشد":
+    st.markdown('<div class="top-spacer"></div>', unsafe_allow_html=True)
     st.title("🧭 نموذج تصفية المرشدين")
     st.markdown("---")
 
@@ -317,6 +325,7 @@ if page == "نموذج تصفية المرشد":
                 st.rerun()
 
 elif page == "إدارة التصفيات":
+    st.markdown('<div class="top-spacer"></div>', unsafe_allow_html=True)
     st.title("📊 إدارة التصفيات")
     st.markdown("---")
 
@@ -596,6 +605,7 @@ elif page == "إدارة التصفيات":
             st.error("❌ كلمة المرور غير صحيحة!")
 
 elif page == "الأرشيف":
+    st.markdown('<div class="top-spacer"></div>', unsafe_allow_html=True)
     st.title("📁 أرشيف التصفيات المنتهية")
     st.markdown("---")
 
