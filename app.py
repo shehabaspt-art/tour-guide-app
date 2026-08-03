@@ -123,11 +123,6 @@ if new_order_arrived:
 st.markdown(
     """
     <style>
-    /* مساحة فارغة في أول الصفحة بحوالي 2 سم */
-    .block-container {
-        padding-top: 2rem !important;
-    }
-
     div.stFormSubmitButton > button, div.stButton > button {
         border-radius: 8px !important;
         background-color: #28a745 !important;
@@ -142,6 +137,19 @@ st.markdown(
         background-color: #d8ebd8;
         border-left: 2px solid #c2e0c2;
     }
+    
+    /* ضبط زر القائمة الافتراضي في الـ Streamlit ليكون فوق الهيدر وواضح تماماً للموبايل بدون إضافات خارجية */
+    [data-testid="collapsedControl"] {
+        display: block !important;
+        z-index: 99999999 !important;
+        position: fixed !important;
+        top: 12px !important;
+        left: 15px !important;
+        background-color: #ffffff !important;
+        border-radius: 50% !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.15) !important;
+    }
+
     [data-testid="stSidebar"] .stRadio > label {
         display: none !important;
     }
@@ -159,17 +167,22 @@ st.markdown(
         margin: 0 !important;
     }
 
-    /* هيدر طبيعي مع مساحة مريحة وزر قائمة شغال تماماً */
-    .normal-header {
+    .sticky-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
         background-color: #f8f9fa;
-        padding: 10px 20px;
-        border-radius: 10px;
-        border: 1px solid #e0e0e0;
+        z-index: 999999;
+        padding: 8px 20px;
+        border-bottom: 1px solid #e0e0e0;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .block-container {
+        padding-top: 5rem !important;
     }
     </style>
 """,
@@ -177,14 +190,14 @@ st.markdown(
 )
 
 logo_html = (
-    f'<img src="{logo_base64}" style="height: 40px; width: auto; max-width: 180px; object-fit: contain; filter: contrast(1.15) saturate(1.1);" />'
+    f'<img src="{logo_base64}" style="height: 42px; width: auto; max-width: 180px; object-fit: contain; filter: contrast(1.15) saturate(1.1);" />'
     if logo_base64
     else '<span style="font-weight: bold; color: #1b5e20; font-size: 1.1rem;">Sun Pyramids</span>'
 )
 
 st.markdown(
     f"""
-    <div class="normal-header">
+    <div class="sticky-header">
         <div style="display: flex; align-items: center; gap: 15px;">
             {logo_html}
         </div>
