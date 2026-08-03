@@ -56,7 +56,7 @@ if current_logo_path:
     except:
         pass
 
-# تنسيق CSS لترك مسافة حوالي 2 سم فوق اللوجو والسايدبار
+# تنسيق CSS لتعيين المسافة العلوية باللون الأبيض تماماً
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -70,13 +70,14 @@ st.markdown("""
         color: white !important;
     }
     
-    /* ضبط السايدبار وإضافة مسافة من الأعلى تقارب 2 سم (2rem) قبل اللوجو */
+    /* ضبط السايدبار وإعطاء المسافة العلوية لون أبيض */
     [data-testid="stSidebar"] {
         background-color: #d8ebd8 !important;
         border-left: 2px solid #c2e0c2 !important;
     }
     [data-testid="stSidebar"] > div:first-child {
         padding-top: 2rem !important;
+        background-color: #ffffff !important;
     }
     
     /* تكبير وتوسيط صورة اللوجو داخل السايدبار */
