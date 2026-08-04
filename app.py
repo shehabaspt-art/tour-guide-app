@@ -177,7 +177,7 @@ if page == "نموذج تصفية المرشد":
     if "shop_rows_count" not in st.session_state:
         st.session_state.shop_rows_count = 1
 
-    with st.form("guide_form", clear_on_submit=True):
+    with st.form("guide_form", clear_on_submit=False):
         st.subheader("بيانات المرشد")
         
         col_top1, col_top2, col_top3 = st.columns(3)
