@@ -229,7 +229,7 @@ if page == "نموذج تصفية المرشد":
         with col_misc3:
             lunch = st.number_input("غداء", min_value=0.0, step=10.0)
 
-        lunch_image = st.file_uploader("رفع صورة فاتورة الغداء", type=["png", "jpg", "jpeg"], key="lunch_img")
+        lunch_images = st.file_uploader("رفع صور فواتير الغداء", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key="lunch_imgs")
 
         st.markdown("---")
         st.subheader("فواتير ومحلات التسوق")
@@ -284,16 +284,18 @@ if page == "نموذج تصفية المرشد":
                             f.write(img.getbuffer())
                         work_order_paths.append(wo_path)
 
-                lunch_path = ""
-                if lunch_image is not None:
-                    lunch_path = os.path.join(UPLOAD_DIR, f"{time.time()}_{lunch_image.name}")
-                    with open(lunch_path, "wb") as f:
-                        f.write(lunch_image.getbuffer())
+                lunch_paths = []
+                if lunch_images:
+                    for img in lunch_images:
+                        l_path = os.path.join(UPLOAD_DIR, f"lunch_{time.time()}_{img.name}")
+                        with open(l_path, "wb") as f:
+                            f.write(img.getbuffer())
+                        lunch_paths.append(l_path)
 
                 shop_paths = []
                 if shop_images:
                     for img in shop_images:
-                        s_path = os.path.join(UPLOAD_DIR, f"{time.time()}_{img.name}")
+                        s_path = os.path.join(UPLOAD_DIR, f"shop_{time.time()}_{img.name}")
                         with open(s_path, "wb") as f:
                             f.write(img.getbuffer())
                         shop_paths.append(s_path)
@@ -331,7 +333,7 @@ if page == "نموذج تصفية المرشد":
                     "Tip": tip,
                     "Park": park,
                     "Lunch": lunch,
-                    "Lunch Receipt": lunch_path,
+                    "Lunch Receipt": ",".join(lunch_paths) if lunch_paths else "",
                     "Shop Names": ", ".join(selected_shops),
                     "Other Shops": other_shops,
                     "Shop Images": ",".join(shop_paths) if shop_paths else ""
@@ -399,11 +401,15 @@ elif page == "إدارة التصفيات":
                 st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
                 st.write(f"**غداء (Lunch):** {req_row.get('Lunch', 0)}")
 
-                l_path = req_row.get('Lunch Receipt', '')
-                if pd.notna(l_path) and str(l_path).strip() != "" and os.path.exists(str(l_path)):
-                    st.image(str(l_path), caption="صورة فاتورة الغداء", use_container_width=True)
+                st.markdown("#### صور فواتير الغداء:")
+                l_paths = req_row.get('Lunch Receipt', '')
+                if pd.notna(l_paths) and str(l_paths).strip() != "":
+                    l_list = str(l_paths).split(",")
+                    for idx, p in enumerate(l_list):
+                        if os.path.exists(p):
+                            st.image(p, caption=f"صورة فاتورة الغداء رقم {idx+1}", use_container_width=True)
                 else:
-                    st.info("لا توجد صورة لفاتورة الغداء.")
+                    st.info("لا توجد صور لفواتير الغداء.")
 
                 st.markdown("---")
                 st.write(f"**أسماء المحلات المختارة:** {req_row.get('Shop Names', 'لا يوجد')}")
@@ -668,11 +674,15 @@ elif page == "الأرشيف":
                 st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
                 st.write(f"**غداء (Lunch):** {req_row.get('Lunch', 0)}")
 
-                l_path = req_row.get('Lunch Receipt', '')
-                if pd.notna(l_path) and str(l_path).strip() != "" and os.path.exists(str(l_path)):
-                    st.image(str(l_path), caption="صورة فاتورة الغداء", use_container_width=True)
+                st.markdown("#### صور فواتير الغداء:")
+                l_paths = req_row.get('Lunch Receipt', '')
+                if pd.notna(l_paths) and str(l_paths).strip() != "":
+                    l_list = str(l_paths).split(",")
+                    for idx, p in enumerate(l_list):
+                        if os.path.exists(p):
+                            st.image(p, caption=f"صورة فاتورة الغداء رقم {idx+1}", use_container_width=True)
                 else:
-                    st.info("لا توجد صورة لفاتورة الغداء.")
+                    st.info("لا توجد صور لفواتير الغداء.")
 
                 st.markdown("---")
                 st.write(f"**أسماء المحلات المختارة:** {req_row.get('Shop Names', 'لا يوجد')}")
