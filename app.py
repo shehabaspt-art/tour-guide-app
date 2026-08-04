@@ -49,15 +49,7 @@ def save_to_file(file_path, new_data):
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
 
-# عرض اللوجو فوق السايدبار الأخضر في المساحة البيضاء العلوية واستخدام CSS لتثبيته وتنسيقه
-current_logo_path = get_current_logo()
-if current_logo_path:
-    try:
-        st.logo(current_logo_path, size="large")
-    except:
-        pass
-
-# تنسيق CSS للسايدبار والأزرار باللون الأخضر (فصل السايدبار عن أعلى الصفحة بمسافة 2 سم بلون أبيض ونقل اللوجو للأعلى تماماً)
+# تنسيق CSS للسايدبار وإخراج اللوجو تماماً للمساحة البيضاء العلوية فوق العمود الأخضر
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -71,25 +63,10 @@ st.markdown("""
         color: white !important;
     }
     
-    /* جعل السايدبار منفصلاً عن أعلى الصفحة بمسافة 2 سنتي ولون أبيض في الفراغ العلوي */
+    /* ضبط السايدبار ليترك مساحة علوية بيضاء للوجو */
     [data-testid="stSidebar"] {
         background-color: transparent !important;
         border-left: none !important;
-    }
-    
-    /* رفع حاوية اللوجو الأساسية وتثبيتها فوق السايدبار الأخضر بمسافة مريحة */
-    [data-testid="stSidebarNav"] {
-        margin-top: 0px !important;
-    }
-    [data-testid="stSidebar"] [data-testid="stLogo"] {
-        position: absolute !important;
-        top: -95px !important;
-        left: 20px !important;
-        z-index: 999 !important;
-    }
-    [data-testid="stSidebar"] [data-testid="stLogo"] img {
-        max-width: 170px !important;
-        height: auto !important;
     }
 
     [data-testid="stSidebar"] > div:first-child {
@@ -98,9 +75,22 @@ st.markdown("""
         border-bottom: 2px solid #c2e0c2 !important;
         border-top: 2px solid #c2e0c2 !important;
         border-radius: 0 15px 15px 0 !important;
-        margin-top: 2cm !important;
+        margin-top: 90px !important;
         padding-top: 1rem !important;
-        height: calc(100vh - 2.5cm) !important;
+        height: calc(100vh - 110px) !important;
+    }
+
+    /* سحب صورة اللوجو للأعلى تماماً لتستقر في الجزء الأبيض فوق السايدبار الأخضر */
+    [data-testid="stSidebar"] [data-testid="stImage"] {
+        position: absolute !important;
+        top: -95px !important;
+        left: 20px !important;
+        z-index: 9999 !important;
+        background: transparent !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stImage"] img {
+        max-width: 160px !important;
+        height: auto !important;
     }
 
     [data-testid="stSidebar"] .stRadio > label {
@@ -141,6 +131,11 @@ SHOPS_LIST = [
 ]
 
 with st.sidebar:
+    # عرض اللوجو كصورة داخل السايدبار ليتم التحكم في موقعه ورفعه للمساحة البيضاء فوق العمود
+    current_logo_path = get_current_logo()
+    if current_logo_path:
+        st.image(current_logo_path)
+
     st.markdown("""
         <div style="display: flex; align-items: center; margin-top: 10px; margin-bottom: 5px;">
             <h2 style='color: #1b5e20; margin: 0; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>
