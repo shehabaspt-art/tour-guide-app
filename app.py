@@ -49,7 +49,7 @@ def save_to_file(file_path, new_data):
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
 
-# تنسيق CSS الأصلي بالكامل للمحافظة على الشكل القديم
+# تنسيق CSS الأصلي المضبوط تماماً بدون أي الزامات إضافية تبوظ الشكل
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -70,7 +70,6 @@ st.markdown("""
     
     [data-testid="stSidebar"] > div:first-child {
         background-color: transparent !important;
-        margin-top: 1.5cm !important;
         padding-top: 0rem !important;
     }
 
@@ -146,7 +145,6 @@ with st.sidebar:
         </div>
         """, unsafe_allow_html=True)
     
-    # رجعنا الأسماء زي ما كانت تماماً بدون أي تعديل في نص الزر عشان الشكل ما يتغيرش
     page = st.radio(
         "اختر الصفحة",
         ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف"],
@@ -344,7 +342,6 @@ if page == "نموذج تصفية المرشد":
                 st.rerun()
 
 elif page == "إدارة التصفيات":
-    # عرض عدد الطلبات مباشرة وبوضوح تام بجانب العنوان الرئيسي لتعرف العدد بدون تشتيت شكل القائمة الجانبية
     if pending_count > 0:
         st.title(f"📊 إدارة التصفيات  🔴 [عدد الطلبات الجديدة: {pending_count}]")
     else:
