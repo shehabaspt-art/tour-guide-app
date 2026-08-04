@@ -235,7 +235,6 @@ if page == "نموذج تصفية المرشد":
         shop_data_list = []
         for j in range(st.session_state.shop_rows_count):
             st.markdown(f"**المحل رقم ({j+1})**")
-            # تم دمج خانة رفع الصور بجانب بيانات المحل في نفس الصفوف
             col_s1, col_s2, col_s3, col_s4 = st.columns([2, 1, 1, 2])
             with col_s1:
                 shop_name_choice = st.selectbox("اسم المحل", options=[None] + SHOPS_LIST, key=f"shop_name_{j}")
@@ -255,7 +254,8 @@ if page == "نموذج تصفية المرشد":
         add_more_shop = st.form_submit_button("➕ إضافة محل")
 
         st.markdown("---")
-        other_shops = st.text_input("محلات أخري (اكتبها يدوياً إن وجدت)")
+        st.subheader("محلات أخري (اكتبها يدوياً إن وجدت)")
+        other_shops = st.text_input("أدخل المحلات الأخرى هنا", label_visibility="collapsed")
 
         submitted = st.form_submit_button("إرسال الطلب للمدير", type="primary")
 
