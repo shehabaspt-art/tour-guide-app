@@ -161,17 +161,17 @@ if page == "نموذج تصفية المرشد":
     if "shop_rows_count" not in st.session_state:
         st.session_state.shop_rows_count = 1
 
-    with st.form("guide_form", clear_on_submit=True):
+    with st.form("guide_form", clear_on_submit=False):
         st.subheader("بيانات المرشد")
         
         col_top1, col_top2, col_top3 = st.columns(3)
         with col_top1:
             account_options = [None] + guides_df[acc_column].astype(str).tolist()
-            account_no = st.selectbox("رقم الحساب الخاص بالمرشد", options=account_options, index=0)
+            account_no = st.selectbox("رقم الحساب الخاص بالمرشد", options=account_options, index=0, key="form_account_no")
         with col_top2:
-            file_no = st.text_input("رقم الفايل (File Number) *إلزامي*")
+            file_no = st.text_input("رقم الفايل (File Number) *إلزامي*", key="form_file_no")
         with col_top3:
-            advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0)
+            advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0, key="form_advances")
 
         work_order_image = st.file_uploader("رفع صور أمر الشغل", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key="work_order_imgs")
 
@@ -180,9 +180,9 @@ if page == "نموذج تصفية المرشد":
         
         col_c1, col_c2 = st.columns([2, 1])
         with col_c1:
-            collection_val = st.number_input("قيمة التحصيل", min_value=0.0, step=10.0)
+            collection_val = st.number_input("قيمة التحصيل", min_value=0.0, step=10.0, key="form_collection_val")
         with col_c2:
-            collection_curr = st.selectbox("عملة التحصيل", options=["جنية", "يورو", "دولار"])
+            collection_curr = st.selectbox("عملة التحصيل", options=["جنية", "يورو", "دولار"], key="form_collection_curr")
 
         st.markdown("---")
         st.subheader("أوبشنال (Optional)")
@@ -214,18 +214,18 @@ if page == "نموذج تصفية المرشد":
         st.subheader("مصاريف (Expenses)")
         col_tkt1, col_tkt2 = st.columns(2)
         with col_tkt1:
-            ticket_value = st.number_input("قيمة التذاكر", min_value=0.0, step=10.0, key="tkt_val")
+            ticket_value = st.number_input("قيمة التذاكر", min_value=0.0, step=10.0, key="form_tkt_val")
         with col_tkt2:
-            ticket_type = st.text_input("نوع التذاكر")
+            ticket_type = st.text_input("نوع التذاكر", key="form_tkt_type")
 
         st.markdown("---")
         col_misc1, col_misc2, col_misc3 = st.columns(3)
         with col_misc1:
-            tip = st.number_input("إكرامية", min_value=0.0, step=10.0)
+            tip = st.number_input("إكرامية", min_value=0.0, step=10.0, key="form_tip")
         with col_misc2:
-            park = st.number_input("بارك", min_value=0.0, step=10.0)
+            park = st.number_input("بارك", min_value=0.0, step=10.0, key="form_park")
         with col_misc3:
-            lunch = st.number_input("غداء", min_value=0.0, step=10.0)
+            lunch = st.number_input("غداء", min_value=0.0, step=10.0, key="form_lunch")
 
         lunch_images = st.file_uploader("رفع صور فواتير الغداء", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key="lunch_imgs")
 
