@@ -129,7 +129,7 @@ SHOPS_LIST = [
     "جولدن بيرد", "مملوك", "ريحانة توابل", "كنور توابل", "قصر العطور", "لازوريت"
 ]
 
-# حساب عدد الطلبات الواردة لعرضها بجانب زر إدارة التصفيات
+# حساب عدد الطلبات الواردة
 current_subs_df = load_data(SUBMISSIONS_FILE)
 pending_count = len(current_subs_df)
 
@@ -146,22 +146,14 @@ with st.sidebar:
         </div>
         """, unsafe_allow_html=True)
     
-    # النص المخصص للزر مع الرقم الداخلي
-    if pending_count > 0:
-        mgmt_label = f"إدارة التصفيات 🔴 ({pending_count})"
-    else:
-        mgmt_label = "إدارة التصفيات"
-
+    # رجعنا الأسماء زي ما كانت تماماً بدون أي تعديل في نص الزر عشان الشكل ما يتغيرش
     page = st.radio(
         "اختر الصفحة",
-        ["نموذج تصفية المرشد", mgmt_label, "الأرشيف"],
+        ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف"],
         label_visibility="collapsed"
     )
     
     st.markdown('</div>', unsafe_allow_html=True)
-
-if "إدارة التصفيات" in page:
-    page = "إدارة التصفيات"
 
 if page == "نموذج تصفية المرشد":
     st.title("🧭 نموذج تصفية المرشدين")
@@ -352,7 +344,11 @@ if page == "نموذج تصفية المرشد":
                 st.rerun()
 
 elif page == "إدارة التصفيات":
-    st.title("📊 إدارة التصفيات")
+    # عرض عدد الطلبات مباشرة وبوضوح تام بجانب العنوان الرئيسي لتعرف العدد بدون تشتيت شكل القائمة الجانبية
+    if pending_count > 0:
+        st.title(f"📊 إدارة التصفيات  🔴 [عدد الطلبات الجديدة: {pending_count}]")
+    else:
+        st.title("📊 إدارة التصفيات")
     st.markdown("---")
 
     password = st.text_input("أدخل كلمة المرور لعرض لوحة الإدارة", type="password", key="mgr_pass")
