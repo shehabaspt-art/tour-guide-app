@@ -49,7 +49,7 @@ def save_to_file(file_path, new_data):
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
 
-# تنسيق CSS للسايدبار وإخراج اللوجو تماماً للمساحة البيضاء العلوية فوق العمود الأخضر
+# تنسيق CSS لجعل السايدبار يحتضن اللوجو والعنوان بشكل متناسق ومستريح
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -63,7 +63,6 @@ st.markdown("""
         color: white !important;
     }
     
-    /* ضبط السايدبار ليترك مساحة علوية بيضاء للوجو */
     [data-testid="stSidebar"] {
         background-color: transparent !important;
         border-left: none !important;
@@ -75,22 +74,19 @@ st.markdown("""
         border-bottom: 2px solid #c2e0c2 !important;
         border-top: 2px solid #c2e0c2 !important;
         border-radius: 0 15px 15px 0 !important;
-        margin-top: 90px !important;
-        padding-top: 1rem !important;
-        height: calc(100vh - 110px) !important;
+        padding-top: 1.5rem !important;
     }
 
-    /* سحب صورة اللوجو للأعلى تماماً لتستقر في الجزء الأبيض فوق السايدبار الأخضر */
+    /* تنسيق صورة اللوجو داخل السايدبار لتكون في المنتصف وبحجم مناسب */
     [data-testid="stSidebar"] [data-testid="stImage"] {
-        position: absolute !important;
-        top: -95px !important;
-        left: 20px !important;
-        z-index: 9999 !important;
-        background: transparent !important;
+        text-align: center !important;
+        margin-bottom: 10px !important;
     }
     [data-testid="stSidebar"] [data-testid="stImage"] img {
-        max-width: 160px !important;
+        max-width: 140px !important;
         height: auto !important;
+        display: block !important;
+        margin: 0 auto !important;
     }
 
     [data-testid="stSidebar"] .stRadio > label {
@@ -131,7 +127,7 @@ SHOPS_LIST = [
 ]
 
 with st.sidebar:
-    # عرض اللوجو كصورة داخل السايدبار ليتم التحكم في موقعه ورفعه للمساحة البيضاء فوق العمود
+    # عرض اللوجو كصورة في أعلى القائمة الجانبية داخل الإطار الأخضر
     current_logo_path = get_current_logo()
     if current_logo_path:
         st.image(current_logo_path)
