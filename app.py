@@ -49,7 +49,7 @@ def save_to_file(file_path, new_data):
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
 
-# تنسيق CSS للسايدبار، اللوجو العلوي في الجزء الأبيض، والأزرار
+# تنسيق CSS للسايدبار والصندوق الأخضر والأزرار
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -63,20 +63,19 @@ st.markdown("""
         color: white !important;
     }
     
-    /* إخفاء اللوجو التلقائي القديم إن وجد وتصفير خلفية السايدبار */
+    /* إخفاء خلفية السايدبار الافتراضية وجعلها شفافة */
     [data-testid="stSidebar"] {
         background-color: transparent !important;
         border-left: none !important;
     }
     
-    /* تخصيص حاوية السايدبار الرئيسية بمسافة علوية 2.5 سم */
     [data-testid="stSidebar"] > div:first-child {
         background-color: transparent !important;
         margin-top: 1.5cm !important;
         padding-top: 0rem !important;
     }
 
-    /* الحاوية الخضراء الداخلية التي تحمل محتوى القائمة */
+    /* الصندوق الأخضر الداخلي الشامل للوجو والقائمة */
     [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:has(div.sidebar-content-box) {
         background-color: #d8ebd8 !important;
         border: 2px solid #c2e0c2 !important;
@@ -84,10 +83,10 @@ st.markdown("""
         padding: 20px 10px !important;
     }
 
-    /* تنسيق صورة اللوجو لتكون في الجزء الأبيض العلوي فوق الصندوق الأخضر */
+    /* تنسيق اللوجو داخل الصندوق الأخضر */
     [data-testid="stSidebar"] [data-testid="stImage"] {
         text-align: center !important;
-        margin-bottom: 15px !important;
+        margin-bottom: 10px !important;
     }
     [data-testid="stSidebar"] [data-testid="stImage"] img {
         max-width: 170px !important;
@@ -134,16 +133,15 @@ SHOPS_LIST = [
 ]
 
 with st.sidebar:
-    # عرض اللوجو في الجزء الأبيض العلوي خارج الصندوق الأخضر
+    # بداية الصندوق الأخضر الداخلي الذي يحتوي على اللوجو والقائمة معاً
+    st.markdown('<div class="sidebar-content-box">', unsafe_allow_html=True)
+    
     current_logo_path = get_current_logo()
     if current_logo_path:
         st.image(current_logo_path)
 
-    # بداية الصندوق الأخضر الذي يحتوي على القائمة الرئيسية
-    st.markdown('<div class="sidebar-content-box">', unsafe_allow_html=True)
-    
     st.markdown("""
-        <div style="display: flex; align-items: center; margin-top: 0px; margin-bottom: 10px;">
+        <div style="display: flex; align-items: center; margin-top: 5px; margin-bottom: 10px;">
             <h2 style='color: #1b5e20; margin: 0; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>
         </div>
         """, unsafe_allow_html=True)
