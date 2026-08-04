@@ -56,7 +56,7 @@ if current_logo_path:
     except:
         pass
 
-# تنسيق CSS للسايدبار والأزرار باللون الأخضر (فصل السايدبار عن أعلى الصفحة بمسافة 2 سم بلون أبيض)
+# تنسيق CSS لإزالة الخطوط الطولية وتصميم السايدبار وجرز الإشعار بالعرض فوق القائمة مباشرة
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -70,16 +70,19 @@ st.markdown("""
         color: white !important;
     }
     
-    /* جعل السايدبار منفصلاً عن أعلى الصفحة بمسافة 2 سنتي ولون أبيض في الفراغ العلوي */
+    /* إزالة الخطوط الطولية تماماً من السايدبار */
     [data-testid="stSidebar"] {
         background-color: transparent !important;
+        border-right: none !important;
         border-left: none !important;
     }
     [data-testid="stSidebar"] > div:first-child {
         background-color: #d8ebd8 !important;
-        border-right: 2px solid #c2e0c2 !important;
-        border-bottom: 2px solid #c2e0c2 !important;
-        border-top: 2px solid #c2e0c2 !important;
+        border-right: none !important;
+        border-bottom: none !important;
+        border-top: none !important;
+        border-left: none !important;
+        box-shadow: none !important;
         border-radius: 0 15px 15px 0 !important;
         margin-top: 2cm !important;
         padding-top: 1rem !important;
@@ -130,22 +133,20 @@ SHOPS_LIST = [
     "جولدن بيرد", "مملوك", "ريحانة توابل", "كنور توابل", "قصر العطور", "لازوريت"
 ]
 
-# حساب عدد الطلبات الجديدة في الإشعار العلوي
+# حساب عدد الطلبات الجديدة
 current_subs_df = load_data(SUBMISSIONS_FILE)
 pending_count = len(current_subs_df)
 
-# عرض جرز الإشعار في أعلى الصفحة على اليمين
-col_spacer, col_badge = [st.columns([4, 1])[0], st.columns([4, 1])[1]] if hasattr(st, 'columns') else (None, None)
-with col_badge:
+# وضع جرز الإشعار بالعرض داخل السايدبار مباشرة فوق القائمة الرئيسية
+with st.sidebar:
     st.markdown(f"""
-        <div style="background-color: #d8ebd8; border: 2px solid #28a745; padding: 8px 12px; border-radius: 10px; text-align: center; margin-bottom: 15px;">
+        <div style="background-color: #ffffff; border: 2px solid #28a745; padding: 10px 14px; border-radius: 10px; text-align: center; margin-bottom: 12px;">
             <span style="color: #1b5e20; font-weight: bold; font-size: 0.95rem;">🔔 الطلبات الجديدة: <span style="color: #d9534f; font-size: 1.1rem;">{pending_count}</span></span>
         </div>
     """, unsafe_allow_html=True)
 
-with st.sidebar:
     st.markdown("""
-        <div style="display: flex; align-items: center; margin-top: 10px; margin-bottom: 5px;">
+        <div style="display: flex; align-items: center; margin-top: 5px; margin-bottom: 5px;">
             <h2 style='color: #1b5e20; margin: 0; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>
         </div>
         """, unsafe_allow_html=True)
