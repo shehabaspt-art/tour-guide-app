@@ -973,25 +973,28 @@ elif page == "الأرشيف":
                     st.session_state.viewing_archive_file = None
                     st.rerun()
 
-                st.markdown(f"### 📄 تفاصيل الأرشيف للفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
-                st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
-                st.markdown("---")
+                # هنا تم وضع تفاصيل الفايل وزر النقل في نفس السطر تماماً بجانب بعضهما البعض
+                header_cols = st.columns([3, 1])
+                with header_cols[0]:
+                    st.markdown(f"### 📄 تفاصيل الأرشيف للفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
+                    st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
+                
+                with header_cols[1]:
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    if "transferred_indices" not in st.session_state:
+                        st.session_state.transferred_indices = []
 
-                # زر النقل الذي يتغير إلى "تم" عند الضغط عليه لنقل التصفية إلى سجلات المرشد دون حذفها من الأرشيف
-                if "transferred_indices" not in st.session_state:
-                    st.session_state.transferred_indices = []
+                    is_already_transferred = req_idx in st.session_state.transferred_indices
+                    btn_label = "تم" if is_already_transferred else "نقل"
 
-                is_already_transferred = req_idx in st.session_state.transferred_indices
-                btn_label = "تم" if is_already_transferred else "نقل"
-
-                if st.button(btn_label, key=f"transfer_arch_to_guide_{req_idx}", type="primary"):
-                    if not is_already_transferred:
-                        guide_arch_entry = req_row.to_dict()
-                        save_to_file(GUIDE_ARCHIVE_FILE, guide_arch_entry)
-                        st.session_state.transferred_indices.append(req_idx)
-                        st.success("✅ تم نقل التصفية إلى سجلات المرشد بنجاح (وظلت في الأرشيف)!")
-                        time.sleep(1)
-                        st.rerun()
+                    if st.button(btn_label, key=f"transfer_arch_to_guide_{req_idx}", type="primary"):
+                        if not is_already_transferred:
+                            guide_arch_entry = req_row.to_dict()
+                            save_to_file(GUIDE_ARCHIVE_FILE, guide_arch_entry)
+                            st.session_state.transferred_indices.append(req_idx)
+                            st.success("✅ تم نقل التصفية إلى سجلات المرشد بنجاح (وظلت في الأرشيف)!")
+                            time.sleep(1)
+                            st.rerun()
 
                 st.markdown("---")
 
