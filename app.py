@@ -258,7 +258,7 @@ if page == "نموذج تصفية المرشد":
         
         col_oth1, col_oth2, col_oth3, col_oth4 = st.columns([2, 1, 1, 2])
         with col_oth1:
-            other_shops = st.text_input("اسم المحل")
+            other_shops = st.text_input("اسم المحل", key="other_shops_name")
         with col_oth2:
             other_shops_val = st.number_input("القيمة", min_value=0.0, step=10.0, key="other_shops_val")
         with col_oth3:
