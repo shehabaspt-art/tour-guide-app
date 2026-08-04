@@ -69,9 +69,15 @@ if current_logo_path:
     except:
         pass
 
-# تنسيق CSS للسايدبار والأزرار
+# تنسيق CSS للسايدبار، الأزرار، وإخفاء الشريط العلوي بالكامل
 st.markdown("""
     <style>
+    /* إخفاء الشريط العلوي (Toolbar) بالكامل للحماية */
+    [data-testid="stHeader"] {
+        visibility: hidden;
+        display: none;
+    }
+
     div.stFormSubmitButton > button, div.stButton > button {
         border-radius: 8px !important;
         background-color: #28a745 !important;
@@ -437,7 +443,6 @@ elif page == "سجلات المرشد":
     if "confirming_del_g_arch" not in st.session_state:
         st.session_state.confirming_del_g_arch = None
 
-    # إذا كان المسؤول غير مسجل دخول، اعرض له الـ Expander لإدخال كلمة المرور
     if not st.session_state.admin_guide_archive_view:
         with st.expander("🔒 خاص بالمسؤول (عرض جميع التصفية المنقولة)"):
             admin_pass_input = st.text_input("أدخل كلمة المرور الخاصة بالمسؤول", type="password", key="admin_guide_arch_pass_safe")
@@ -452,7 +457,6 @@ elif page == "سجلات المرشد":
     if st.session_state.admin_guide_archive_view:
         st.markdown("### 📊 لوحة المسؤول: جميع التصفيات المنقولة إلى سجل المرشدين")
         
-        # تم ربط زر الإغلاق بمسح الحالة وإعادة التحميل الفوري
         if st.button("❌ إغلاق لوحة المسؤول والرجوع لوضع المرشدين", type="primary"):
             st.session_state.admin_guide_archive_view = False
             st.session_state.viewing_guide_archive_file = None
