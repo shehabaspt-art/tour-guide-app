@@ -438,232 +438,102 @@ elif page == "سجلات المرشد":
 
     if "viewing_guide_archive_file" not in st.session_state:
         st.session_state.viewing_guide_archive_file = None
-    if "admin_guide_archive_view" not in st.session_state:
-        st.session_state.admin_guide_archive_view = False
-    if "confirming_del_g_arch" not in st.session_state:
-        st.session_state.confirming_del_g_arch = None
 
-    if not st.session_state.admin_guide_archive_view:
-        with st.expander("🔒 خاص بالمسؤول (عرض جميع التصفية المنقولة)"):
-            admin_pass_input = st.text_input("أدخل كلمة المرور الخاصة بالمسؤول", type="password", key="admin_guide_arch_pass_safe")
-            if admin_pass_input == "159753":
-                st.session_state.admin_guide_archive_view = True
-                st.success("✅ تم التحقق من كلمة المرور بنجاح. يتم تحويلك للوحة المسؤول...")
-                time.sleep(0.5)
+    if st.session_state.viewing_guide_archive_file is not None:
+        g_arch_df = load_data(GUIDE_ARCHIVE_FILE)
+        req_idx = st.session_state.viewing_guide_archive_file
+        if req_idx in g_arch_df.index:
+            req_row = g_arch_df.loc[req_idx]
+            
+            if st.button("⬅️ رجوع إلى بحث رقم الحساب"):
+                st.session_state.viewing_guide_archive_file = None
                 st.rerun()
-            elif admin_pass_input != "":
-                st.error("❌ كلمة المرور غير صحيحة!")
 
-    if st.session_state.admin_guide_archive_view:
-        st.markdown("### 📊 لوحة المسؤول: جميع التصفيات المنقولة إلى سجل المرشدين")
-        
-        if st.button("❌ إغلاق لوحة المسؤول والرجوع لوضع المرشدين", type="primary"):
-            st.session_state.admin_guide_archive_view = False
+            st.markdown(f"### 📄 تفاصيل التصفية المؤرشفة للفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
+            st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
+            st.markdown("---")
+
+            st.markdown("#### صور أمر الشغل:")
+            wo_paths = req_row.get('Work Order Images', '')
+            if pd.notna(wo_paths) and str(wo_paths).strip() != "":
+                wo_list = str(wo_paths).split(",")
+                for idx, p in enumerate(wo_list):
+                    if os.path.exists(p):
+                        st.image(p, caption=f"صورة أمر الشغل رقم {idx+1}", use_container_width=True)
+            else:
+                st.info("لا توجد صور لأمر الشغل.")
+
+            st.markdown("---")
+            st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
+            st.write(f"**التحصيل (Collection):** {req_row.get('Collection', 0)}")
+            st.write(f"**الأوبشنال (Optional):** {req_row.get('Option', '')}")
+            st.write(f"**التذاكر (Tickets):** {req_row.get('Tickets', '')}")
+            st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
+            st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
+            st.write(f"**غداء (Lunch):** {req_row.get('Lunch', 0)}")
+
+            st.markdown("#### صور فواتير الغداء:")
+            l_paths = req_row.get('Lunch Receipt', '')
+            if pd.notna(l_paths) and str(l_paths).strip() != "":
+                l_list = str(l_paths).split(",")
+                for idx, p in enumerate(l_list):
+                    if os.path.exists(p):
+                        st.image(p, caption=f"صورة فاتورة الغداء رقم {idx+1}", use_container_width=True)
+            else:
+                st.info("لا توجد صور لفواتير الغداء.")
+
+            st.markdown("---")
+            st.write(f"**تفاصيل المحلات:** {req_row.get('Shops Details', req_row.get('Shop Names', 'لا يوجد'))}")
+            if pd.notna(req_row.get('Other Shops', '')) and str(req_row.get('Other Shops', '')).strip() != "":
+                st.write(f"**محلات خارجية:** {req_row.get('Other Shops', '')}")
+
+            s_paths = req_row.get('Shop Images', '')
+            if pd.notna(s_paths) and str(s_paths).strip() != "":
+                paths_list = str(s_paths).split(",")
+                for idx, p in enumerate(paths_list):
+                    if os.path.exists(p):
+                        st.image(p, caption=f"صورة محلات رقم {idx+1}", use_container_width=True)
+            else:
+                st.info("لا توجد صور لفواتير المحلات.")
+        else:
             st.session_state.viewing_guide_archive_file = None
             st.rerun()
-
-        st.markdown("---")
-
-        if st.session_state.viewing_guide_archive_file is not None:
-            g_arch_df = load_data(GUIDE_ARCHIVE_FILE)
-            req_idx = st.session_state.viewing_guide_archive_file
-            if req_idx in g_arch_df.index:
-                req_row = g_arch_df.loc[req_idx]
-                
-                if st.button("⬅️ رجوع إلى قائمة لوحة المسؤول"):
-                    st.session_state.viewing_guide_archive_file = None
-                    st.rerun()
-
-                st.markdown(f"### 📄 تفاصيل التصفية المنقولة للفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
-                st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
-                st.markdown("---")
-
-                st.markdown("#### صور أمر الشغل:")
-                wo_paths = req_row.get('Work Order Images', '')
-                if pd.notna(wo_paths) and str(wo_paths).strip() != "":
-                    wo_list = str(wo_paths).split(",")
-                    for idx, p in enumerate(wo_list):
-                        if os.path.exists(p):
-                            st.image(p, caption=f"صورة أمر الشغل رقم {idx+1}", use_container_width=True)
-                else:
-                    st.info("لا توجد صور لأمر الشغل.")
-
-                st.markdown("---")
-                st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
-                st.write(f"**التحصيل (Collection):** {req_row.get('Collection', 0)}")
-                st.write(f"**الأوبشنال (Optional):** {req_row.get('Option', '')}")
-                st.write(f"**التذاكر (Tickets):** {req_row.get('Tickets', '')}")
-                st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
-                st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
-                st.write(f"**غداء (Lunch):** {req_row.get('Lunch', 0)}")
-
-                st.markdown("#### صور فواتير الغداء:")
-                l_paths = req_row.get('Lunch Receipt', '')
-                if pd.notna(l_paths) and str(l_paths).strip() != "":
-                    l_list = str(l_paths).split(",")
-                    for idx, p in enumerate(l_list):
-                        if os.path.exists(p):
-                            st.image(p, caption=f"صورة فاتورة الغداء رقم {idx+1}", use_container_width=True)
-                else:
-                    st.info("لا توجد صور لفواتير الغداء.")
-
-                st.markdown("---")
-                st.write(f"**تفاصيل المحلات:** {req_row.get('Shops Details', req_row.get('Shop Names', 'لا يوجد'))}")
-                if pd.notna(req_row.get('Other Shops', '')) and str(req_row.get('Other Shops', '')).strip() != "":
-                    st.write(f"**محلات خارجية:** {req_row.get('Other Shops', '')}")
-
-                s_paths = req_row.get('Shop Images', '')
-                if pd.notna(s_paths) and str(s_paths).strip() != "":
-                    paths_list = str(s_paths).split(",")
-                    for idx, p in enumerate(paths_list):
-                        if os.path.exists(p):
-                            st.image(p, caption=f"صورة محلات رقم {idx+1}", use_container_width=True)
-                else:
-                    st.info("لا توجد صور لفواتير المحلات.")
-            else:
-                st.session_state.viewing_guide_archive_file = None
-                st.rerun()
-        else:
-            g_arch_df_all = load_data(GUIDE_ARCHIVE_FILE)
-            if not g_arch_df_all.empty:
-                st.markdown(f"إجمالي التصفيات المنقولة: {len(g_arch_df_all)}")
-                st.markdown("### قائمة التصفيات المنقولة")
-
-                for idx, row in g_arch_df_all.iterrows():
-                    cols = st.columns([1, 2, 2, 2, 1.2, 1.2])
-                    with cols[0]:
-                        st.write(f"**#{idx+1}**")
-                    with cols[1]:
-                        st.write(f"الفايل: {row.get('File No', '')}")
-                    with cols[2]:
-                        st.write(f"المرشد: {row.get('Guide Name', '')}")
-                    with cols[3]:
-                        st.markdown(f'<div style="direction: ltr; text-align: right;">الوقت: {row.get("Timestamp", "")}</div>', unsafe_allow_html=True)
-                    with cols[4]:
-                        if st.button("عرض", key=f"view_g_arch_list_{idx}", type="primary"):
-                            st.session_state.viewing_guide_archive_file = idx
-                            st.rerun()
-                    with cols[5]:
-                        if st.button("🗑️ حذف", key=f"del_g_arch_btn_{idx}", type="primary"):
-                            st.session_state.confirming_del_g_arch = idx
-                            st.rerun()
-
-                    if st.session_state.confirming_del_g_arch == idx:
-                        st.warning(f"⚠️ تأكيد حذف التصفية للفايل رقم ({row.get('File No', '')})؟")
-                        gc_col1, gc_col2 = st.columns(2)
-                        with gc_col1:
-                            if st.button("✔️ تأكيد الحذف النهائي", key=f"confirm_del_g_arch_{idx}", type="primary"):
-                                g_arch_df_all = g_arch_df_all.drop(idx).reset_index(drop=True)
-                                overwrite_data(GUIDE_ARCHIVE_FILE, g_arch_df_all)
-                                st.session_state.confirming_del_g_arch = None
-                                st.success("تم الحذف بنجاح.")
-                                st.rerun()
-                        with gc_col2:
-                            if st.button("❌ رجوع (إلغاء)", key=f"cancel_del_g_arch_{idx}", type="primary"):
-                                st.session_state.confirming_del_g_arch = None
-                                st.rerun()
-
-                    st.markdown("---")
-            else:
-                st.info("لا توجد أي تصفيات منقولة في سجل المرشدين حتى الآن.")
-        st.markdown("---")
-
     else:
-        if st.session_state.viewing_guide_archive_file is not None:
+        st.markdown("### 🔑 أدخل رقم الحساب أو رقم التليفون للاطلاع على سجلاتك (خاص بالمرشد)")
+        entered_acc = st.text_input("رقم الحساب أو رقم التليفون الخاص بالتحويل", type="default", key="guide_login_acc")
+
+        if entered_acc.strip():
             g_arch_df = load_data(GUIDE_ARCHIVE_FILE)
-            req_idx = st.session_state.viewing_guide_archive_file
-            if req_idx in g_arch_df.index:
-                req_row = g_arch_df.loc[req_idx]
+            if not g_arch_df.empty:
+                clean_entered_acc = clean_acc_number(entered_acc)
+                g_arch_df['Account'] = g_arch_df['Account'].apply(clean_acc_number)
                 
-                if st.button("⬅️ رجوع إلى بحث رقم الحساب"):
-                    st.session_state.viewing_guide_archive_file = None
-                    st.rerun()
+                matched_guide_records = g_arch_df[g_arch_df['Account'] == clean_entered_acc]
+                
+                if not matched_guide_records.empty:
+                    guide_name_found = matched_guide_records['Guide Name'].values[0]
+                    st.success(f"مرحباً بك يا **{guide_name_found}** | تم العثور على ({len(matched_guide_records)}) تصفية مسجلة باسمك.")
+                    st.markdown("### 📋 سجلات الأرشيف الخاصة بك")
 
-                st.markdown(f"### 📄 تفاصيل التصفية المؤرشفة للفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
-                st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
-                st.markdown("---")
-
-                st.markdown("#### صور أمر الشغل:")
-                wo_paths = req_row.get('Work Order Images', '')
-                if pd.notna(wo_paths) and str(wo_paths).strip() != "":
-                    wo_list = str(wo_paths).split(",")
-                    for idx, p in enumerate(wo_list):
-                        if os.path.exists(p):
-                            st.image(p, caption=f"صورة أمر الشغل رقم {idx+1}", use_container_width=True)
+                    for idx, row in matched_guide_records.iterrows():
+                        cols = st.columns([1, 2, 3, 3, 1.5])
+                        with cols[0]:
+                            st.write(f"**#{idx+1}**")
+                        with cols[1]:
+                            st.write(f"الفايل: {row.get('File No', '')}")
+                        with cols[2]:
+                            st.write(f"المرشد: {row.get('Guide Name', '')}")
+                        with cols[3]:
+                            st.markdown(f'<div style="direction: ltr; text-align: right;">الوقت: {row.get("Timestamp", "")}</div>', unsafe_allow_html=True)
+                        with cols[4]:
+                            if st.button("عرض", key=f"view_g_arch_{idx}", type="primary"):
+                                st.session_state.viewing_guide_archive_file = idx
+                                st.rerun()
+                        st.markdown("---")
                 else:
-                    st.info("لا توجد صور لأمر الشغل.")
-
-                st.markdown("---")
-                st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
-                st.write(f"**التحصيل (Collection):** {req_row.get('Collection', 0)}")
-                st.write(f"**الأوبشنال (Optional):** {req_row.get('Option', '')}")
-                st.write(f"**التذاكر (Tickets):** {req_row.get('Tickets', '')}")
-                st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
-                st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
-                st.write(f"**غداء (Lunch):** {req_row.get('Lunch', 0)}")
-
-                st.markdown("#### صور فواتير الغداء:")
-                l_paths = req_row.get('Lunch Receipt', '')
-                if pd.notna(l_paths) and str(l_paths).strip() != "":
-                    l_list = str(l_paths).split(",")
-                    for idx, p in enumerate(l_list):
-                        if os.path.exists(p):
-                            st.image(p, caption=f"صورة فاتورة الغداء رقم {idx+1}", use_container_width=True)
-                else:
-                    st.info("لا توجد صور لفواتير الغداء.")
-
-                st.markdown("---")
-                st.write(f"**تفاصيل المحلات:** {req_row.get('Shops Details', req_row.get('Shop Names', 'لا يوجد'))}")
-                if pd.notna(req_row.get('Other Shops', '')) and str(req_row.get('Other Shops', '')).strip() != "":
-                    st.write(f"**محلات خارجية:** {req_row.get('Other Shops', '')}")
-
-                s_paths = req_row.get('Shop Images', '')
-                if pd.notna(s_paths) and str(s_paths).strip() != "":
-                    paths_list = str(s_paths).split(",")
-                    for idx, p in enumerate(paths_list):
-                        if os.path.exists(p):
-                            st.image(p, caption=f"صورة محلات رقم {idx+1}", use_container_width=True)
-                else:
-                    st.info("لا توجد صور لفواتير المحلات.")
+                    st.warning("⚠️ لا توجد أي تصفيات مسجلة أو منتهية لهذا الرقم في سجلات المرشدين.")
             else:
-                st.session_state.viewing_guide_archive_file = None
-                st.rerun()
-        else:
-            st.markdown("### 🔑 أدخل رقم الحساب أو رقم التليفون للاطلاع على سجلاتك (خاص بالمرشد)")
-            entered_acc = st.text_input("رقم الحساب أو رقم التليفون الخاص بالتحويل", type="default", key="guide_login_acc")
-
-            if entered_acc.strip():
-                g_arch_df = load_data(GUIDE_ARCHIVE_FILE)
-                if not g_arch_df.empty:
-                    clean_entered_acc = clean_acc_number(entered_acc)
-                    g_arch_df['Account'] = g_arch_df['Account'].apply(clean_acc_number)
-                    
-                    matched_guide_records = g_arch_df[g_arch_df['Account'] == clean_entered_acc]
-                    
-                    if not matched_guide_records.empty:
-                        guide_name_found = matched_guide_records['Guide Name'].values[0]
-                        st.success(f"مرحباً بك يا **{guide_name_found}** | تم العثور على ({len(matched_guide_records)}) تصفية مسجلة باسمك.")
-                        st.markdown("### 📋 سجلات الأرشيف الخاصة بك")
-
-                        for idx, row in matched_guide_records.iterrows():
-                            cols = st.columns([1, 2, 3, 3, 1.5])
-                            with cols[0]:
-                                st.write(f"**#{idx+1}**")
-                            with cols[1]:
-                                st.write(f"الفايل: {row.get('File No', '')}")
-                            with cols[2]:
-                                st.write(f"المرشد: {row.get('Guide Name', '')}")
-                            with cols[3]:
-                                st.markdown(f'<div style="direction: ltr; text-align: right;">الوقت: {row.get("Timestamp", "")}</div>', unsafe_allow_html=True)
-                            with cols[4]:
-                                if st.button("عرض", key=f"view_g_arch_{idx}", type="primary"):
-                                    st.session_state.viewing_guide_archive_file = idx
-                                    st.rerun()
-                            st.markdown("---")
-                    else:
-                        st.warning("⚠️ لا توجد أي تصفيات مسجلة أو منتهية لهذا الرقم في سجلات المرشدين.")
-                else:
-                    st.info("لا توجد سجلات مؤرشفة للمرشدين حتى الآن.")
+                st.info("لا توجد سجلات مؤرشفة للمرشدين حتى الآن.")
 
 elif page == "إدارة التصفيات":
     st.title("📊 إدارة التصفيات")
@@ -1089,7 +959,6 @@ elif page == "الأرشيف":
                     if "transferred_indices" not in st.session_state:
                         st.session_state.transferred_indices = []
 
-                    # هنا تم إضافة الزر في الجدول الخارجي (بره) بجانب الفايل والمرشد وأزرار العرض والحذف
                     for idx, row in filtered_arch_df.iterrows():
                         cols = st.columns([1, 1.8, 1.8, 2, 1, 1, 1])
                         with cols[0]:
