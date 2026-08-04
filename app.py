@@ -437,19 +437,23 @@ elif page == "سجلات المرشد":
     if "confirming_del_g_arch" not in st.session_state:
         st.session_state.confirming_del_g_arch = None
 
-    # قسم المسؤول بداخل Expander مغلق افتراضياً ولا يتم تفعيله إلا عند إدخال كلمة المرور الصحيحة بالأسفل
-    with st.expander("🔒 خاص بالمسؤول (عرض جميع التصفية المنقولة)"):
-        admin_pass_input = st.text_input("أدخل كلمة المرور الخاصة بالمسؤول", type="password", key="admin_guide_arch_pass_safe")
-        if admin_pass_input == "159753":
-            st.session_state.admin_guide_archive_view = True
-            st.success("✅ تم التحقق من كلمة المرور بنجاح. يمكنك استعراض جميع السجلات أدناه.")
-        elif admin_pass_input != "":
-            st.error("❌ كلمة المرور غير صحيحة!")
+    # إذا كان المسؤول غير مسجل دخول، اعرض له الـ Expander لإدخال كلمة المرور
+    if not st.session_state.admin_guide_archive_view:
+        with st.expander("🔒 خاص بالمسؤول (عرض جميع التصفية المنقولة)"):
+            admin_pass_input = st.text_input("أدخل كلمة المرور الخاصة بالمسؤول", type="password", key="admin_guide_arch_pass_safe")
+            if admin_pass_input == "159753":
+                st.session_state.admin_guide_archive_view = True
+                st.success("✅ تم التحقق من كلمة المرور بنجاح. يتم تحويلك للوحة المسؤول...")
+                time.sleep(0.5)
+                st.rerun()
+            elif admin_pass_input != "":
+                st.error("❌ كلمة المرور غير صحيحة!")
 
     if st.session_state.admin_guide_archive_view:
         st.markdown("### 📊 لوحة المسؤول: جميع التصفيات المنقولة إلى سجل المرشدين")
         
-        if st.button("❌ إغلاق لوحة المسؤول والرجوع لوضع المرشدين"):
+        # تم ربط زر الإغلاق بمسح الحالة وإعادة التحميل الفوري
+        if st.button("❌ إغلاق لوحة المسؤول والرجوع لوضع المرشدين", type="primary"):
             st.session_state.admin_guide_archive_view = False
             st.session_state.viewing_guide_archive_file = None
             st.rerun()
