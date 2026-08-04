@@ -74,12 +74,12 @@ st.markdown("""
         border-bottom: 2px solid #c2e0c2 !important;
         border-top: 2px solid #c2e0c2 !important;
         border-radius: 0 15px 15px 0 !important;
-        padding-top: 2.5rem !important;
+        padding-top: 3.5rem !important;
     }
 
     [data-testid="stSidebar"] [data-testid="stImage"] {
         text-align: center !important;
-        margin-bottom: 15px !important;
+        margin-bottom: 20px !important;
     }
     [data-testid="stSidebar"] [data-testid="stImage"] img {
         max-width: 140px !important;
