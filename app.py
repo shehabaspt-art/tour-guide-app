@@ -165,12 +165,8 @@ if page == "نموذج تصفية المرشد":
         st.session_state.option_rows_count = 1
     if "shop_rows_count" not in st.session_state:
         st.session_state.shop_rows_count = 1
-    
-    # مفتاح للتحكم في إعادة تعيين النموذج بالكامل
-    if "form_reset_key" not in st.session_state:
-        st.session_state.form_reset_key = 0
 
-    with st.form(f"guide_form_{st.session_state.form_reset_key}", clear_on_submit=False):
+    with st.form("guide_form"):
         st.subheader("بيانات المرشد")
         
         col_top1, col_top2, col_top3 = st.columns(3)
@@ -405,12 +401,31 @@ if page == "نموذج تصفية المرشد":
                 }
                 save_to_file(SUBMISSIONS_FILE, new_entry)
                 
-                # تصفير العدادات وتغيير مفتاح الفورم لمسح جميع الحقول المخزنة في الـ session_state تماماً
+                # تفريغ مفاتيح الـ session_state المرتبطة بحقول النموذج بالكامل لضمان مسحها من الشاشة
+                keys_to_clear = [
+                    "form_account_no", "form_file_no", "form_advances", "work_order_imgs",
+                    "form_collection_val", "form_collection_curr", "form_tkt_val", "form_tkt_type",
+                    "form_tip", "form_park", "form_lunch", "lunch_imgs",
+                    "other_shops_name", "other_shops_val", "other_shops_curr", "other_shops_imgs"
+                ]
+                for k in keys_to_clear:
+                    if k in st.session_state:
+                        del st.session_state[k]
+                
+                for i in range(st.session_state.option_rows_count):
+                    for sub_k in [f"opt_type_{i}", f"opt_val_{i}", f"opt_curr_{i}", f"opt_pay_{i}", f"cash_h_{i}"]:
+                        if sub_k in st.session_state:
+                            del st.session_state[sub_k]
+
+                for j in range(st.session_state.shop_rows_count):
+                    for sub_k in [f"shop_name_{j}", f"shop_val_{j}", f"shop_curr_{j}", f"shop_img_{j}"]:
+                        if sub_k in st.session_state:
+                            del st.session_state[sub_k]
+
                 st.session_state.option_rows_count = 1
                 st.session_state.shop_rows_count = 1
-                st.session_state.form_reset_key += 1
                 
-                st.success("✅ تم إرسال الطلب للمدير بنجاح! تم مسح النموذج وجاهز لتسجيل تصفية جديدة...")
+                st.success("✅ تم إرسال الطلب للمدير بنجاح! تم تفريغ النموذج تماماً...")
                 st.rerun()
 
 elif page == "سجلات المرشد":
@@ -480,7 +495,7 @@ elif page == "سجلات المرشد":
             st.session_state.viewing_guide_archive_file = None
             st.rerun()
     else:
-        st.markdown("### 🔑 أدخل رقم الحساب للاطلاع على سجلكاتك")
+        st.markdown("### 🔑 أدخل رقم الحساب للاطلاع على سجلاتك")
         entered_acc = st.text_input("رقم الحساب الخاص بك", type="default", key="guide_login_acc")
 
         if entered_acc.strip():
