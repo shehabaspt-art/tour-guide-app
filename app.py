@@ -166,7 +166,6 @@ if page == "نموذج تصفية المرشد":
     if "shop_rows_count" not in st.session_state:
         st.session_state.shop_rows_count = 1
 
-    # إضافة clear_on_submit=True لضمان تفريغ حقول الفورم تلقائياً عند الإرسال الناجح
     with st.form("guide_form", clear_on_submit=True):
         st.subheader("بيانات المرشد")
         
@@ -310,7 +309,9 @@ if page == "نموذج تصفية المرشد":
                 matched_guide = guides_df[guides_df[acc_column].astype(str).str.strip().str.replace(r'\.0$', '', regex=True) == str(account_no).strip()]
                 guide_name = matched_guide[name_column].values[0] if not matched_guide.empty else "غير معروف"
                 
-                current_time_str = datetime.now().strftime("%Y-%m-%d %I:%M %p")
+                # ضبط تنسيق التاريخ والوقت ليكون صحيح الاتجاه ومنتظم
+                now_dt = datetime.now()
+                current_time_str = f"{now_dt.strftime('%d-%m-%Y')} {now_dt.strftime('%I:%M %p')}"
                 
                 work_order_paths = []
                 if work_order_image:
@@ -402,7 +403,6 @@ if page == "نموذج تصفية المرشد":
                 }
                 save_to_file(SUBMISSIONS_FILE, new_entry)
                 
-                # إعادة عدادات الصفوف للوضع الافتراضي
                 st.session_state.option_rows_count = 1
                 st.session_state.shop_rows_count = 1
                 
@@ -501,7 +501,7 @@ elif page == "سجلات المرشد":
                         with cols[2]:
                             st.write(f"المرشد: {row.get('Guide Name', '')}")
                         with cols[3]:
-                            st.write(f"الوقت: {row.get('Timestamp', '')}")
+                            st.markdown(f'<div style="direction: ltr; text-align: right;">الوقت: {row.get("Timestamp", "")}</div>', unsafe_allow_html=True)
                         with cols[4]:
                             if st.button("عرض", key=f"view_g_arch_{idx}", type="primary"):
                                 st.session_state.viewing_guide_archive_file = idx
@@ -645,7 +645,7 @@ elif page == "إدارة التصفيات":
                     with cols[2]:
                         st.write(f"المرشد: {row.get('Guide Name', '')}")
                     with cols[3]:
-                        st.write(f"الوقت: {row.get('Timestamp', '')}")
+                        st.markdown(f'<div style="direction: ltr; text-align: right;">الوقت: {row.get("Timestamp", "")}</div>', unsafe_allow_html=True)
                     with cols[4]:
                         if st.button("عرض", key=f"view_btn_{idx}", type="primary"):
                             st.session_state.viewing_file = idx
@@ -942,7 +942,7 @@ elif page == "الأرشيف":
                         with cols[2]:
                             st.write(f"المرشد: {row.get('Guide Name', '')}")
                         with cols[3]:
-                            st.write(f"الوقت: {row.get('Timestamp', '')}")
+                            st.markdown(f'<div style="direction: ltr; text-align: right;">الوقت: {row.get("Timestamp", "")}</div>', unsafe_allow_html=True)
                         with cols[4]:
                             if st.button("عرض", key=f"view_arch_btn_{idx}", type="primary"):
                                 st.session_state.viewing_archive_file = idx
