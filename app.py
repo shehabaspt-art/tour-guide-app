@@ -56,7 +56,7 @@ if current_logo_path:
     except:
         pass
 
-# تنسيق CSS للسايدبار والأزرار باللون الأخضر الجميل (تم زيادة المسافة العلوية للسايدبار هنا)
+# تنسيق CSS للسايدبار والأزرار باللون الأخضر (فصل السايدبار عن أعلى الصفحة بمسافة 2 سم بلون أبيض)
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -70,14 +70,20 @@ st.markdown("""
         color: white !important;
     }
     
-    /* ضبط السايدبار وإعطاء الخلفية اللون الأخضر الفاتح ونزوله المسافة المطلوبة */
+    /* جعل السايدبار منفصلاً عن أعلى الصفحة بمسافة 2 سنتي ولون أبيض في الفراغ العلوي */
     [data-testid="stSidebar"] {
-        background-color: #d8ebd8 !important;
-        border-left: 2px solid #c2e0c2 !important;
+        background-color: transparent !important;
+        border-left: none !important;
     }
     [data-testid="stSidebar"] > div:first-child {
-        padding-top: 4.5rem !important;
         background-color: #d8ebd8 !important;
+        border-right: 2px solid #c2e0c2 !important;
+        border-bottom: 2px solid #c2e0c2 !important;
+        border-top: 2px solid #c2e0c2 !important;
+        border-radius: 0 15px 15px 0 !important;
+        margin-top: 2cm !important;
+        padding-top: 1rem !important;
+        height: calc(100vh - 2.5cm) !important;
     }
     
     /* تكبير وتوسيط صورة اللوجو داخل السايدبار */
