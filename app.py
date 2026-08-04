@@ -49,7 +49,7 @@ def save_to_file(file_path, new_data):
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
 
-# تنسيق CSS للسايدبار والصندوق الأخضر والأزرار
+# تنسيق CSS الأصلي بالكامل للمحافظة على الشكل القديم
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -63,7 +63,6 @@ st.markdown("""
         color: white !important;
     }
     
-    /* إخفاء خلفية السايدبار الافتراضية وجعلها شفافة */
     [data-testid="stSidebar"] {
         background-color: transparent !important;
         border-left: none !important;
@@ -75,7 +74,6 @@ st.markdown("""
         padding-top: 0rem !important;
     }
 
-    /* الصندوق الأخضر الداخلي الشامل للوجو والقائمة */
     [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:has(div.sidebar-content-box) {
         background-color: #d8ebd8 !important;
         border: 2px solid #c2e0c2 !important;
@@ -83,7 +81,6 @@ st.markdown("""
         padding: 20px 10px !important;
     }
 
-    /* تنسيق اللوجو داخل الصندوق الأخضر */
     [data-testid="stSidebar"] [data-testid="stImage"] {
         text-align: center !important;
         margin-bottom: 10px !important;
@@ -132,7 +129,7 @@ SHOPS_LIST = [
     "جولدن بيرد", "مملوك", "ريحانة توابل", "كنور توابل", "قصر العطور", "لازوريت"
 ]
 
-# حساب عدد الطلبات الواردة الحالية لعرضها مباشرة داخل زر القائمة
+# حساب عدد الطلبات الواردة لعرضها بجانب زر إدارة التصفيات
 current_subs_df = load_data(SUBMISSIONS_FILE)
 pending_count = len(current_subs_df)
 
@@ -149,7 +146,7 @@ with st.sidebar:
         </div>
         """, unsafe_allow_html=True)
     
-    # دمج عدد الطلبات مباشرة في نص زر إدارة التصفيات
+    # النص المخصص للزر مع الرقم الداخلي
     if pending_count > 0:
         mgmt_label = f"إدارة التصفيات 🔴 ({pending_count})"
     else:
@@ -163,7 +160,6 @@ with st.sidebar:
     
     st.markdown('</div>', unsafe_allow_html=True)
 
-# توحيد اسم الصفحة برمجياً بغض النظر عن العدد الظاهر في الزر
 if "إدارة التصفيات" in page:
     page = "إدارة التصفيات"
 
