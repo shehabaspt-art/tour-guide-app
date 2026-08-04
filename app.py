@@ -56,7 +56,7 @@ if current_logo_path:
     except:
         pass
 
-# تنسيق CSS للسايدبار والأزرار باللون الأخضر الجميل
+# تنسيق CSS للسايدبار والأزرار باللون الأخضر الجميل (تم زيادة المسافة العلوية للسايدبار هنا)
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -70,13 +70,13 @@ st.markdown("""
         color: white !important;
     }
     
-    /* ضبط السايدبار وإعطاء الخلفية اللون الأخضر الفاتح */
+    /* ضبط السايدبار وإعطاء الخلفية اللون الأخضر الفاتح ونزوله المسافة المطلوبة */
     [data-testid="stSidebar"] {
         background-color: #d8ebd8 !important;
         border-left: 2px solid #c2e0c2 !important;
     }
     [data-testid="stSidebar"] > div:first-child {
-        padding-top: 2rem !important;
+        padding-top: 4.5rem !important;
         background-color: #d8ebd8 !important;
     }
     
