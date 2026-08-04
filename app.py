@@ -255,7 +255,12 @@ if page == "نموذج تصفية المرشد":
 
         st.markdown("---")
         st.subheader("محلات أخري (اكتبها يدوياً إن وجدت)")
-        other_shops = st.text_input("أدخل المحلات الأخرى هنا", label_visibility="collapsed")
+        
+        col_oth1, col_oth2 = st.columns([2, 1])
+        with col_oth1:
+            other_shops = st.text_input("أدخل المحلات الأخرى هنا", label_visibility="collapsed")
+        with col_oth2:
+            other_shops_images = st.file_uploader("رفع فاتورة المحل", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key="other_shops_imgs")
 
         submitted = st.form_submit_button("إرسال الطلب للمدير", type="primary")
 
@@ -313,6 +318,14 @@ if page == "نموذج تصفية المرشد":
                             f.write(img.getbuffer())
                         lunch_paths.append(l_path)
 
+                other_shops_paths = []
+                if other_shops_images:
+                    for img in other_shops_images:
+                        os_path = os.path.join(UPLOAD_DIR, f"othershops_{time.time()}_{img.name}")
+                        with open(os_path, "wb") as f:
+                            f.write(img.getbuffer())
+                        other_shops_paths.append(os_path)
+
                 all_shop_paths = []
                 shops_summary_list = []
                 shops_names_only = []
@@ -332,6 +345,9 @@ if page == "نموذج تصفية المرشد":
                     if s_name:
                         shops_names_only.append(s_name)
                         shops_summary_list.append(f"{s_name}: {s_val} {s_curr}")
+
+                # دمج صور فواتير المحلات الأخرى مع صور المحلات العامة
+                all_shop_paths.extend(other_shops_paths)
 
                 options_summary_list = []
                 option_types_list = []
@@ -845,4 +861,4 @@ elif page == "الأرشيف":
                 st.info("لا توجد طلبات في الأرشيف حالياً.")
     else:
         if password_arch != "":
-            st.error("❌ كلمة المرور غير صحيحة!")
+            st.error("❌ كلمة المرور غير صحيحة غير صحيحة!")
