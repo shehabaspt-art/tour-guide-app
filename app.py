@@ -49,7 +49,14 @@ def save_to_file(file_path, new_data):
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
 
-# استرجاع المسافة البيضاء والتنسيق المريح من الأعلى
+current_logo_path = get_current_logo()
+if current_logo_path:
+    try:
+        st.logo(current_logo_path, size="large")
+    except:
+        pass
+
+# تنسيق CSS للسايدبار والأزرار باللون الأخضر (فصل السايدبار عن أعلى الصفحة بمسافة 2 سم بلون أبيض)
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -63,29 +70,27 @@ st.markdown("""
         color: white !important;
     }
     
+    /* جعل السايدبار منفصلاً عن أعلى الصفحة بمسافة 2 سنتي ولون أبيض في الفراغ العلوي */
     [data-testid="stSidebar"] {
         background-color: transparent !important;
         border-left: none !important;
     }
-
     [data-testid="stSidebar"] > div:first-child {
         background-color: #d8ebd8 !important;
         border-right: 2px solid #c2e0c2 !important;
         border-bottom: 2px solid #c2e0c2 !important;
         border-top: 2px solid #c2e0c2 !important;
         border-radius: 0 15px 15px 0 !important;
-        padding-top: 3.5rem !important;
+        margin-top: 2cm !important;
+        padding-top: 1rem !important;
+        height: calc(100vh - 2.5cm) !important;
     }
-
-    [data-testid="stSidebar"] [data-testid="stImage"] {
-        text-align: center !important;
-        margin-bottom: 20px !important;
-    }
-    [data-testid="stSidebar"] [data-testid="stImage"] img {
-        max-width: 140px !important;
+    
+    /* تكبير وتوسيط صورة اللوجو داخل السايدبار */
+    [data-testid="stSidebar"] img {
+        max-width: 100% !important;
+        width: 220px !important;
         height: auto !important;
-        display: block !important;
-        margin: 0 auto !important;
     }
 
     [data-testid="stSidebar"] .stRadio > label {
@@ -126,10 +131,6 @@ SHOPS_LIST = [
 ]
 
 with st.sidebar:
-    current_logo_path = get_current_logo()
-    if current_logo_path:
-        st.image(current_logo_path)
-
     st.markdown("""
         <div style="display: flex; align-items: center; margin-top: 10px; margin-bottom: 5px;">
             <h2 style='color: #1b5e20; margin: 0; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>
