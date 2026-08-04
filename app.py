@@ -49,7 +49,7 @@ def save_to_file(file_path, new_data):
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
 
-# تنسيق CSS لجعل السايدبار يحتضن اللوجو والعنوان بشكل متناسق ومستريح
+# استرجاع المسافة البيضاء والتنسيق المريح من الأعلى
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -74,13 +74,12 @@ st.markdown("""
         border-bottom: 2px solid #c2e0c2 !important;
         border-top: 2px solid #c2e0c2 !important;
         border-radius: 0 15px 15px 0 !important;
-        padding-top: 1.5rem !important;
+        padding-top: 2.5rem !important;
     }
 
-    /* تنسيق صورة اللوجو داخل السايدبار لتكون في المنتصف وبحجم مناسب */
     [data-testid="stSidebar"] [data-testid="stImage"] {
         text-align: center !important;
-        margin-bottom: 10px !important;
+        margin-bottom: 15px !important;
     }
     [data-testid="stSidebar"] [data-testid="stImage"] img {
         max-width: 140px !important;
@@ -127,7 +126,6 @@ SHOPS_LIST = [
 ]
 
 with st.sidebar:
-    # عرض اللوجو كصورة في أعلى القائمة الجانبية داخل الإطار الأخضر
     current_logo_path = get_current_logo()
     if current_logo_path:
         st.image(current_logo_path)
