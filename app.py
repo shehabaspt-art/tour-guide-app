@@ -49,14 +49,7 @@ def save_to_file(file_path, new_data):
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
 
-current_logo_path = get_current_logo()
-if current_logo_path:
-    try:
-        st.logo(current_logo_path, size="large")
-    except:
-        pass
-
-# تنسيق CSS للسايدبار والأزرار باللون الأخضر (فصل السايدبار عن أعلى الصفحة بمسافة 2 سم بلون أبيض)
+# تنسيق CSS للسايدبار، اللوجو العلوي في الجزء الأبيض، والأزرار
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -70,27 +63,37 @@ st.markdown("""
         color: white !important;
     }
     
-    /* جعل السايدبار منفصلاً عن أعلى الصفحة بمسافة 2 سنتي ولون أبيض في الفراغ العلوي */
+    /* إخفاء اللوجو التلقائي القديم إن وجد وتصفير خلفية السايدبار */
     [data-testid="stSidebar"] {
         background-color: transparent !important;
         border-left: none !important;
     }
-    [data-testid="stSidebar"] > div:first-child {
-        background-color: #d8ebd8 !important;
-        border-right: 2px solid #c2e0c2 !important;
-        border-bottom: 2px solid #c2e0c2 !important;
-        border-top: 2px solid #c2e0c2 !important;
-        border-radius: 0 15px 15px 0 !important;
-        margin-top: 2cm !important;
-        padding-top: 1rem !important;
-        height: calc(100vh - 2.5cm) !important;
-    }
     
-    /* تكبير وتوسيط صورة اللوجو داخل السايدبار */
-    [data-testid="stSidebar"] img {
-        max-width: 100% !important;
-        width: 220px !important;
+    /* تخصيص حاوية السايدبار الرئيسية بمسافة علوية 2.5 سم */
+    [data-testid="stSidebar"] > div:first-child {
+        background-color: transparent !important;
+        margin-top: 1.5cm !important;
+        padding-top: 0rem !important;
+    }
+
+    /* الحاوية الخضراء الداخلية التي تحمل محتوى القائمة */
+    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:has(div.sidebar-content-box) {
+        background-color: #d8ebd8 !important;
+        border: 2px solid #c2e0c2 !important;
+        border-radius: 15px !important;
+        padding: 20px 10px !important;
+    }
+
+    /* تنسيق صورة اللوجو لتكون في الجزء الأبيض العلوي فوق الصندوق الأخضر */
+    [data-testid="stSidebar"] [data-testid="stImage"] {
+        text-align: center !important;
+        margin-bottom: 15px !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stImage"] img {
+        max-width: 170px !important;
         height: auto !important;
+        display: block !important;
+        margin: 0 auto !important;
     }
 
     [data-testid="stSidebar"] .stRadio > label {
@@ -131,8 +134,16 @@ SHOPS_LIST = [
 ]
 
 with st.sidebar:
+    # عرض اللوجو في الجزء الأبيض العلوي خارج الصندوق الأخضر
+    current_logo_path = get_current_logo()
+    if current_logo_path:
+        st.image(current_logo_path)
+
+    # بداية الصندوق الأخضر الذي يحتوي على القائمة الرئيسية
+    st.markdown('<div class="sidebar-content-box">', unsafe_allow_html=True)
+    
     st.markdown("""
-        <div style="display: flex; align-items: center; margin-top: 10px; margin-bottom: 5px;">
+        <div style="display: flex; align-items: center; margin-top: 0px; margin-bottom: 10px;">
             <h2 style='color: #1b5e20; margin: 0; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>
         </div>
         """, unsafe_allow_html=True)
@@ -142,6 +153,8 @@ with st.sidebar:
         ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف"],
         label_visibility="collapsed"
     )
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
 if page == "نموذج تصفية المرشد":
     st.title("🧭 نموذج تصفية المرشدين")
