@@ -28,6 +28,17 @@ def get_current_logo():
         return fixed_logo_path
     return None
 
+def clean_acc_number(val):
+    if val is None:
+        return ""
+    s_val = str(val).strip()
+    if s_val.endswith('.0'):
+        s_val = s_val[:-2]
+    # إزالة الصفر من البداية لو موجود بناءً على طلبك
+    if s_val.startswith('0'):
+        s_val = s_val[1:]
+    return s_val
+
 def load_data(file_path):
     if os.path.exists(file_path):
         try:
@@ -37,7 +48,7 @@ def load_data(file_path):
             if 'Timestamp' not in df.columns:
                 df['Timestamp'] = 'غير محدد'
             if 'Account' in df.columns:
-                df['Account'] = df['Account'].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
+                df['Account'] = df['Account'].apply(clean_acc_number)
             return df
         except:
             return pd.DataFrame()
@@ -116,7 +127,7 @@ st.markdown("""
 try:
     guides_df = pd.read_excel(GUIDES_FILE)
     if 'Account' in guides_df.columns:
-        guides_df['Account'] = guides_df['Account'].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
+        guides_df['Account'] = guides_df['Account'].apply(clean_acc_number)
 except:
     guides_df = pd.DataFrame({
         "Guide Name": ["أحمد", "محمود"],
@@ -171,8 +182,8 @@ if page == "نموذج تصفية المرشد":
         
         col_top1, col_top2, col_top3 = st.columns(3)
         with col_top1:
-            account_options = [None] + guides_df[acc_column].astype(str).tolist()
-            account_no = st.selectbox("رقم الحساب الخاص بالمرشد", options=account_options, index=0, key="form_account_no")
+            account_options = [None] + guides_df[acc_column].apply(clean_acc_number).tolist()
+            account_no = st.selectbox("رقم الحساب أو رقم التليفون الخاص بالتحويل", options=account_options, index=0, key="form_account_no")
         with col_top2:
             file_no = st.text_input("رقم الفايل (File Number) *إلزامي*", key="form_file_no")
         with col_top3:
@@ -298,7 +309,7 @@ if page == "نموذج تصفية المرشد":
                     break
 
             if not account_no:
-                st.error("⚠️ عذراً، يجب اختيار (رقم الحساب) الخاص بك أولاً!")
+                st.error("⚠️ عذراً، يجب اختيار (رقم الحساب أو رقم التليفون) أولاً!")
             elif not file_no.strip():
                 st.error("⚠️ عذراً، لا يمكن إرسال الطلب. يرجى إدخال (رقم الفايل) أولاً بشكل إلزامي!")
             elif validation_pay_error:
@@ -306,10 +317,10 @@ if page == "نموذج تصفية المرشد":
             elif validation_error:
                 st.error("⚠️ عذراً، نظراً لاختيار طريقة الدفع (كاش)، يجب اختيار (المبلغ) [مع المرشد / مع السواق] بشكل إلزامي!")
             else:
-                matched_guide = guides_df[guides_df[acc_column].astype(str).str.strip().str.replace(r'\.0$', '', regex=True) == str(account_no).strip()]
+                clean_acc_selected = clean_acc_number(account_no)
+                matched_guide = guides_df[guides_df[acc_column].apply(clean_acc_number) == clean_acc_selected]
                 guide_name = matched_guide[name_column].values[0] if not matched_guide.empty else "غير معروف"
                 
-                # ضبط تنسيق التاريخ والوقت ليكون صحيح الاتجاه ومنتظم
                 now_dt = datetime.now()
                 current_time_str = f"{now_dt.strftime('%d-%m-%Y')} {now_dt.strftime('%I:%M %p')}"
                 
@@ -384,7 +395,7 @@ if page == "نموذج تصفية المرشد":
                 new_entry = {
                     "Timestamp": current_time_str,
                     "Guide Name": guide_name,
-                    "Account": str(account_no).strip(),
+                    "Account": clean_acc_selected,
                     "File No": file_no,
                     "Work Order Images": ",".join(work_order_paths) if work_order_paths else "",
                     "Advances": advances,
@@ -427,7 +438,7 @@ elif page == "سجلات المرشد":
                 st.rerun()
 
             st.markdown(f"### 📄 تفاصيل التصفية المؤرشفة للفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
-            st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {req_row.get('Account', '')}")
+            st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
             st.markdown("---")
 
             st.markdown("#### صور أمر الشغل:")
@@ -476,14 +487,14 @@ elif page == "سجلات المرشد":
             st.session_state.viewing_guide_archive_file = None
             st.rerun()
     else:
-        st.markdown("### 🔑 أدخل رقم الحساب للاطلاع على سجلاتك")
-        entered_acc = st.text_input("رقم الحساب الخاص بك", type="default", key="guide_login_acc")
+        st.markdown("### 🔑 أدخل رقم الحساب أو رقم التليفون للاطلاع على سجلاتك")
+        entered_acc = st.text_input("رقم الحساب أو رقم التليفون الخاص بالتحويل", type="default", key="guide_login_acc")
 
         if entered_acc.strip():
             g_arch_df = load_data(GUIDE_ARCHIVE_FILE)
             if not g_arch_df.empty:
-                clean_entered_acc = str(entered_acc).strip()
-                g_arch_df['Account'] = g_arch_df['Account'].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
+                clean_entered_acc = clean_acc_number(entered_acc)
+                g_arch_df['Account'] = g_arch_df['Account'].apply(clean_acc_number)
                 
                 matched_guide_records = g_arch_df[g_arch_df['Account'] == clean_entered_acc]
                 
@@ -547,7 +558,7 @@ elif page == "إدارة التصفيات":
                     st.rerun()
 
                 st.markdown(f"### 📄 تفاصيل تصفية الفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
-                st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {req_row.get('Account', '')}")
+                st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
                 st.markdown("---")
 
                 st.markdown("#### صور أمر الشغل:")
@@ -675,13 +686,13 @@ elif page == "إدارة التصفيات":
                 st.info("لا توجد طلبات جديدة حتى الآن.")
 
             st.markdown("---")
-            st.markdown("### قاعدة بيانات المرشدين (إدارة وتعديل أرقام الحسابات)")
+            st.markdown("### قاعدة بيانات المرشدين (إدارة وتعديل أرقام الحسابات أو التليفونات)")
             st.dataframe(guides_df, use_container_width=True)
 
             col_section_left, col_section_right = st.columns(2, gap="large")
 
             with col_section_left:
-                st.markdown("#### تعديل أو حذف رقم حساب مرشد:")
+                st.markdown("#### تعديل أو حذف رقم حساب/تليفون مرشد:")
                 guide_names_list = guides_df[name_column].astype(str).tolist()
                 selected_guide_to_edit = st.selectbox("اختر اسم المرشد", options=guide_names_list, key="sel_guide_edit")
 
@@ -689,14 +700,14 @@ elif page == "إدارة التصفيات":
                     st.session_state.clear_edit_input = False
                     st.session_state.new_acc_val_input = ""
 
-                new_acc_input = st.text_input("رقم الحساب الجديد", key="new_acc_val_input", value="")
+                new_acc_input = st.text_input("رقم الحساب أو التليفون الجديد", key="new_acc_val_input", value="")
 
                 col_act1, col_act2 = st.columns(2)
                 with col_act1:
-                    if st.button("💾 حفظ تعديل رقم الحساب", type="primary"):
+                    if st.button("💾 حفظ التعديل", type="primary"):
                         st.session_state.confirming_edit_guide = {
                             "name": selected_guide_to_edit,
-                            "new_acc": new_acc_input
+                            "new_acc": clean_acc_number(new_acc_input)
                         }
                         st.rerun()
                 with col_act2:
@@ -711,12 +722,12 @@ elif page == "إدارة التصفيات":
                     n_acc = st.session_state.confirming_edit_guide["new_acc"]
 
                     if not n_acc.strip():
-                        st.error("⚠️ يرجى كتابة رقم الحساب الجديد أولاً!")
+                        st.error("⚠️ يرجى كتابة الرقم الجديد أولاً!")
                         if st.button("❌ رجوع", type="primary"):
                             st.session_state.confirming_edit_guide = None
                             st.rerun()
                     else:
-                        st.warning(f"⚠️ تأكيد تعديل حساب المرشد (**{g_to_edit}**) إلى: **{n_acc}**")
+                        st.warning(f"⚠️ تأكيد تعديل رقم المرشد (**{g_to_edit}**) إلى: **{n_acc}**")
                         ec1, ec2 = st.columns(2)
                         with ec1:
                             if st.button("✔️ تأكيد وحفظ التعديل", type="primary"):
@@ -724,7 +735,7 @@ elif page == "إدارة التصفيات":
                                 guides_df.to_excel(GUIDES_FILE, index=False)
                                 st.session_state.confirming_edit_guide = None
                                 st.session_state.clear_edit_input = True
-                                st.success("✅ تم تعديل رقم الحساب بنجاح!")
+                                st.success("✅ تم التعديل بنجاح!")
                                 st.rerun()
                         with ec2:
                             if st.button("❌ إلغاء", type="primary"):
@@ -755,12 +766,12 @@ elif page == "إدارة التصفيات":
                     st.session_state.new_guide_acc_input = ""
 
                 new_g_name = st.text_input("اسم المرشد الجديد", key="new_guide_name_input", value="")
-                new_g_acc = st.text_input("رقم الحساب الجديد للمرشد", key="new_guide_acc_input", value="")
+                new_g_acc = st.text_input("رقم الحساب أو التليفون الجديد", key="new_guide_acc_input", value="")
 
                 if st.button("➕ إضافة المرشد للقاعدة", type="primary"):
                     st.session_state.confirming_add_guide = {
                         "name": new_g_name,
-                        "acc": new_g_acc
+                        "acc": clean_acc_number(new_g_acc)
                     }
                     st.rerun()
 
@@ -769,12 +780,12 @@ elif page == "إدارة التصفيات":
                     add_g_acc = st.session_state.confirming_add_guide["acc"]
 
                     if not add_g_name.strip() or not add_g_acc.strip():
-                        st.error("⚠️ يرجى إدخال (اسم المرشد) و(رقم الحساب) بشكل كامل!")
+                        st.error("⚠️ يرجى إدخال (اسم المرشد) و(الرقم) بشكل كامل!")
                         if st.button("❌ رجوع للقاعدة", type="primary"):
                             st.session_state.confirming_add_guide = None
                             st.rerun()
                     else:
-                        st.warning(f"⚠️ تأكيد إضافة المرشد (**{add_g_name}**) برقم حساب (**{add_g_acc}**)؟")
+                        st.warning(f"⚠️ تأكيد إضافة المرشد (**{add_g_name}**) برقم (**{add_g_acc}**)؟")
                         ac1, ac2 = st.columns(2)
                         with ac1:
                             if st.button("✔️ تأكيد وإضافة نهائية", type="primary"):
@@ -821,7 +832,7 @@ elif page == "الأرشيف":
                     st.rerun()
 
                 st.markdown(f"### 📄 تفاصيل الأرشيف للفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
-                st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {req_row.get('Account', '')}")
+                st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
                 st.markdown("---")
 
                 st.markdown("#### صور أمر الشغل:")
@@ -924,7 +935,7 @@ elif page == "الأرشيف":
                         key="arch_guide_filter"
                     )
 
-                    if selected_guide_arch_filter != "الكل (جميع المحلات)":
+                    if selected_guide_arch_filter != "الكل (جميع المرشدين)":
                         filtered_arch_df = archive_df[archive_df['Guide Name'] == selected_guide_arch_filter]
                         st.info(f"عرض الأرشيف الخاص بالمرشد: **{selected_guide_arch_filter}** (عدد الطلبات: {len(filtered_arch_df)})")
                     else:
