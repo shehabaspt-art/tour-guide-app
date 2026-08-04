@@ -204,8 +204,11 @@ if page == "نموذج تصفية المرشد":
             with col_opt5:
                 cash_h = st.selectbox("المبلغ", options=[None, "مع المرشد", "مع السواق"], key=f"cash_h_{i}")
             
+            # إضافة إمكانية رفع صورة لكل بند أوبشنال
+            opt_img = st.file_uploader(f"رفع صورة أوبشنال رقم ({i+1})", type=["png", "jpg", "jpeg"], key=f"opt_img_{i}")
+            
             option_data_list.append({
-                "type": opt_type, "value": opt_val, "curr": opt_curr, "pay": opt_pay, "holder": cash_h
+                "type": opt_type, "value": opt_val, "curr": opt_curr, "pay": opt_pay, "holder": cash_h, "image": opt_img
             })
             if i < st.session_state.option_rows_count - 1:
                 st.markdown("---")
@@ -300,13 +303,21 @@ if page == "نموذج تصفية المرشد":
 
                 options_summary_list = []
                 option_types_list = []
+                option_image_paths = []
                 for i in range(st.session_state.option_rows_count):
                     o_type = st.session_state.get(f"opt_type_{i}", "")
                     o_val = st.session_state.get(f"opt_val_{i}", 0.0)
                     o_curr = st.session_state.get(f"opt_curr_{i}", "مصري")
                     o_pay = st.session_state.get(f"opt_pay_{i}", None)
                     o_holder = st.session_state.get(f"cash_h_{i}", "")
+                    o_img = st.session_state.get(f"opt_img_{i}", None)
                     
+                    if o_img is not None:
+                        opt_img_path = os.path.join(UPLOAD_DIR, f"opt_{time.time()}_{o_img.name}")
+                        with open(opt_img_path, "wb") as f:
+                            f.write(o_img.getbuffer())
+                        option_image_paths.append(opt_img_path)
+
                     if o_type.strip() or o_val > 0:
                         option_types_list.append(o_type)
                         pay_str = f"({o_pay})" if o_pay else ""
@@ -327,6 +338,7 @@ if page == "نموذج تصفية المرشد":
                     "Collection": f"{collection_val} {collection_curr}",
                     "Option Type": ", ".join(option_types_list),
                     "Option": " | ".join(options_summary_list),
+                    "Option Images": ",".join(option_image_paths) if option_image_paths else "",
                     "Tickets": f"{ticket_value} - {ticket_type}",
                     "Tip": tip,
                     "Park": park,
@@ -394,6 +406,16 @@ elif page == "إدارة التصفيات":
                 st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
                 st.write(f"**التحصيل (Collection):** {req_row.get('Collection', 0)}")
                 st.write(f"**الأوبشنال (Optional):** {req_row.get('Option', '')}")
+                
+                # عرض صور الأوبشنال في صفحة التفاصيل
+                opt_paths = req_row.get('Option Images', '')
+                if pd.notna(opt_paths) and str(opt_paths).strip() != "":
+                    st.markdown("#### صور الأوبشنال:")
+                    opt_list = str(opt_paths).split(",")
+                    for idx, p in enumerate(opt_list):
+                        if os.path.exists(p):
+                            st.image(p, caption=f"صورة الأوبشنال رقم {idx+1}", use_container_width=True)
+
                 st.write(f"**التذاكر (Tickets):** {req_row.get('Tickets', '')}")
                 st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
                 st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
@@ -501,6 +523,7 @@ elif page == "إدارة التصفيات":
 
             st.markdown("---")
             st.markdown("### قاعدة بيانات المرشدين (إدارة وتعديل أرقام الحسابات)")
+            guides_df = load_data(GUIDES_FILE) # تحديث البيانات مباشرة
             st.dataframe(guides_df, use_container_width=True)
 
             col_section_left, col_section_right = st.columns(2, gap="large")
@@ -663,6 +686,15 @@ elif page == "الأرشيف":
                 st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
                 st.write(f"**التحصيل (Collection):** {req_row.get('Collection', 0)}")
                 st.write(f"**الأوبشنال (Optional):** {req_row.get('Option', '')}")
+                
+                opt_paths = req_row.get('Option Images', '')
+                if pd.notna(opt_paths) and str(opt_paths).strip() != "":
+                    st.markdown("#### صور الأوبشنال:")
+                    opt_list = str(opt_paths).split(",")
+                    for idx, p in enumerate(opt_list):
+                        if os.path.exists(p):
+                            st.image(p, caption=f"صورة الأوبشنال رقم {idx+1}", use_container_width=True)
+
                 st.write(f"**التذاكر (Tickets):** {req_row.get('Tickets', '')}")
                 st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
                 st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
