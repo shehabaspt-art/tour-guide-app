@@ -49,7 +49,14 @@ def save_to_file(file_path, new_data):
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
 
-# تنسيق CSS الأصلي المضبوط تماماً بدون أي الزامات إضافية تبوظ الشكل
+current_logo_path = get_current_logo()
+if current_logo_path:
+    try:
+        st.logo(current_logo_path, size="large")
+    except:
+        pass
+
+# تنسيق CSS للسايدبار والأزرار باللون الأخضر (فصل السايدبار عن أعلى الصفحة بمسافة 2 سم بلون أبيض)
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -63,32 +70,27 @@ st.markdown("""
         color: white !important;
     }
     
+    /* جعل السايدبار منفصلاً عن أعلى الصفحة بمسافة 2 سنتي ولون أبيض في الفراغ العلوي */
     [data-testid="stSidebar"] {
         background-color: transparent !important;
         border-left: none !important;
     }
-    
     [data-testid="stSidebar"] > div:first-child {
-        background-color: transparent !important;
-        padding-top: 0rem !important;
-    }
-
-    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:has(div.sidebar-content-box) {
         background-color: #d8ebd8 !important;
-        border: 2px solid #c2e0c2 !important;
-        border-radius: 15px !important;
-        padding: 20px 10px !important;
+        border-right: 2px solid #c2e0c2 !important;
+        border-bottom: 2px solid #c2e0c2 !important;
+        border-top: 2px solid #c2e0c2 !important;
+        border-radius: 0 15px 15px 0 !important;
+        margin-top: 2cm !important;
+        padding-top: 1rem !important;
+        height: calc(100vh - 2.5cm) !important;
     }
-
-    [data-testid="stSidebar"] [data-testid="stImage"] {
-        text-align: center !important;
-        margin-bottom: 10px !important;
-    }
-    [data-testid="stSidebar"] [data-testid="stImage"] img {
-        max-width: 170px !important;
+    
+    /* تكبير وتوسيط صورة اللوجو داخل السايدبار */
+    [data-testid="stSidebar"] img {
+        max-width: 100% !important;
+        width: 220px !important;
         height: auto !important;
-        display: block !important;
-        margin: 0 auto !important;
     }
 
     [data-testid="stSidebar"] .stRadio > label {
@@ -128,19 +130,22 @@ SHOPS_LIST = [
     "جولدن بيرد", "مملوك", "ريحانة توابل", "كنور توابل", "قصر العطور", "لازوريت"
 ]
 
-# حساب عدد الطلبات الواردة
+# حساب عدد الطلبات الجديدة في الإشعار العلوي
 current_subs_df = load_data(SUBMISSIONS_FILE)
 pending_count = len(current_subs_df)
 
-with st.sidebar:
-    st.markdown('<div class="sidebar-content-box">', unsafe_allow_html=True)
-    
-    current_logo_path = get_current_logo()
-    if current_logo_path:
-        st.image(current_logo_path)
+# عرض جرز الإشعار في أعلى الصفحة على اليمين
+col_spacer, col_badge = [st.columns([4, 1])[0], st.columns([4, 1])[1]] if hasattr(st, 'columns') else (None, None)
+with col_badge:
+    st.markdown(f"""
+        <div style="background-color: #d8ebd8; border: 2px solid #28a745; padding: 8px 12px; border-radius: 10px; text-align: center; margin-bottom: 15px;">
+            <span style="color: #1b5e20; font-weight: bold; font-size: 0.95rem;">🔔 الطلبات الجديدة: <span style="color: #d9534f; font-size: 1.1rem;">{pending_count}</span></span>
+        </div>
+    """, unsafe_allow_html=True)
 
+with st.sidebar:
     st.markdown("""
-        <div style="display: flex; align-items: center; margin-top: 5px; margin-bottom: 10px;">
+        <div style="display: flex; align-items: center; margin-top: 10px; margin-bottom: 5px;">
             <h2 style='color: #1b5e20; margin: 0; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>
         </div>
         """, unsafe_allow_html=True)
@@ -150,8 +155,6 @@ with st.sidebar:
         ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف"],
         label_visibility="collapsed"
     )
-    
-    st.markdown('</div>', unsafe_allow_html=True)
 
 if page == "نموذج تصفية المرشد":
     st.title("🧭 نموذج تصفية المرشدين")
@@ -268,11 +271,9 @@ if page == "نموذج تصفية المرشد":
             elif shop_images and not selected_shops and not other_shops.strip():
                 st.error("⚠️ عذراً، نظراً لرفع صور فواتير المحلات، يجب اختيار (اسم المحل) من القائمة أو كتابته في (محلات أخري) بشكل إلزامي!")
             else:
-                guide_name = ""
                 matched_guide = guides_df[guides_df[acc_column].astype(str) == str(account_no)]
-                if not matched_guide.empty:
-                    guide_name = matched_guide[name_column].values[0]
-
+                guide_name = matched_guide[name_column].values[0] if not matched_guide.empty else "غير معروف"
+                
                 current_time_str = datetime.now().strftime("%Y-%m-%d %I:%M %p")
                 
                 work_order_paths = []
@@ -342,10 +343,7 @@ if page == "نموذج تصفية المرشد":
                 st.rerun()
 
 elif page == "إدارة التصفيات":
-    if pending_count > 0:
-        st.title(f"📊 إدارة التصفيات  🔴 [عدد الطلبات الجديدة: {pending_count}]")
-    else:
-        st.title("📊 إدارة التصفيات")
+    st.title("📊 إدارة التصفيات")
     st.markdown("---")
 
     password = st.text_input("أدخل كلمة المرور لعرض لوحة الإدارة", type="password", key="mgr_pass")
