@@ -435,7 +435,6 @@ elif page == "سجلات المرشد":
     if "admin_guide_archive_view" not in st.session_state:
         st.session_state.admin_guide_archive_view = False
 
-    # زر خاص بالمسؤول في أعلى صفحة سجلات المرشدين
     with st.expander("🔒 خاص بالمسؤول (عرض جميع التصفية المنقولة)"):
         admin_pass_input = st.text_input("أدخل كلمة المرور الخاصة بالمسؤول", type="password", key="admin_guide_arch_pass")
         if admin_pass_input == "159753":
@@ -974,7 +973,8 @@ elif page == "الأرشيف":
                     st.markdown("### سجلات الأرشيف")
 
                     for idx, row in filtered_arch_df.iterrows():
-                        cols = st.columns([1, 2, 2, 2, 1.2, 1.2, 1.2])
+                        # تعديل الأعمدة لتعرض رقم العنصر، الفايل، المرشد، الوقت، زر عرض، زر حذف (بدون زر تم)
+                        cols = st.columns([1, 2, 2, 2, 1.2, 1.2])
                         with cols[0]:
                             st.write(f"**#{idx+1}**")
                         with cols[1]:
@@ -988,15 +988,6 @@ elif page == "الأرشيف":
                                 st.session_state.viewing_archive_file = idx
                                 st.rerun()
                         with cols[5]:
-                            if st.button("✅ تم", key=f"done_arch_btn_{idx}", type="primary"):
-                                guide_archive_entry = row.to_dict()
-                                save_to_file(GUIDE_ARCHIVE_FILE, guide_archive_entry)
-                                
-                                archive_df = archive_df.drop(idx).reset_index(drop=True)
-                                overwrite_data(ARCHIVE_FILE, archive_df)
-                                st.success("✅ تم إرسال التصفية إلى صفحة المرشدين بنجاح!")
-                                st.rerun()
-                        with cols[6]:
                             if st.button("🗑️ حذف", key=f"del_arch_btn_{idx}", type="primary"):
                                 st.session_state.confirming_del_archive = idx
                                 st.rerun()
