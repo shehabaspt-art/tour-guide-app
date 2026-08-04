@@ -435,7 +435,6 @@ elif page == "سجلات المرشد":
     if "admin_guide_archive_view" not in st.session_state:
         st.session_state.admin_guide_archive_view = False
 
-    # إضافة العنوان الكبير فوق قائمة المسؤول
     st.markdown("### 🛠️ لوحة تحكم وإدارة المسؤول")
     with st.expander("🔒 خاص بالمسؤول (عرض جميع التصفية المنقولة)"):
         admin_pass_input = st.text_input("أدخل كلمة المرور الخاصة بالمسؤول", type="password", key="admin_guide_arch_pass")
@@ -517,7 +516,7 @@ elif page == "سجلات المرشد":
             st.session_state.viewing_guide_archive_file = None
             st.rerun()
     else:
-        st.markdown("### 🔑 أدخل رقم الحساب أو رقم التليفون للاطلاع على سجلاتك")
+        st.markdown("### 🔑 أدخل رقم الحساب أو رقم التليفون للاطلاع على سجلاتك (خاص بالمرشد)")
         entered_acc = st.text_input("رقم الحساب أو رقم التليفون الخاص بالتحويل", type="default", key="guide_login_acc")
 
         if entered_acc.strip():
