@@ -165,8 +165,12 @@ if page == "نموذج تصفية المرشد":
         st.session_state.option_rows_count = 1
     if "shop_rows_count" not in st.session_state:
         st.session_state.shop_rows_count = 1
+    
+    # مفتاح للتحكم في إعادة تعيين النموذج بالكامل
+    if "form_reset_key" not in st.session_state:
+        st.session_state.form_reset_key = 0
 
-    with st.form("guide_form", clear_on_submit=False):
+    with st.form(f"guide_form_{st.session_state.form_reset_key}", clear_on_submit=False):
         st.subheader("بيانات المرشد")
         
         col_top1, col_top2, col_top3 = st.columns(3)
@@ -401,9 +405,12 @@ if page == "نموذج تصفية المرشد":
                 }
                 save_to_file(SUBMISSIONS_FILE, new_entry)
                 
+                # تصفير العدادات وتغيير مفتاح الفورم لمسح جميع الحقول المخزنة في الـ session_state تماماً
                 st.session_state.option_rows_count = 1
                 st.session_state.shop_rows_count = 1
-                st.success("✅ تم إرسال الطلب للمدير بنجاح! جاهز لتسجيل تصفية جديدة...")
+                st.session_state.form_reset_key += 1
+                
+                st.success("✅ تم إرسال الطلب للمدير بنجاح! تم مسح النموذج وجاهز لتسجيل تصفية جديدة...")
                 st.rerun()
 
 elif page == "سجلات المرشد":
@@ -479,7 +486,6 @@ elif page == "سجلات المرشد":
         if entered_acc.strip():
             g_arch_df = load_data(GUIDE_ARCHIVE_FILE)
             if not g_arch_df.empty:
-                # تنظيف وتوحيد نوع البيانات للمقارنة بدقة تامة
                 clean_entered_acc = str(entered_acc).strip()
                 g_arch_df['Account'] = g_arch_df['Account'].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
                 
@@ -900,7 +906,7 @@ elif page == "الأرشيف":
                             
                             s_paths = row.get('Shop Images', '')
                             if pd.notna(s_paths) and str(s_paths).strip() != "":
-                                st.markdown("**📷 فواتير المحلات المرفوعة:**")
+                                st.markdown("📷 فواتير المحلات المرفوعة:")
                                 paths_list = str(s_paths).split(",")
                                 img_cols = st.columns(min(len(paths_list), 3))
                                 for i, p in enumerate(paths_list):
@@ -922,7 +928,7 @@ elif page == "الأرشيف":
                         key="arch_guide_filter"
                     )
 
-                    if selected_guide_arch_filter != "الكل (جميع المرشدين)":
+                    if selected_guide_arch_filter != "الكل (جميع المحلات)":
                         filtered_arch_df = archive_df[archive_df['Guide Name'] == selected_guide_arch_filter]
                         st.info(f"عرض الأرشيف الخاص بالمرشد: **{selected_guide_arch_filter}** (عدد الطلبات: {len(filtered_arch_df)})")
                     else:
