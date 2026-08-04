@@ -254,12 +254,16 @@ if page == "نموذج تصفية المرشد":
         add_more_shop = st.form_submit_button("➕ إضافة محل")
 
         st.markdown("---")
-        st.subheader("اسم المحل")
+        st.subheader("محلات خارجية")
         
-        col_oth1, col_oth2 = st.columns([2, 1])
+        col_oth1, col_oth2, col_oth3, col_oth4 = st.columns([2, 1, 1, 2])
         with col_oth1:
-            other_shops = st.text_input("أدخل المحلات الأخرى هنا", label_visibility="collapsed")
+            other_shops = st.text_input("اسم المحل")
         with col_oth2:
+            other_shops_val = st.number_input("القيمة", min_value=0.0, step=10.0, key="other_shops_val")
+        with col_oth3:
+            other_shops_curr = st.selectbox("العملة", options=["مصري", "دولار", "يورو"], key="other_shops_curr")
+        with col_oth4:
             other_shops_images = st.file_uploader("رفع فاتورة المحل", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key="other_shops_imgs")
 
         submitted = st.form_submit_button("إرسال الطلب للمدير", type="primary")
@@ -346,6 +350,9 @@ if page == "نموذج تصفية المرشد":
                         shops_names_only.append(s_name)
                         shops_summary_list.append(f"{s_name}: {s_val} {s_curr}")
 
+                if other_shops.strip():
+                    shops_summary_list.append(f"{other_shops} (خارجي): {other_shops_val} {other_shops_curr}")
+
                 all_shop_paths.extend(other_shops_paths)
 
                 options_summary_list = []
@@ -383,7 +390,7 @@ if page == "نموذج تصفية المرشد":
                     "Lunch": lunch,
                     "Lunch Receipt": ",".join(lunch_paths) if lunch_paths else "",
                     "Shop Names": ", ".join(shops_names_only),
-                    "Other Shops": other_shops,
+                    "Other Shops": f"{other_shops} : {other_shops_val} {other_shops_curr}" if other_shops.strip() else "",
                     "Shops Details": " | ".join(shops_summary_list),
                     "Shop Images": ",".join(all_shop_paths) if all_shop_paths else ""
                 }
@@ -464,7 +471,7 @@ elif page == "إدارة التصفيات":
                 st.markdown("---")
                 st.write(f"**تفاصيل المحلات:** {req_row.get('Shops Details', req_row.get('Shop Names', 'لا يوجد'))}")
                 if pd.notna(req_row.get('Other Shops', '')) and str(req_row.get('Other Shops', '')).strip() != "":
-                    st.write(f"**محلات أخري:** {req_row.get('Other Shops', '')}")
+                    st.write(f"**محلات خارجية:** {req_row.get('Other Shops', '')}")
 
                 s_paths = req_row.get('Shop Images', '')
                 if pd.notna(s_paths) and str(s_paths).strip() != "":
@@ -738,7 +745,7 @@ elif page == "الأرشيف":
                 st.markdown("---")
                 st.write(f"**تفاصيل المحلات:** {req_row.get('Shops Details', req_row.get('Shop Names', 'لا يوجد'))}")
                 if pd.notna(req_row.get('Other Shops', '')) and str(req_row.get('Other Shops', '')).strip() != "":
-                    st.write(f"**محلات أخري:** {req_row.get('Other Shops', '')}")
+                    st.write(f"**محلات خارجية:** {req_row.get('Other Shops', '')}")
 
                 s_paths = req_row.get('Shop Images', '')
                 if pd.notna(s_paths) and str(s_paths).strip() != "":
@@ -777,7 +784,7 @@ elif page == "الأرشيف":
                                 st.write(f"**تاريخ التصفية:** {row.get('Timestamp', '')}")
                                 st.write(f"**تفاصيل المحلات:** {row.get('Shops Details', row.get('Shop Names', 'لا يوجد'))}")
                                 if pd.notna(row.get('Other Shops', '')) and str(row.get('Other Shops', '')).strip() != "":
-                                    st.write(f"**محلات أخري:** {row.get('Other Shops', '')}")
+                                    st.write(f"**محلات خارجية:** {row.get('Other Shops', '')}")
                             with col_info2:
                                 st.write(f"**التحصيل / القيمة:** {row.get('Collection', '0')}")
                                 st.write(f"**الأوبشنال:** {row.get('Option', 'لا يوجد')}")
