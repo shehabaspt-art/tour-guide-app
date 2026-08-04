@@ -435,6 +435,8 @@ elif page == "سجلات المرشد":
     if "admin_guide_archive_view" not in st.session_state:
         st.session_state.admin_guide_archive_view = False
 
+    # إضافة العنوان الكبير فوق قائمة المسؤول
+    st.markdown("### 🛠️ لوحة تحكم وإدارة المسؤول")
     with st.expander("🔒 خاص بالمسؤول (عرض جميع التصفية المنقولة)"):
         admin_pass_input = st.text_input("أدخل كلمة المرور الخاصة بالمسؤول", type="password", key="admin_guide_arch_pass")
         if admin_pass_input == "159753":
@@ -973,7 +975,6 @@ elif page == "الأرشيف":
                     st.markdown("### سجلات الأرشيف")
 
                     for idx, row in filtered_arch_df.iterrows():
-                        # تعديل الأعمدة لتعرض رقم العنصر، الفايل، المرشد، الوقت، زر عرض، زر حذف (بدون زر تم)
                         cols = st.columns([1, 2, 2, 2, 1.2, 1.2])
                         with cols[0]:
                             st.write(f"**#{idx+1}**")
