@@ -254,7 +254,7 @@ if page == "نموذج تصفية المرشد":
         add_more_shop = st.form_submit_button("➕ إضافة محل")
 
         st.markdown("---")
-        st.subheader("محلات أخري (اكتبها يدوياً إن وجدت)")
+        st.subheader("اسم المحل")
         
         col_oth1, col_oth2 = st.columns([2, 1])
         with col_oth1:
@@ -346,7 +346,6 @@ if page == "نموذج تصفية المرشد":
                         shops_names_only.append(s_name)
                         shops_summary_list.append(f"{s_name}: {s_val} {s_curr}")
 
-                # دمج صور فواتير المحلات الأخرى مع صور المحلات العامة
                 all_shop_paths.extend(other_shops_paths)
 
                 options_summary_list = []
@@ -861,4 +860,4 @@ elif page == "الأرشيف":
                 st.info("لا توجد طلبات في الأرشيف حالياً.")
     else:
         if password_arch != "":
-            st.error("❌ كلمة المرور غير صحيحة غير صحيحة!")
+            st.error("❌ كلمة المرور غير صحيحة!")
