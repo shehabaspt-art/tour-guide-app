@@ -130,6 +130,19 @@ SHOPS_LIST = [
     "جولدن بيرد", "مملوك", "ريحانة توابل", "كنور توابل", "قصر العطور", "لازوريت"
 ]
 
+# حساب عدد الطلبات الجديدة في الإشعار العلوي
+current_subs_df = load_data(SUBMISSIONS_FILE)
+pending_count = len(current_subs_df)
+
+# عرض جرز الإشعار في أعلى الصفحة على اليمين
+col_spacer, col_badge = [st.columns([4, 1])[0], st.columns([4, 1])[1]] if hasattr(st, 'columns') else (None, None)
+with col_badge:
+    st.markdown(f"""
+        <div style="background-color: #d8ebd8; border: 2px solid #28a745; padding: 8px 12px; border-radius: 10px; text-align: center; margin-bottom: 15px;">
+            <span style="color: #1b5e20; font-weight: bold; font-size: 0.95rem;">🔔 الطلبات الجديدة: <span style="color: #d9534f; font-size: 1.1rem;">{pending_count}</span></span>
+        </div>
+    """, unsafe_allow_html=True)
+
 with st.sidebar:
     st.markdown("""
         <div style="display: flex; align-items: center; margin-top: 10px; margin-bottom: 5px;">
