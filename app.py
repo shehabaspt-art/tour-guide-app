@@ -162,6 +162,8 @@ if page == "نموذج تصفية المرشد":
 
     if "option_rows_count" not in st.session_state:
         st.session_state.option_rows_count = 1
+    if "shop_rows_count" not in st.session_state:
+        st.session_state.shop_rows_count = 1
 
     with st.form("guide_form", clear_on_submit=True):
         st.subheader("بيانات المرشد")
@@ -233,7 +235,27 @@ if page == "نموذج تصفية المرشد":
 
         st.markdown("---")
         st.subheader("فواتير ومحلات التسوق")
-        selected_shops = st.multiselect("اسم المحل (اختر من القائمة)", options=SHOPS_LIST)
+        
+        shop_data_list = []
+        for j in range(st.session_state.shop_rows_count):
+            st.markdown(f"**المحل رقم ({j+1})**")
+            col_s1, col_s2, col_s3 = st.columns([2, 1, 1])
+            with col_s1:
+                shop_name_choice = st.selectbox("اسم المحل", options=[None] + SHOPS_LIST, key=f"shop_name_{j}")
+            with col_s2:
+                shop_val = st.number_input("القيمة", min_value=0.0, step=10.0, key=f"shop_val_{j}")
+            with col_s3:
+                shop_curr = st.selectbox("العملة", options=["مصري", "يورو", "دولار"], key=f"shop_curr_{j}")
+            
+            shop_data_list.append({
+                "name": shop_name_choice, "value": shop_val, "curr": shop_curr
+            })
+            if j < st.session_state.shop_rows_count - 1:
+                st.markdown("---")
+
+        add_more_shop = st.form_submit_button("➕ إضافة محل")
+
+        st.markdown("---")
         other_shops = st.text_input("محلات أخري (اكتبها يدوياً إن وجدت)")
         shop_images = st.file_uploader("رفع صور فواتير المحلات", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key="shop_imgs")
 
@@ -243,19 +265,22 @@ if page == "نموذج تصفية المرشد":
             st.session_state.option_rows_count += 1
             st.rerun()
 
+        if add_more_shop:
+            st.session_state.shop_rows_count += 1
+            st.rerun()
+
         if submitted:
             validation_error = False
             validation_pay_error = False
+
             for i in range(st.session_state.option_rows_count):
                 o_val = st.session_state.get(f"opt_val_{i}", 0.0)
                 p_val = st.session_state.get(f"opt_pay_{i}", None)
                 c_h = st.session_state.get(f"cash_h_{i}", None)
-                
                 o_type = st.session_state.get(f"opt_type_{i}", "")
                 if (o_val > 0 or o_type.strip()) and not p_val:
                     validation_pay_error = True
                     break
-                
                 if p_val == "كاش" and not c_h:
                     validation_error = True
                     break
@@ -268,8 +293,6 @@ if page == "نموذج تصفية المرشد":
                 st.error("⚠️ عذراً، نظراً لإدخال قيمة أو نوع في أحد الأوبشنالز، يجب اختيار (طريقة الدفع) [كاش / لينك] بشكل إلزامي!")
             elif validation_error:
                 st.error("⚠️ عذراً، نظراً لاختيار طريقة الدفع (كاش)، يجب اختيار (المبلغ) [مع المرشد / مع السواق] بشكل إلزامي!")
-            elif shop_images and not selected_shops and not other_shops.strip():
-                st.error("⚠️ عذراً، نظراً لرفع صور فواتير المحلات، يجب اختيار (اسم المحل) من القائمة أو كتابته في (محلات أخري) بشكل إلزامي!")
             else:
                 matched_guide = guides_df[guides_df[acc_column].astype(str) == str(account_no)]
                 guide_name = matched_guide[name_column].values[0] if not matched_guide.empty else "غير معروف"
@@ -319,6 +342,16 @@ if page == "نموذج تصفية المرشد":
                             detail_str = f"{o_type}: " + detail_str
                         options_summary_list.append(detail_str)
 
+                shops_summary_list = []
+                shops_names_only = []
+                for j in range(st.session_state.shop_rows_count):
+                    s_name = st.session_state.get(f"shop_name_{j}", None)
+                    s_val = st.session_state.get(f"shop_val_{j}", 0.0)
+                    s_curr = st.session_state.get(f"shop_curr_{j}", "مصري")
+                    if s_name:
+                        shops_names_only.append(s_name)
+                        shops_summary_list.append(f"{s_name}: {s_val} {s_curr}")
+
                 new_entry = {
                     "Timestamp": current_time_str,
                     "Guide Name": guide_name,
@@ -334,13 +367,15 @@ if page == "نموذج تصفية المرشد":
                     "Park": park,
                     "Lunch": lunch,
                     "Lunch Receipt": ",".join(lunch_paths) if lunch_paths else "",
-                    "Shop Names": ", ".join(selected_shops),
+                    "Shop Names": ", ".join(shops_names_only),
                     "Other Shops": other_shops,
+                    "Shops Details": " | ".join(shops_summary_list),
                     "Shop Images": ",".join(shop_paths) if shop_paths else ""
                 }
                 save_to_file(SUBMISSIONS_FILE, new_entry)
                 
                 st.session_state.option_rows_count = 1
+                st.session_state.shop_rows_count = 1
                 st.success("✅ تم إرسال الطلب للمدير بنجاح! جاهز لتسجيل تصفية جديدة...")
                 st.rerun()
 
@@ -412,8 +447,9 @@ elif page == "إدارة التصفيات":
                     st.info("لا توجد صور لفواتير الغداء.")
 
                 st.markdown("---")
-                st.write(f"**أسماء المحلات المختارة:** {req_row.get('Shop Names', 'لا يوجد')}")
-                st.write(f"**محلات أخري:** {req_row.get('Other Shops', 'لا يوجد')}")
+                st.write(f"**تفاصيل المحلات:** {req_row.get('Shops Details', req_row.get('Shop Names', 'لا يوجد'))}")
+                if pd.notna(req_row.get('Other Shops', '')) and str(req_row.get('Other Shops', '')).strip() != "":
+                    st.write(f"**محلات أخري:** {req_row.get('Other Shops', '')}")
 
                 s_paths = req_row.get('Shop Images', '')
                 if pd.notna(s_paths) and str(s_paths).strip() != "":
@@ -685,8 +721,9 @@ elif page == "الأرشيف":
                     st.info("لا توجد صور لفواتير الغداء.")
 
                 st.markdown("---")
-                st.write(f"**أسماء المحلات المختارة:** {req_row.get('Shop Names', 'لا يوجد')}")
-                st.write(f"**محلات أخري:** {req_row.get('Other Shops', 'لا يوجد')}")
+                st.write(f"**تفاصيل المحلات:** {req_row.get('Shops Details', req_row.get('Shop Names', 'لا يوجد'))}")
+                if pd.notna(req_row.get('Other Shops', '')) and str(req_row.get('Other Shops', '')).strip() != "":
+                    st.write(f"**محلات أخري:** {req_row.get('Other Shops', '')}")
 
                 s_paths = req_row.get('Shop Images', '')
                 if pd.notna(s_paths) and str(s_paths).strip() != "":
@@ -710,7 +747,8 @@ elif page == "الأرشيف":
 
                 if selected_shop_filter != "الكل (جميع المحلات)":
                     matched_arch_df = archive_df[
-                        archive_df['Shop Names'].astype(str).str.contains(selected_shop_filter, na=False) | 
+                        archive_df['Shops Details'].astype(str).str.contains(selected_shop_filter, na=False) | 
+                        archive_df['Shop Names'].astype(str).str.contains(selected_shop_filter, na=False) |
                         archive_df['Other Shops'].astype(str).str.contains(selected_shop_filter, na=False)
                     ]
                     
@@ -722,7 +760,7 @@ elif page == "الأرشيف":
                             col_info1, col_info2 = st.columns(2)
                             with col_info1:
                                 st.write(f"**تاريخ التصفية:** {row.get('Timestamp', '')}")
-                                st.write(f"**المحلات المختارة:** {row.get('Shop Names', 'لا يوجد')}")
+                                st.write(f"**تفاصيل المحلات:** {row.get('Shops Details', row.get('Shop Names', 'لا يوجد'))}")
                                 if pd.notna(row.get('Other Shops', '')) and str(row.get('Other Shops', '')).strip() != "":
                                     st.write(f"**محلات أخري:** {row.get('Other Shops', '')}")
                             with col_info2:
