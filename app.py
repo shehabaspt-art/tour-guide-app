@@ -56,7 +56,7 @@ if current_logo_path:
     except:
         pass
 
-# تنسيق CSS للسايدبار والأزرار (يبدأ العمود الأخضر من أعلى الصفحة واللوجو أعرض)
+# تنسيق CSS للسايدبار والأزرار
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -70,7 +70,6 @@ st.markdown("""
         color: white !important;
     }
     
-    /* جعل السايدبار يبدأ من أعلى الصفحة تماماً وبدون فراغات علوية */
     [data-testid="stSidebar"] {
         background-color: transparent !important;
         border-left: none !important;
@@ -86,7 +85,6 @@ st.markdown("""
         height: 100vh !important;
     }
     
-    /* تكبير وتوسيط صورة اللوجو لتصبح أعرض وأوضح */
     [data-testid="stSidebar"] img {
         max-width: 100% !important;
         width: 260px !important;
@@ -130,11 +128,9 @@ SHOPS_LIST = [
     "جولدن بيرد", "مملوك", "ريحانة توابل", "كنور توابل", "قصر العطور", "لازوريت"
 ]
 
-# حساب عدد الطلبات الجديدة في الإشعار العلوي
 current_subs_df = load_data(SUBMISSIONS_FILE)
 pending_count = len(current_subs_df)
 
-# عرض جرز الإشعار في أعلى الصفحة على اليمين
 col_spacer, col_badge = [st.columns([4, 1])[0], st.columns([4, 1])[1]] if hasattr(st, 'columns') else (None, None)
 with col_badge:
     st.markdown(f"""
@@ -239,16 +235,19 @@ if page == "نموذج تصفية المرشد":
         shop_data_list = []
         for j in range(st.session_state.shop_rows_count):
             st.markdown(f"**المحل رقم ({j+1})**")
-            col_s1, col_s2, col_s3 = st.columns([2, 1, 1])
+            # تم دمج خانة رفع الصور بجانب بيانات المحل في نفس الصفوف
+            col_s1, col_s2, col_s3, col_s4 = st.columns([2, 1, 1, 2])
             with col_s1:
                 shop_name_choice = st.selectbox("اسم المحل", options=[None] + SHOPS_LIST, key=f"shop_name_{j}")
             with col_s2:
                 shop_val = st.number_input("القيمة", min_value=0.0, step=10.0, key=f"shop_val_{j}")
             with col_s3:
                 shop_curr = st.selectbox("العملة", options=["مصري", "يورو", "دولار"], key=f"shop_curr_{j}")
+            with col_s4:
+                shop_file_img = st.file_uploader("رفع فاتورة المحل", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key=f"shop_img_{j}")
             
             shop_data_list.append({
-                "name": shop_name_choice, "value": shop_val, "curr": shop_curr
+                "name": shop_name_choice, "value": shop_val, "curr": shop_curr, "images": shop_file_img
             })
             if j < st.session_state.shop_rows_count - 1:
                 st.markdown("---")
@@ -257,7 +256,6 @@ if page == "نموذج تصفية المرشد":
 
         st.markdown("---")
         other_shops = st.text_input("محلات أخري (اكتبها يدوياً إن وجدت)")
-        shop_images = st.file_uploader("رفع صور فواتير المحلات", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key="shop_imgs")
 
         submitted = st.form_submit_button("إرسال الطلب للمدير", type="primary")
 
@@ -315,13 +313,25 @@ if page == "نموذج تصفية المرشد":
                             f.write(img.getbuffer())
                         lunch_paths.append(l_path)
 
-                shop_paths = []
-                if shop_images:
-                    for img in shop_images:
-                        s_path = os.path.join(UPLOAD_DIR, f"shop_{time.time()}_{img.name}")
-                        with open(s_path, "wb") as f:
-                            f.write(img.getbuffer())
-                        shop_paths.append(s_path)
+                all_shop_paths = []
+                shops_summary_list = []
+                shops_names_only = []
+                for j in range(st.session_state.shop_rows_count):
+                    s_name = st.session_state.get(f"shop_name_{j}", None)
+                    s_val = st.session_state.get(f"shop_val_{j}", 0.0)
+                    s_curr = st.session_state.get(f"shop_curr_{j}", "مصري")
+                    s_imgs = st.session_state.get(f"shop_img_{j}", [])
+                    
+                    if s_imgs:
+                        for img in s_imgs:
+                            s_path = os.path.join(UPLOAD_DIR, f"shop_{time.time()}_{img.name}")
+                            with open(s_path, "wb") as f:
+                                f.write(img.getbuffer())
+                            all_shop_paths.append(s_path)
+
+                    if s_name:
+                        shops_names_only.append(s_name)
+                        shops_summary_list.append(f"{s_name}: {s_val} {s_curr}")
 
                 options_summary_list = []
                 option_types_list = []
@@ -342,16 +352,6 @@ if page == "نموذج تصفية المرشد":
                             detail_str = f"{o_type}: " + detail_str
                         options_summary_list.append(detail_str)
 
-                shops_summary_list = []
-                shops_names_only = []
-                for j in range(st.session_state.shop_rows_count):
-                    s_name = st.session_state.get(f"shop_name_{j}", None)
-                    s_val = st.session_state.get(f"shop_val_{j}", 0.0)
-                    s_curr = st.session_state.get(f"shop_curr_{j}", "مصري")
-                    if s_name:
-                        shops_names_only.append(s_name)
-                        shops_summary_list.append(f"{s_name}: {s_val} {s_curr}")
-
                 new_entry = {
                     "Timestamp": current_time_str,
                     "Guide Name": guide_name,
@@ -370,7 +370,7 @@ if page == "نموذج تصفية المرشد":
                     "Shop Names": ", ".join(shops_names_only),
                     "Other Shops": other_shops,
                     "Shops Details": " | ".join(shops_summary_list),
-                    "Shop Images": ",".join(shop_paths) if shop_paths else ""
+                    "Shop Images": ",".join(all_shop_paths) if all_shop_paths else ""
                 }
                 save_to_file(SUBMISSIONS_FILE, new_entry)
                 
