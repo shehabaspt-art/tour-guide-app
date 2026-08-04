@@ -69,23 +69,9 @@ if current_logo_path:
     except:
         pass
 
-# تنسيق CSS معدل لضمان إظهار زر السايدبار وإخفاء الشريط العلوي تماماً
+# إرجاع الشريط العلوي وسهم القائمة الافتراضي تماماً لتجنب أي مشاكل في الإظهار
 st.markdown("""
     <style>
-    /* إخفاء الشريط العلوي بالكامل */
-    [data-testid="stHeader"] {
-        visibility: hidden;
-        display: none;
-    }
-
-    /* إظهار زر وناقل السايدبار بوضوح تام ودون أي إخفاء */
-    [data-testid="collapsedControl"] {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        z-index: 999999 !important;
-    }
-
     div.stFormSubmitButton > button, div.stButton > button {
         border-radius: 8px !important;
         background-color: #28a745 !important;
