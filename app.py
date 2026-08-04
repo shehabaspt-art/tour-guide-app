@@ -34,7 +34,6 @@ def clean_acc_number(val):
     s_val = str(val).strip()
     if s_val.endswith('.0'):
         s_val = s_val[:-2]
-    # إزالة الصفر من البداية لو موجود بناءً على طلبك
     if s_val.startswith('0'):
         s_val = s_val[1:]
     return s_val
@@ -176,6 +175,11 @@ if page == "نموذج تصفية المرشد":
         st.session_state.option_rows_count = 1
     if "shop_rows_count" not in st.session_state:
         st.session_state.shop_rows_count = 1
+    
+    if "form_reset_counter" not in st.session_state:
+        st.session_state.form_reset_counter = 0
+
+    rc = st.session_state.form_reset_counter
 
     with st.form("guide_form", clear_on_submit=False):
         st.subheader("بيانات المرشد")
@@ -183,22 +187,22 @@ if page == "نموذج تصفية المرشد":
         col_top1, col_top2, col_top3 = st.columns(3)
         with col_top1:
             account_options = [None] + guides_df[acc_column].apply(clean_acc_number).tolist()
-            account_no = st.selectbox("رقم الحساب أو رقم التليفون الخاص بالتحويل", options=account_options, index=0, key="form_account_no")
+            account_no = st.selectbox("رقم الحساب أو رقم التليفون الخاص بالتحويل", options=account_options, index=0, key=f"form_account_no_{rc}")
         with col_top2:
-            file_no = st.text_input("رقم الفايل (File Number) *إلزامي*", key="form_file_no")
+            file_no = st.text_input("رقم الفايل (File Number) *إلزامي*", key=f"form_file_no_{rc}")
         with col_top3:
-            advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0, key="form_advances")
+            advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0, key=f"form_advances_{rc}")
 
-        work_order_image = st.file_uploader("رفع صور أمر الشغل", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key="work_order_imgs")
+        work_order_image = st.file_uploader("رفع صور أمر الشغل", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key=f"work_order_imgs_{rc}")
 
         st.markdown("---")
         st.subheader("التحصيل (Collection)")
         
         col_c1, col_c2 = st.columns([2, 1])
         with col_c1:
-            collection_val = st.number_input("قيمة التحصيل", min_value=0.0, step=10.0, key="form_collection_val")
+            collection_val = st.number_input("قيمة التحصيل", min_value=0.0, step=10.0, key=f"form_collection_val_{rc}")
         with col_c2:
-            collection_curr = st.selectbox("عملة التحصيل", options=["جنية", "يورو", "دولار"], key="form_collection_curr")
+            collection_curr = st.selectbox("عملة التحصيل", options=["جنية", "يورو", "دولار"], key=f"form_collection_curr_{rc}")
 
         st.markdown("---")
         st.subheader("أوبشنال (Optional)")
@@ -208,15 +212,15 @@ if page == "نموذج تصفية المرشد":
             st.markdown(f"**أوبشنال رقم ({i+1})**")
             col_opt1, col_opt2, col_opt3, col_opt4, col_opt5 = st.columns(5)
             with col_opt1:
-                opt_type = st.text_input("نوع الأوبشنال", key=f"opt_type_{i}")
+                opt_type = st.text_input("نوع الأوبشنال", key=f"opt_type_{rc}_{i}")
             with col_opt2:
-                opt_val = st.number_input("قيمة الأوبشنال", min_value=0.0, step=10.0, key=f"opt_val_{i}")
+                opt_val = st.number_input("قيمة الأوبشنال", min_value=0.0, step=10.0, key=f"opt_val_{rc}_{i}")
             with col_opt3:
-                opt_curr = st.selectbox("عملة الأوبشنال", options=["مصري", "دولار", "يورو"], key=f"opt_curr_{i}")
+                opt_curr = st.selectbox("عملة الأوبشنال", options=["مصري", "دولار", "يورو"], key=f"opt_curr_{rc}_{i}")
             with col_opt4:
-                opt_pay = st.selectbox("طريقة الدفع", options=[None, "كاش", "لينك"], key=f"opt_pay_{i}")
+                opt_pay = st.selectbox("طريقة الدفع", options=[None, "كاش", "لينك"], key=f"opt_pay_{rc}_{i}")
             with col_opt5:
-                cash_h = st.selectbox("المبلغ", options=[None, "مع المرشد", "مع السواق"], key=f"cash_h_{i}")
+                cash_h = st.selectbox("المبلغ", options=[None, "مع المرشد", "مع السواق"], key=f"cash_h_{rc}_{i}")
             
             option_data_list.append({
                 "type": opt_type, "value": opt_val, "curr": opt_curr, "pay": opt_pay, "holder": cash_h
@@ -230,20 +234,20 @@ if page == "نموذج تصفية المرشد":
         st.subheader("مصاريف (Expenses)")
         col_tkt1, col_tkt2 = st.columns(2)
         with col_tkt1:
-            ticket_value = st.number_input("قيمة التذاكر", min_value=0.0, step=10.0, key="form_tkt_val")
+            ticket_value = st.number_input("قيمة التذاكر", min_value=0.0, step=10.0, key=f"form_tkt_val_{rc}")
         with col_tkt2:
-            ticket_type = st.text_input("نوع التذاكر", key="form_tkt_type")
+            ticket_type = st.text_input("نوع التذاكر", key=f"form_tkt_type_{rc}")
 
         st.markdown("---")
         col_misc1, col_misc2, col_misc3 = st.columns(3)
         with col_misc1:
-            tip = st.number_input("إكرامية", min_value=0.0, step=10.0, key="form_tip")
+            tip = st.number_input("إكرامية", min_value=0.0, step=10.0, key=f"form_tip_{rc}")
         with col_misc2:
-            park = st.number_input("بارك", min_value=0.0, step=10.0, key="form_park")
+            park = st.number_input("بارك", min_value=0.0, step=10.0, key=f"form_park_{rc}")
         with col_misc3:
-            lunch = st.number_input("غداء", min_value=0.0, step=10.0, key="form_lunch")
+            lunch = st.number_input("غداء", min_value=0.0, step=10.0, key=f"form_lunch_{rc}")
 
-        lunch_images = st.file_uploader("رفع صور فواتير الغداء", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key="lunch_imgs")
+        lunch_images = st.file_uploader("رفع صور فواتير الغداء", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key=f"lunch_imgs_{rc}")
 
         st.markdown("---")
         st.subheader("فواتير ومحلات التسوق")
@@ -253,13 +257,13 @@ if page == "نموذج تصفية المرشد":
             st.markdown(f"**المحل رقم ({j+1})**")
             col_s1, col_s2, col_s3, col_s4 = st.columns([2, 1, 1, 2])
             with col_s1:
-                shop_name_choice = st.selectbox("اسم المحل", options=[None] + SHOPS_LIST, key=f"shop_name_{j}")
+                shop_name_choice = st.selectbox("اسم المحل", options=[None] + SHOPS_LIST, key=f"shop_name_{rc}_{j}")
             with col_s2:
-                shop_val = st.number_input("القيمة", min_value=0.0, step=10.0, key=f"shop_val_{j}")
+                shop_val = st.number_input("القيمة", min_value=0.0, step=10.0, key=f"shop_val_{rc}_{j}")
             with col_s3:
-                shop_curr = st.selectbox("العملة", options=["مصري", "يورو", "دولار"], key=f"shop_curr_{j}")
+                shop_curr = st.selectbox("العملة", options=["مصري", "يورو", "دولار"], key=f"shop_curr_{rc}_{j}")
             with col_s4:
-                shop_file_img = st.file_uploader("رفع فاتورة المحل", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key=f"shop_img_{j}")
+                shop_file_img = st.file_uploader("رفع فاتورة المحل", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key=f"shop_img_{rc}_{j}")
             
             shop_data_list.append({
                 "name": shop_name_choice, "value": shop_val, "curr": shop_curr, "images": shop_file_img
@@ -274,13 +278,13 @@ if page == "نموذج تصفية المرشد":
         
         col_oth1, col_oth2, col_oth3, col_oth4 = st.columns([2, 1, 1, 2])
         with col_oth1:
-            other_shops = st.text_input("اسم المحل", key="other_shops_name")
+            other_shops = st.text_input("اسم المحل", key=f"other_shops_name_{rc}")
         with col_oth2:
-            other_shops_val = st.number_input("القيمة", min_value=0.0, step=10.0, key="other_shops_val")
+            other_shops_val = st.number_input("القيمة", min_value=0.0, step=10.0, key=f"other_shops_val_{rc}")
         with col_oth3:
-            other_shops_curr = st.selectbox("العملة", options=["مصري", "دولار", "يورو"], key="other_shops_curr")
+            other_shops_curr = st.selectbox("العملة", options=["مصري", "دولار", "يورو"], key=f"other_shops_curr_{rc}")
         with col_oth4:
-            other_shops_images = st.file_uploader("رفع فاتورة المحل", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key="other_shops_imgs")
+            other_shops_images = st.file_uploader("رفع فاتورة المحل", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key=f"other_shops_imgs_{rc}")
 
         submitted = st.form_submit_button("إرسال الطلب للمدير", type="primary")
 
@@ -297,10 +301,10 @@ if page == "نموذج تصفية المرشد":
             validation_pay_error = False
 
             for i in range(st.session_state.option_rows_count):
-                o_val = st.session_state.get(f"opt_val_{i}", 0.0)
-                p_val = st.session_state.get(f"opt_pay_{i}", None)
-                c_h = st.session_state.get(f"cash_h_{i}", None)
-                o_type = st.session_state.get(f"opt_type_{i}", "")
+                o_val = st.session_state.get(f"opt_val_{rc}_{i}", 0.0)
+                p_val = st.session_state.get(f"opt_pay_{rc}_{i}", None)
+                c_h = st.session_state.get(f"cash_h_{rc}_{i}", None)
+                o_type = st.session_state.get(f"opt_type_{rc}_{i}", "")
                 if (o_val > 0 or o_type.strip()) and not p_val:
                     validation_pay_error = True
                     break
@@ -352,10 +356,10 @@ if page == "نموذج تصفية المرشد":
                 shops_summary_list = []
                 shops_names_only = []
                 for j in range(st.session_state.shop_rows_count):
-                    s_name = st.session_state.get(f"shop_name_{j}", None)
-                    s_val = st.session_state.get(f"shop_val_{j}", 0.0)
-                    s_curr = st.session_state.get(f"shop_curr_{j}", "مصري")
-                    s_imgs = st.session_state.get(f"shop_img_{j}", [])
+                    s_name = st.session_state.get(f"shop_name_{rc}_{j}", None)
+                    s_val = st.session_state.get(f"shop_val_{rc}_{j}", 0.0)
+                    s_curr = st.session_state.get(f"shop_curr_{rc}_{j}", "مصري")
+                    s_imgs = st.session_state.get(f"shop_img_{rc}_{j}", [])
                     
                     if s_imgs:
                         for img in s_imgs:
@@ -376,11 +380,11 @@ if page == "نموذج تصفية المرشد":
                 options_summary_list = []
                 option_types_list = []
                 for i in range(st.session_state.option_rows_count):
-                    o_type = st.session_state.get(f"opt_type_{i}", "")
-                    o_val = st.session_state.get(f"opt_val_{i}", 0.0)
-                    o_curr = st.session_state.get(f"opt_curr_{i}", "مصري")
-                    o_pay = st.session_state.get(f"opt_pay_{i}", None)
-                    o_holder = st.session_state.get(f"cash_h_{i}", "")
+                    o_type = st.session_state.get(f"opt_type_{rc}_{i}", "")
+                    o_val = st.session_state.get(f"opt_val_{rc}_{i}", 0.0)
+                    o_curr = st.session_state.get(f"opt_curr_{rc}_{i}", "مصري")
+                    o_pay = st.session_state.get(f"opt_pay_{rc}_{i}", None)
+                    o_holder = st.session_state.get(f"cash_h_{rc}_{i}", "")
                     
                     if o_type.strip() or o_val > 0:
                         option_types_list.append(o_type)
@@ -414,10 +418,13 @@ if page == "نموذج تصفية المرشد":
                 }
                 save_to_file(SUBMISSIONS_FILE, new_entry)
                 
+                # إظهار رسالة النجاح لمدة 3 ثوانٍ ليطمئن المستخدم
+                st.success("✅ تم إرسال الطلب للمدير بنجاح!")
+                time.sleep(3)
+                
                 st.session_state.option_rows_count = 1
                 st.session_state.shop_rows_count = 1
-                
-                st.success("✅ تم إرسال الطلب للمدير بنجاح! تم تفريغ النموذج تماماً...")
+                st.session_state.form_reset_counter += 1
                 st.rerun()
 
 elif page == "سجلات المرشد":
