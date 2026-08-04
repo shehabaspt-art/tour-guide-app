@@ -973,29 +973,8 @@ elif page == "الأرشيف":
                     st.session_state.viewing_archive_file = None
                     st.rerun()
 
-                # هنا تم وضع تفاصيل الفايل وزر النقل في نفس السطر تماماً بجانب بعضهما البعض
-                header_cols = st.columns([3, 1])
-                with header_cols[0]:
-                    st.markdown(f"### 📄 تفاصيل الأرشيف للفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
-                    st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
-                
-                with header_cols[1]:
-                    st.markdown("<br>", unsafe_allow_html=True)
-                    if "transferred_indices" not in st.session_state:
-                        st.session_state.transferred_indices = []
-
-                    is_already_transferred = req_idx in st.session_state.transferred_indices
-                    btn_label = "تم" if is_already_transferred else "نقل"
-
-                    if st.button(btn_label, key=f"transfer_arch_to_guide_{req_idx}", type="primary"):
-                        if not is_already_transferred:
-                            guide_arch_entry = req_row.to_dict()
-                            save_to_file(GUIDE_ARCHIVE_FILE, guide_arch_entry)
-                            st.session_state.transferred_indices.append(req_idx)
-                            st.success("✅ تم نقل التصفية إلى سجلات المرشد بنجاح (وظلت في الأرشيف)!")
-                            time.sleep(1)
-                            st.rerun()
-
+                st.markdown(f"### 📄 تفاصيل الأرشيف للفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
+                st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
                 st.markdown("---")
 
                 st.markdown("#### صور أمر الشغل:")
@@ -1107,8 +1086,12 @@ elif page == "الأرشيف":
                     st.markdown(f"إجمالي الطلبات المؤرشفة: {len(archive_df)}")
                     st.markdown("### سجلات الأرشيف")
 
+                    if "transferred_indices" not in st.session_state:
+                        st.session_state.transferred_indices = []
+
+                    # هنا تم إضافة الزر في الجدول الخارجي (بره) بجانب الفايل والمرشد وأزرار العرض والحذف
                     for idx, row in filtered_arch_df.iterrows():
-                        cols = st.columns([1, 2, 2, 2, 1.2, 1.2])
+                        cols = st.columns([1, 1.8, 1.8, 2, 1, 1, 1])
                         with cols[0]:
                             st.write(f"**#{idx+1}**")
                         with cols[1]:
@@ -1117,11 +1100,24 @@ elif page == "الأرشيف":
                             st.write(f"المرشد: {row.get('Guide Name', '')}")
                         with cols[3]:
                             st.markdown(f'<div style="direction: ltr; text-align: right;">الوقت: {row.get("Timestamp", "")}</div>', unsafe_allow_html=True)
+                        
                         with cols[4]:
+                            is_already_transferred = idx in st.session_state.transferred_indices
+                            btn_label = "تم" if is_already_transferred else "نقل"
+                            if st.button(btn_label, key=f"transfer_arch_to_guide_ext_{idx}", type="primary"):
+                                if not is_already_transferred:
+                                    guide_arch_entry = row.to_dict()
+                                    save_to_file(GUIDE_ARCHIVE_FILE, guide_arch_entry)
+                                    st.session_state.transferred_indices.append(idx)
+                                    st.success("✅ تم النقل للسجلات!")
+                                    time.sleep(0.5)
+                                    st.rerun()
+
+                        with cols[5]:
                             if st.button("عرض", key=f"view_arch_btn_{idx}", type="primary"):
                                 st.session_state.viewing_archive_file = idx
                                 st.rerun()
-                        with cols[5]:
+                        with cols[6]:
                             if st.button("🗑️ حذف", key=f"del_arch_btn_{idx}", type="primary"):
                                 st.session_state.confirming_del_archive = idx
                                 st.rerun()
