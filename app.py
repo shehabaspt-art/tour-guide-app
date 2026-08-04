@@ -36,6 +36,8 @@ def load_data(file_path):
                 df['Guide Name'] = 'غير معروف'
             if 'Timestamp' not in df.columns:
                 df['Timestamp'] = 'غير محدد'
+            if 'Account' in df.columns:
+                df['Account'] = df['Account'].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
             return df
         except:
             return pd.DataFrame()
@@ -113,6 +115,8 @@ st.markdown("""
 
 try:
     guides_df = pd.read_excel(GUIDES_FILE)
+    if 'Account' in guides_df.columns:
+        guides_df['Account'] = guides_df['Account'].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
 except:
     guides_df = pd.DataFrame({
         "Guide Name": ["أحمد", "محمود"],
@@ -302,7 +306,7 @@ if page == "نموذج تصفية المرشد":
             elif validation_error:
                 st.error("⚠️ عذراً، نظراً لاختيار طريقة الدفع (كاش)، يجب اختيار (المبلغ) [مع المرشد / مع السواق] بشكل إلزامي!")
             else:
-                matched_guide = guides_df[guides_df[acc_column].astype(str) == str(account_no)]
+                matched_guide = guides_df[guides_df[acc_column].astype(str).str.strip().str.replace(r'\.0$', '', regex=True) == str(account_no).strip()]
                 guide_name = matched_guide[name_column].values[0] if not matched_guide.empty else "غير معروف"
                 
                 current_time_str = datetime.now().strftime("%Y-%m-%d %I:%M %p")
@@ -378,7 +382,7 @@ if page == "نموذج تصفية المرشد":
                 new_entry = {
                     "Timestamp": current_time_str,
                     "Guide Name": guide_name,
-                    "Account": account_no,
+                    "Account": str(account_no).strip(),
                     "File No": file_no,
                     "Work Order Images": ",".join(work_order_paths) if work_order_paths else "",
                     "Advances": advances,
@@ -475,12 +479,15 @@ elif page == "سجلات المرشد":
         if entered_acc.strip():
             g_arch_df = load_data(GUIDE_ARCHIVE_FILE)
             if not g_arch_df.empty:
-                # فلترة السجلات حسب رقم الحساب المطابق
-                matched_guide_records = g_arch_df[g_arch_df['Account'].astype(str) == entered_acc.strip()]
+                # تنظيف وتوحيد نوع البيانات للمقارنة بدقة تامة
+                clean_entered_acc = str(entered_acc).strip()
+                g_arch_df['Account'] = g_arch_df['Account'].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
+                
+                matched_guide_records = g_arch_df[g_arch_df['Account'] == clean_entered_acc]
                 
                 if not matched_guide_records.empty:
                     guide_name_found = matched_guide_records['Guide Name'].values[0]
-                    st.success(def_msg := f"مرحباً بك يا **{guide_name_found}** | تم العثور على ({len(matched_guide_records)}) تصفية مسجلة باسمك.")
+                    st.success(f"مرحباً بك يا **{guide_name_found}** | تم العثور على ({len(matched_guide_records)}) تصفية مسجلة باسمك.")
                     st.markdown("### 📋 سجلات الأرشيف الخاصة بك")
 
                     for idx, row in matched_guide_records.iterrows():
@@ -711,7 +718,7 @@ elif page == "إدارة التصفيات":
                         ec1, ec2 = st.columns(2)
                         with ec1:
                             if st.button("✔️ تأكيد وحفظ التعديل", type="primary"):
-                                guides_df.loc[guides_df[name_column].astype(str) == str(g_to_edit), acc_column] = n_acc
+                                guides_df.loc[guides_df[name_column].astype(str) == str(g_to_edit), acc_column] = str(n_acc).strip()
                                 guides_df.to_excel(GUIDES_FILE, index=False)
                                 st.session_state.confirming_edit_guide = None
                                 st.session_state.clear_edit_input = True
@@ -771,7 +778,7 @@ elif page == "إدارة التصفيات":
                             if st.button("✔️ تأكيد وإضافة نهائية", type="primary"):
                                 new_row = pd.DataFrame({
                                     name_column: [add_g_name],
-                                    acc_column: [add_g_acc]
+                                    acc_column: [str(add_g_acc).strip()]
                                 })
                                 guides_df = pd.concat([guides_df, new_row], ignore_index=True)
                                 guides_df.to_excel(GUIDES_FILE, index=False)
