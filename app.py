@@ -49,14 +49,7 @@ def save_to_file(file_path, new_data):
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
 
-current_logo_path = get_current_logo()
-if current_logo_path:
-    try:
-        st.logo(current_logo_path, size="large")
-    except:
-        pass
-
-# تنسيق CSS للسايدبار والأزرار باللون الأخضر (فصل السايدبار عن أعلى الصفحة بمسافة 2 سم بلون أبيض)
+# تنسيق CSS للسايدبار والصندوق الأخضر والأزرار
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -70,27 +63,36 @@ st.markdown("""
         color: white !important;
     }
     
-    /* جعل السايدبار منفصلاً عن أعلى الصفحة بمسافة 2 سنتي ولون أبيض في الفراغ العلوي */
+    /* إخفاء خلفية السايدبار الافتراضية وجعلها شفافة */
     [data-testid="stSidebar"] {
         background-color: transparent !important;
         border-left: none !important;
     }
-    [data-testid="stSidebar"] > div:first-child {
-        background-color: #d8ebd8 !important;
-        border-right: 2px solid #c2e0c2 !important;
-        border-bottom: 2px solid #c2e0c2 !important;
-        border-top: 2px solid #c2e0c2 !important;
-        border-radius: 0 15px 15px 0 !important;
-        margin-top: 2cm !important;
-        padding-top: 1rem !important;
-        height: calc(100vh - 2.5cm) !important;
-    }
     
-    /* تكبير وتوسيط صورة اللوجو داخل السايدبار */
-    [data-testid="stSidebar"] img {
-        max-width: 100% !important;
-        width: 220px !important;
+    [data-testid="stSidebar"] > div:first-child {
+        background-color: transparent !important;
+        margin-top: 1.5cm !important;
+        padding-top: 0rem !important;
+    }
+
+    /* الصندوق الأخضر الداخلي الشامل للوجو والقائمة */
+    [data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:has(div.sidebar-content-box) {
+        background-color: #d8ebd8 !important;
+        border: 2px solid #c2e0c2 !important;
+        border-radius: 15px !important;
+        padding: 20px 10px !important;
+    }
+
+    /* تنسيق اللوجو داخل الصندوق الأخضر */
+    [data-testid="stSidebar"] [data-testid="stImage"] {
+        text-align: center !important;
+        margin-bottom: 10px !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stImage"] img {
+        max-width: 170px !important;
         height: auto !important;
+        display: block !important;
+        margin: 0 auto !important;
     }
 
     [data-testid="stSidebar"] .stRadio > label {
@@ -130,18 +132,40 @@ SHOPS_LIST = [
     "جولدن بيرد", "مملوك", "ريحانة توابل", "كنور توابل", "قصر العطور", "لازوريت"
 ]
 
+# حساب عدد الطلبات الواردة الحالية لعرضها مباشرة داخل زر القائمة
+current_subs_df = load_data(SUBMISSIONS_FILE)
+pending_count = len(current_subs_df)
+
 with st.sidebar:
+    st.markdown('<div class="sidebar-content-box">', unsafe_allow_html=True)
+    
+    current_logo_path = get_current_logo()
+    if current_logo_path:
+        st.image(current_logo_path)
+
     st.markdown("""
-        <div style="display: flex; align-items: center; margin-top: 10px; margin-bottom: 5px;">
+        <div style="display: flex; align-items: center; margin-top: 5px; margin-bottom: 10px;">
             <h2 style='color: #1b5e20; margin: 0; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>
         </div>
         """, unsafe_allow_html=True)
     
+    # دمج عدد الطلبات مباشرة في نص زر إدارة التصفيات
+    if pending_count > 0:
+        mgmt_label = f"إدارة التصفيات 🔴 ({pending_count})"
+    else:
+        mgmt_label = "إدارة التصفيات"
+
     page = st.radio(
         "اختر الصفحة",
-        ["نموذج تصفية المرشد", "إدارة التصفيات", "الأرشيف"],
+        ["نموذج تصفية المرشد", mgmt_label, "الأرشيف"],
         label_visibility="collapsed"
     )
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# توحيد اسم الصفحة برمجياً بغض النظر عن العدد الظاهر في الزر
+if "إدارة التصفيات" in page:
+    page = "إدارة التصفيات"
 
 if page == "نموذج تصفية المرشد":
     st.title("🧭 نموذج تصفية المرشدين")
@@ -258,9 +282,11 @@ if page == "نموذج تصفية المرشد":
             elif shop_images and not selected_shops and not other_shops.strip():
                 st.error("⚠️ عذراً، نظراً لرفع صور فواتير المحلات، يجب اختيار (اسم المحل) من القائمة أو كتابته في (محلات أخري) بشكل إلزامي!")
             else:
+                guide_name = ""
                 matched_guide = guides_df[guides_df[acc_column].astype(str) == str(account_no)]
-                guide_name = matched_guide[name_column].values[0] if not matched_guide.empty else "غير معروف"
-                
+                if not matched_guide.empty:
+                    guide_name = matched_guide[name_column].values[0]
+
                 current_time_str = datetime.now().strftime("%Y-%m-%d %I:%M %p")
                 
                 work_order_paths = []
