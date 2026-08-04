@@ -49,6 +49,7 @@ def save_to_file(file_path, new_data):
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
 
+# عرض اللوجو فوق السايدبار الأخضر في المساحة البيضاء العلوية واستخدام CSS لتثبيته وتنسيقه
 current_logo_path = get_current_logo()
 if current_logo_path:
     try:
@@ -56,7 +57,7 @@ if current_logo_path:
     except:
         pass
 
-# تنسيق CSS للسايدبار والأزرار باللون الأخضر (فصل السايدبار عن أعلى الصفحة بمسافة 2 سم بلون أبيض)
+# تنسيق CSS للسايدبار والأزرار باللون الأخضر (فصل السايدبار عن أعلى الصفحة بمسافة 2 سم بلون أبيض ونقل اللوجو للأعلى تماماً)
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -75,6 +76,22 @@ st.markdown("""
         background-color: transparent !important;
         border-left: none !important;
     }
+    
+    /* رفع حاوية اللوجو الأساسية وتثبيتها فوق السايدبار الأخضر بمسافة مريحة */
+    [data-testid="stSidebarNav"] {
+        margin-top: 0px !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stLogo"] {
+        position: absolute !important;
+        top: -95px !important;
+        left: 20px !important;
+        z-index: 999 !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stLogo"] img {
+        max-width: 170px !important;
+        height: auto !important;
+    }
+
     [data-testid="stSidebar"] > div:first-child {
         background-color: #d8ebd8 !important;
         border-right: 2px solid #c2e0c2 !important;
@@ -84,13 +101,6 @@ st.markdown("""
         margin-top: 2cm !important;
         padding-top: 1rem !important;
         height: calc(100vh - 2.5cm) !important;
-    }
-    
-    /* تكبير وتوسيط صورة اللوجو داخل السايدبار */
-    [data-testid="stSidebar"] img {
-        max-width: 100% !important;
-        width: 220px !important;
-        height: auto !important;
     }
 
     [data-testid="stSidebar"] .stRadio > label {
