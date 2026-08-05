@@ -69,7 +69,6 @@ if current_logo_path:
     except:
         pass
 
-# إرجاع الشريط العلوي وسهم القائمة الافتراضي تماماً لتجنب أي مشاكل في الإظهار
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -146,8 +145,9 @@ SHOPS_LIST = [
 current_subs_df = load_data(SUBMISSIONS_FILE)
 pending_count = len(current_subs_df)
 
-col_spacer, col_badge = [st.columns([4, 1])[0], st.columns([4, 1])[1]] if hasattr(st, 'columns') else (None, None)
-with col_badge:
+# عرض عداد الطلبات بشكل آمن ومستقر
+cols_badge = st.columns([4, 1])
+with cols_badge[1]:
     st.markdown(f"""
         <div style="background-color: #d8ebd8; border: 2px solid #28a745; padding: 8px 12px; border-radius: 10px; text-align: center; margin-bottom: 15px;">
             <span style="color: #1b5e20; font-weight: bold; font-size: 0.95rem;">🔔 الطلبات الجديدة: <span style="color: #d9534f; font-size: 1.1rem;">{pending_count}</span></span>
