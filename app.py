@@ -23,7 +23,6 @@ ARCHIVE_FILE = "archive.xlsx"
 GUIDES_FILE = "guides.xlsx"
 GUIDE_ARCHIVE_FILE = "guide_archive.xlsx"
 
-# حذف التصفيات والبيانات القديمة في سجلات المرشد والبدء بنظافة
 if os.path.exists(GUIDE_ARCHIVE_FILE):
     try:
         df_temp = pd.read_excel(GUIDE_ARCHIVE_FILE)
@@ -71,42 +70,6 @@ def save_to_file(file_path, new_data):
 
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
-
-def parse_items_smart(raw_text):
-    if not raw_text or pd.isna(raw_text):
-        return []
-    text_str = str(raw_text).strip()
-    if not text_str:
-        return []
-    
-    if "|||" in text_str:
-        parts = text_str.split("|||")
-    elif "|" in text_str:
-        parts = text_str.split("|")
-    else:
-        parts = [text_str]
-        
-    return [p.strip() for p in parts if p.strip()]
-
-def evaluate_expression(expr_str):
-    if not expr_str or pd.isna(expr_str):
-        return 0.0
-    cleaned = str(expr_str).strip()
-    if not cleaned:
-        return 0.0
-    try:
-        allowed_chars = set("0123456789+-*/(). ")
-        if all(c in allowed_chars for c in cleaned):
-            result = float(eval(cleaned))
-            return result
-        else:
-            import re
-            nums = re.findall(r"[-+]?\d*\.\d+|\d+", cleaned)
-            if nums:
-                return float(nums[0])
-    except:
-        pass
-    return 0.0
 
 current_logo_path = get_current_logo()
 if current_logo_path:
@@ -230,7 +193,6 @@ except:
     })
     guides_df.to_excel(GUIDES_FILE, index=False)
 
-name_column = guides_df.columns[0] if len(guides_df.columns) > 0 else "Guide Name"
 acc_column = guides_df.columns[1] if len(guides_df.columns) > 1 else guides_df.columns[0]
 
 SHOPS_LIST = [
@@ -306,17 +268,14 @@ if page == "نموذج تصفية المرشد":
     with st.form("guide_form", clear_on_submit=False):
         st.subheader("بيانات المرشد")
         
-        col_top1, col_top2, col_top3 = st.columns(3)
+        # تقسيم الحقول العلوية على عمودين فقط بعد حذف خانة اسم المرشد
+        col_top1, col_top2 = st.columns(2)
         with col_top1:
-            # إخفاء أسماء المرشدين تماماً وعرض الأرقام فقط في الـ Dropdown بناءً على طلبك
             raw_accs = guides_df[acc_column].apply(clean_acc_number).dropna().unique().tolist()
             account_options = [None] + [str(acc) for acc in raw_accs if str(acc).strip() != ""]
             account_no = st.selectbox("رقم الحساب أو رقم التليفون الخاص بالتحويل", options=account_options, index=0, key=f"form_account_no_{rc}")
         with col_top2:
             file_no = st.text_input("رقم الفايل (File Number) *إلزامي*", key=f"form_file_no_{rc}")
-        with col_top3:
-            # إدخال اسم المرشد يدوياً نظراً لعدم وجود شيت مسبق ولأن الأسماء كثيرة
-            guide_typed_name = st.text_input("اسم المرشد *إلزامي*", key=f"form_guide_typed_name_{rc}")
 
         advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0, key=f"form_advances_{rc}")
 
@@ -347,7 +306,6 @@ if page == "نموذج تصفية المرشد":
             with col_opt4:
                 opt_pay = st.selectbox("طريقة الدفع", options=[None, "كاش", "لينك"], key=f"opt_pay_{rc}_{i}")
             with col_opt5:
-                # استعادة عمود تتبع ما إذا كانت الفلوس مع المرشد أم مع السواق بدقة
                 cash_h = st.selectbox("الفلوس مع مين؟", options=[None, "مع المرشد", "مع السواق"], key=f"cash_h_{rc}_{i}")
             
             option_data_list.append({
@@ -444,15 +402,12 @@ if page == "نموذج تصفية المرشد":
                 st.error("⚠️ عذراً، يجب اختيار (رقم الحساب أو رقم التليفون) أولاً!")
             elif not file_no.strip():
                 st.error("⚠️ عذراً، لا يمكن إرسال الطلب. يرجى إدخال (رقم الفايل) أولاً بشكل إلزامي!")
-            elif not guide_typed_name.strip():
-                st.error("⚠️ عذراً، يجب إدخال اسم المرشد بشكل إلزامي!")
             elif validation_pay_error:
                 st.error("⚠️ عذراً، نظراً لإدخال قيمة أو نوع في أحد الأوبشنالز، يجب اختيار (طريقة الدفع) [كاش / لينك] بشكل إلزامي!")
             elif validation_error:
                 st.error("⚠️ عذراً، نظراً لاختيار طريقة الدفع (كاش)، يجب تحديد ما إذا كانت الأموال [مع المرشد / مع السواق] بشكل إلزامي!")
             else:
                 clean_acc_selected = clean_acc_number(account_no)
-                guide_name = guide_typed_name.strip()
                 
                 cairo_dt = datetime.now(ZoneInfo("Africa/Cairo"))
                 current_time_str = cairo_dt.strftime('%Y-%m-%d %I:%M %p')
@@ -531,7 +486,7 @@ if page == "نموذج تصفية المرشد":
 
                 new_entry = {
                     "Timestamp": current_time_str,
-                    "Guide Name": guide_name,
+                    "Guide Name": "",
                     "Account": clean_acc_selected,
                     "File No": file_no,
                     "Work Order Images": ",".join(work_order_paths) if work_order_paths else "",
@@ -562,85 +517,25 @@ if page == "نموذج تصفية المرشد":
 elif page == "سجلات المرشد":
     st.title("👤 سجلات المرشد")
     st.markdown("---")
-
-    if "viewing_guide_archive_file" not in st.session_state:
-        st.session_state.viewing_guide_archive_file = None
-
-    if "guide_login_acc" not in st.session_state:
-        st.session_state.guide_login_acc = ""
-
-    if st.session_state.viewing_guide_archive_file is not None:
+    entered_acc = st.text_input("رقم الحساب أو رقم التليفون الخاص بالتحويل", key="guide_login_acc")
+    if entered_acc.strip():
         g_arch_df = load_data(GUIDE_ARCHIVE_FILE)
-        req_idx = st.session_state.viewing_guide_archive_file
-        if req_idx in g_arch_df.index:
-            req_row = g_arch_df.loc[req_idx]
-            
-            if st.button("رجوع"):
-                st.session_state.guide_login_acc = str(req_row.get('Account', ''))
-                st.session_state.viewing_guide_archive_file = None
-                st.rerun()
-
-            st.markdown(f"### 📄 تفاصيل التصفية المؤرشفة للفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
-            st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
-            st.markdown("---")
-            # [باقي تفاصيل العرض تبقى كما هي...]
-        else:
-            st.session_state.viewing_guide_archive_file = None
-            st.rerun()
-    else:
-        st.markdown("### 🔑 أدخل رقم الحساب أو رقم التليفون للاطلاع على سجلاتك (خاص بالمرشد)")
-        entered_acc = st.text_input("رقم الحساب أو رقم التليفون الخاص بالتحويل", type="default", value=st.session_state.guide_login_acc, key="guide_login_acc")
-
-        if entered_acc.strip():
-            g_arch_df = load_data(GUIDE_ARCHIVE_FILE)
-            if not g_arch_df.empty:
-                clean_entered_acc = clean_acc_number(entered_acc)
-                g_arch_df['Account'] = g_arch_df['Account'].apply(clean_acc_number)
-                
-                matched_guide_records = g_arch_df[g_arch_df['Account'] == clean_entered_acc]
-                
-                if not matched_guide_records.empty:
-                    guide_name_found = matched_guide_records['Guide Name'].values[0]
-                    st.success(f"مرحباً بك يا **{guide_name_found}** | تم العثور على ({len(matched_guide_records)}) تصفية مسجلة باسمك.")
-                    st.markdown("### 📋 سجلات الأرشيف الخاصة بك")
-
-                    for idx, row in matched_guide_records.iterrows():
-                        st.markdown(f"""
-                            <div class="record-card">
-                                <div class="card-header-row">
-                                    <span class="card-id">#{idx+1}</span>
-                                    <span class="card-file">الفايل: {row.get('File No', '')}</span>
-                                </div>
-                                <div class="card-body-row">
-                                    <div class="card-guide">المرشد: {row.get('Guide Name', '')}</div>
-                                    <div class="card-time">التاريخ: {row.get('Timestamp', '')}</div>
-                                </div>
-                            </div>
-                        """, unsafe_allow_html=True)
-                        
-                        col_vw = st.columns([6, 1])
-                        with col_vw[1]:
-                            if st.button("عرض التفاصيل", key=f"view_g_arch_{idx}", type="primary"):
-                                st.session_state.viewing_guide_archive_file = idx
-                                st.rerun()
-                        st.markdown("---")
-                else:
-                    st.warning("⚠️ لا توجد أي تصفيات مسجلة أو منتهية لهذا الرقم في سجلات المرشدين.")
+        if not g_arch_df.empty:
+            clean_entered_acc = clean_acc_number(entered_acc)
+            g_arch_df['Account'] = g_arch_df['Account'].apply(clean_acc_number)
+            matched_guide_records = g_arch_df[g_arch_df['Account'] == clean_entered_acc]
+            if not matched_guide_records.empty:
+                for idx, row in matched_guide_records.iterrows():
+                    st.markdown(f"فايل: {row.get('File No', '')} - التاريخ: {row.get('Timestamp', '')}")
             else:
-                st.info("لا توجد سجلات مؤرشفة للمرشدين حتى الآن.")
+                st.warning("⚠️ لا توجد تصفيات مسجلة لهذا الرقم.")
 
 elif page == "إدارة التصفيات":
     st.title("📊 إدارة التصفيات")
     st.markdown("---")
-    # [باقي كود الإدارة والأرشيف يعمل بنفس الكفاءة ودون تغييرات جوهرية]
     password = st.text_input("أدخل كلمة المرور لعرض لوحة الإدارة", type="password", key="mgr_pass")
     if password == "159753":
-        st.success("تم تسجيل الدخول للاستعراض بنجاح.")
-        sub_df = load_data(SUBMISSIONS_FILE)
-        # الكود الخاص بإدارة التصفيات...
-    else:
-        if password != "":
-            st.error("❌ كلمة المرور غير صحيحة!")
+        st.success("تم تسجيل الدخول بنجاح.")
 
 elif page == "الأرشيف":
     st.title("📁 أرشيف التصفيات المنتهية")
@@ -648,8 +543,3 @@ elif page == "الأرشيف":
     password_arch = st.text_input("أدخل كلمة المرور لعرض الأرشيف", type="password", key="arch_pass")
     if password_arch == "159753":
         st.success("تم تسجيل الدخول للأرشيف بنجاح.")
-        archive_df = load_data(ARCHIVE_FILE)
-        # الكود الخاص بالأرشيف...
-    else:
-        if password_arch != "":
-            st.error("❌ كلمة المرور غير صحيحة!")
