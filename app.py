@@ -513,7 +513,6 @@ elif page == "سجلات المرشد":
         if req_idx in g_arch_df.index:
             req_row = g_arch_df.loc[req_idx]
             
-            # تم تعديل زر الرجوع ليحتفظ برقم الحساب ويعيد المرشد لصفحة الأرشيف الخاصة به
             if st.button("رجوع"):
                 st.session_state.guide_login_acc = str(req_row.get('Account', ''))
                 st.session_state.viewing_guide_archive_file = None
@@ -1374,30 +1373,41 @@ elif page == "الأرشيف":
                                     "images": []
                                 })
 
+                            # [التعديل هنا] عرض الكارد الأساسي للفايل والمرشد مرة واحدة فقط لكل سجل في الأرشيف
+                            st.markdown(f"""
+                                <div class="record-card" style="margin-bottom: 6px;">
+                                    <div class="card-header-row">
+                                        <span class="card-id">#{idx+1}</span>
+                                        <span class="card-file">الفايل: {row.get('File No', '')}</span>
+                                    </div>
+                                    <div class="card-body-row">
+                                        <div class="card-guide">المرشد: {row.get('Guide Name', '')}</div>
+                                        <div class="card-time">الوقت: {row.get('Timestamp', '')}</div>
+                                    </div>
+                                </div>
+                            """, unsafe_allow_html=True)
+
+                            # تفصيل كل فاتورة أو عملة تخص نفس المحل داخل الفايل بشكل منفصل بدون تكرار رأس الفايل
                             for entry in matched_entries_for_shop:
                                 st.markdown(f"""
-                                    <div style="background-color: #fdfefe; border: 1px solid #d4edda; border-right: 5px solid #28a745; padding: 12px; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
-                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                            <h4 style="color: #1b5e20; margin: 0; font-size: 1rem;">🧭 فايل رقم: {row.get('File No', '')} &nbsp;|&nbsp; المرشد: {row.get('Guide Name', '')}</h4>
-                                            <span style="color: #6c757d; font-size: 0.8rem;">{row.get('Timestamp', '')}</span>
-                                        </div>
-                                        <div style="font-size: 1rem; font-weight: bold; color: #333333; background-color: #f1f8f1; padding: 8px; border-radius: 6px; margin-bottom: 8px;">
-                                            🛍️ القيمة المسجلة: <span style="color: #28a745;">{entry['text']}</span>
+                                    <div style="background-color: #fdfefe; border: 1px solid #d4edda; border-right: 5px solid #28a745; padding: 10px 14px; border-radius: 8px; margin-right: 15px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                                        <div style="font-size: 1rem; font-weight: bold; color: #333333;">
+                                            🛍️ القيمة / الفاتورة: <span style="color: #28a745;">{entry['text']}</span>
                                         </div>
                                     </div>
                                 """, unsafe_allow_html=True)
 
                                 if entry['images']:
-                                    st.markdown("📷 **صورة فاتورة المحل:**")
+                                    st.markdown("<div style='margin-right: 15px;'>📷 <strong>صورة فاتورة المحل:</strong></div>", unsafe_allow_html=True)
                                     img_cols = st.columns(min(len(entry['images']), 3))
                                     for i, p in enumerate(entry['images']):
                                         if os.path.exists(p):
                                             with img_cols[i % 3]:
                                                 st.image(p, caption=f"صورة الفاتورة {i+1}", width=220)
                                 else:
-                                    st.info("ℹ️ لم يتم رفع صورة فاتورة مخصصة لهذا الإدخال.")
+                                    st.markdown("<div style='margin-right: 15px; color: #6c757d; font-size: 0.9rem;'>ℹ️ لم يتم رفع صورة فاتورة مخصصة لهذا الإدخال.</div>", unsafe_allow_html=True)
 
-                                st.markdown("---")
+                            st.markdown("---")
                     else:
                         st.warning("⚠️ لا توجد أي عمليات تسجيل أو مبيعات لهذا المحل في الأرشيف حتى الآن.")
                 else:
