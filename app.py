@@ -472,7 +472,7 @@ elif page == "سجلات المرشد":
                 wo_list = str(wo_paths).split(",")
                 for idx, p in enumerate(wo_list):
                     if os.path.exists(p):
-                        st.image(p, caption=f"صورة أمر الشغل رقم {idx+1}", use_container_width=True)
+                        st.image(p, caption=f"صورة أمر الشغل رقم {idx+1}", width=300)
             else:
                 st.info("لا توجد صور لأمر الشغل.")
 
@@ -606,7 +606,7 @@ elif page == "سجلات المرشد":
                 l_list = str(l_paths).split(",")
                 for idx, p in enumerate(l_list):
                     if os.path.exists(p):
-                        st.image(p, caption=f"صورة فاتورة الغداء رقم {idx+1}", use_container_width=True)
+                        st.image(p, caption=f"صورة فاتورة الغداء رقم {idx+1}", width=300)
             else:
                 st.info("لا توجد صور لفواتير الغداء.")
 
@@ -617,7 +617,7 @@ elif page == "سجلات المرشد":
                 paths_list = str(s_paths).split(",")
                 for idx, p in enumerate(paths_list):
                     if os.path.exists(p):
-                        st.image(p, caption=f"صورة محلات رقم {idx+1}", use_container_width=True)
+                        st.image(p, caption=f"صورة محلات رقم {idx+1}", width=300)
             else:
                 st.info("لا توجد صور لفواتير المحلات.")
         else:
@@ -704,7 +704,7 @@ elif page == "إدارة التصفيات":
                     wo_list = str(wo_paths).split(",")
                     for idx, p in enumerate(wo_list):
                         if os.path.exists(p):
-                            st.image(p, caption=f"صورة أمر الشغل رقم {idx+1}", use_container_width=True)
+                            st.image(p, caption=f"صورة أمر الشغل رقم {idx+1}", width=300)
                 else:
                     st.info("لا توجد صور لأمر الشغل.")
 
@@ -838,7 +838,7 @@ elif page == "إدارة التصفيات":
                     l_list = str(l_paths).split(",")
                     for idx, p in enumerate(l_list):
                         if os.path.exists(p):
-                            st.image(p, caption=f"صورة فاتورة الغداء رقم {idx+1}", use_container_width=True)
+                            st.image(p, caption=f"صورة فاتورة الغداء رقم {idx+1}", width=300)
                 else:
                     st.info("لا توجد صور لفواتير الغداء.")
 
@@ -849,7 +849,7 @@ elif page == "إدارة التصفيات":
                     paths_list = str(s_paths).split(",")
                     for idx, p in enumerate(paths_list):
                         if os.path.exists(p):
-                            st.image(p, caption=f"صورة محلات رقم {idx+1}", use_container_width=True)
+                            st.image(p, caption=f"صورة محلات رقم {idx+1}", width=300)
                 else:
                     st.info("لا توجد صور لفواتير المحلات.")
 
@@ -1090,7 +1090,7 @@ elif page == "الأرشيف":
                     wo_list = str(wo_paths).split(",")
                     for idx, p in enumerate(wo_list):
                         if os.path.exists(p):
-                            st.image(p, caption=f"صورة أمر الشغل رقم {idx+1}", use_container_width=True)
+                            st.image(p, caption=f"صورة أمر الشغل رقم {idx+1}", width=300)
                 else:
                     st.info("لا توجد صور لأمر الشغل.")
 
@@ -1224,7 +1224,7 @@ elif page == "الأرشيف":
                     l_list = str(l_paths).split(",")
                     for idx, p in enumerate(l_list):
                         if os.path.exists(p):
-                            st.image(p, caption=f"صورة فاتورة الغداء رقم {idx+1}", use_container_width=True)
+                            st.image(p, caption=f"صورة فاتورة الغداء رقم {idx+1}", width=300)
                 else:
                     st.info("لا توجد صور لفواتير الغداء.")
 
@@ -1235,7 +1235,7 @@ elif page == "الأرشيف":
                     paths_list = str(s_paths).split(",")
                     for idx, p in enumerate(paths_list):
                         if os.path.exists(p):
-                            st.image(p, caption=f"صورة محلات رقم {idx+1}", use_container_width=True)
+                            st.image(p, caption=f"صورة محلات رقم {idx+1}", width=300)
                 else:
                     st.info("لا توجد صور لفواتير المحلات.")
             else:
@@ -1261,15 +1261,15 @@ elif page == "الأرشيف":
                     
                     if not matched_arch_df.empty:
                         for idx, row in matched_arch_df.iterrows():
-                            # استخراج القيمة الخاصة بالمحل المختار فقط وصورة الفاتورة المخصصة له
                             shop_detail_raw = str(row.get('Shops Details', ''))
                             shop_items_list = parse_items_smart(shop_detail_raw)
                             
-                            target_shop_text = "لا توجد تفاصيل مسجلة"
-                            specific_img_paths = []
-                            
+                            # استخراج كل المدخلات الخاصة بالمحل المختار حتى لو تكررت بأكثر من عملة لنفس المرشد
+                            matched_entries_for_shop = []
                             for s_item in shop_items_list:
                                 if selected_shop_filter in s_item:
+                                    target_shop_text = "لا توجد تفاصيل مسجلة"
+                                    specific_img_paths = []
                                     if "[IMG:" in s_item:
                                         parts_img = s_item.split("[IMG:")
                                         target_shop_text = parts_img[0].strip()
@@ -1278,48 +1278,45 @@ elif page == "الأرشيف":
                                             specific_img_paths = [p.strip() for p in img_part.split(",") if p.strip()]
                                     else:
                                         target_shop_text = s_item.strip()
-                                    break
+                                    matched_entries_for_shop.append({
+                                        "text": target_shop_text,
+                                        "images": specific_img_paths
+                                    })
                             
-                            # لو مش موجودة في Details، نشوف Other Shops لو مطابقة
+                            # فحص المحلات الخارجية أيضاً لو مطابقة
                             other_shops_val_str = str(row.get('Other Shops', ''))
-                            if selected_shop_filter in other_shops_val_str and target_shop_text == "لا توجد تفاصيل مسجلة":
-                                target_shop_text = other_shops_val_str
+                            if selected_shop_filter in other_shops_val_str and not matched_entries_for_shop:
+                                matched_entries_for_shop.append({
+                                    "text": other_shops_val_str,
+                                    "images": []
+                                })
 
-                            # تصميم كارد احترافي ومنظم للنتيجة
-                            st.markdown(f"""
-                                <div style="background-color: #fdfefe; border: 1px solid #d4edda; border-right: 5px solid #28a745; padding: 15px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                        <h4 style="color: #1b5e20; margin: 0;">🧭 فايل رقم: {row.get('File No', '')} &nbsp;|&nbsp; المرشد: {row.get('Guide Name', '')}</h4>
-                                        <span style="color: #6c757d; font-size: 0.85rem;">{row.get('Timestamp', '')}</span>
+                            # عرض كل إدخال مستقل بقيمته وعمليته وصورته الخاصة
+                            for entry in matched_entries_for_shop:
+                                st.markdown(f"""
+                                    <div style="background-color: #fdfefe; border: 1px solid #d4edda; border-right: 5px solid #28a745; padding: 12px; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                            <h4 style="color: #1b5e20; margin: 0; font-size: 1rem;">🧭 فايل رقم: {row.get('File No', '')} &nbsp;|&nbsp; المرشد: {row.get('Guide Name', '')}</h4>
+                                            <span style="color: #6c757d; font-size: 0.8rem;">{row.get('Timestamp', '')}</span>
+                                        </div>
+                                        <div style="font-size: 1rem; font-weight: bold; color: #333333; background-color: #f1f8f1; padding: 8px; border-radius: 6px; margin-bottom: 8px;">
+                                            🛍️ القيمة المسجلة: <span style="color: #28a745;">{entry['text']}</span>
+                                        </div>
                                     </div>
-                                    <div style="font-size: 1.1rem; font-weight: bold; color: #333333; background-color: #f1f8f1; padding: 10px; border-radius: 6px; margin-bottom: 10px;">
-                                        🛍️ القيمة المسجلة: <span style="color: #28a745;">{target_shop_text}</span>
-                                    </div>
-                                </div>
-                            """, unsafe_allow_html=True)
+                                """, unsafe_allow_html=True)
 
-                            # عرض صورة الفاتورة الخاصة بهذا المحل فقط إن وجدت
-                            if specific_img_paths:
-                                st.markdown("📷 **صورة فاتورة المحل:**")
-                                img_cols = st.columns(min(len(specific_img_paths), 3))
-                                for i, p in enumerate(specific_img_paths):
-                                    if os.path.exists(p):
-                                        with img_cols[i % 3]:
-                                            st.image(p, caption=f"صورة الفاتورة {i+1}", use_container_width=True)
-                            else:
-                                # محاولة البحث الاحتياطي في الصور العامة لو مش مسجلة بدقة في الكارد
-                                all_general_imgs = str(row.get('Shop Images', '')).split(",")
-                                valid_general = [p.strip() for p in all_general_imgs if p.strip() and os.path.exists(p.strip())]
-                                if valid_general:
-                                    st.markdown("📷 **صور فواتير مرفقة:**")
-                                    img_cols = st.columns(min(len(valid_general), 3))
-                                    for i, p in enumerate(valid_general):
-                                        with img_cols[i % 3]:
-                                            st.image(p, caption=f"صورة {i+1}", use_container_width=True)
+                                # عرض الصور المخصصة لهذا الإدخال بحجم أصغر وأنيق (عرض 250 بكسل)
+                                if entry['images']:
+                                    st.markdown("📷 **صورة فاتورة المحل:**")
+                                    img_cols = st.columns(min(len(entry['images']), 3))
+                                    for i, p in enumerate(entry['images']):
+                                        if os.path.exists(p):
+                                            with img_cols[i % 3]:
+                                                st.image(p, caption=f"صورة الفاتورة {i+1}", width=250)
                                 else:
-                                    st.info("ℹ️ لم يتم رفع صورة فاتورة مخصصة لهذا المحل في هذه التصفية.")
+                                    st.info("ℹ️ لم يتم رفع صورة فاتورة مخصصة لهذا الإدخال.")
 
-                            st.markdown("---")
+                                st.markdown("---")
                     else:
                         st.warning("⚠️ لا توجد أي عمليات تسجيل أو مبيعات لهذا المحل في الأرشيف حتى الآن.")
                 else:
