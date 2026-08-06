@@ -145,7 +145,6 @@ SHOPS_LIST = [
 current_subs_df = load_data(SUBMISSIONS_FILE)
 pending_count = len(current_subs_df)
 
-# عرض عداد الطلبات بشكل آمن ومستقر
 cols_badge = st.columns([4, 1])
 with cols_badge[1]:
     st.markdown(f"""
@@ -458,14 +457,101 @@ elif page == "سجلات المرشد":
                 st.info("لا توجد صور لأمر الشغل.")
 
             st.markdown("---")
-            st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
-            st.write(f"**التحصيل (Collection):** {req_row.get('Collection', 0)}")
-            st.write(f"**الأوبشنال (Optional):** {req_row.get('Option', '')}")
-            st.write(f"**التذاكر (Tickets):** {req_row.get('Tickets', '')}")
-            st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
-            st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
-            st.write(f"**غداء (Lunch):** {req_row.get('Lunch', 0)}")
+            
+            # --- تصميم احترافي ومنظم لعرض البيانات باستخدام الكاردات ---
+            st.markdown("""
+                <style>
+                .report-card {
+                    background-color: #f8f9fa;
+                    border: 1px solid #e9ecef;
+                    border-right: 4px solid #28a745;
+                    padding: 15px;
+                    border-radius: 8px;
+                    margin-bottom: 12px;
+                }
+                .report-title {
+                    font-weight: bold;
+                    color: #1b5e20;
+                    margin-bottom: 5px;
+                    font-size: 1.05rem;
+                }
+                .report-value {
+                    color: #333333;
+                    font-size: 1.1rem;
+                    font-weight: 500;
+                }
+                </style>
+            """, unsafe_allow_html=True)
 
+            col_m1, col_m2, col_m3 = st.columns(3)
+            with col_m1:
+                st.markdown(f"""
+                    <div class="report-card">
+                        <div class="report-title">💰 العهد (Advances)</div>
+                        <div class="report-value">{req_row.get('Advances', 0)}</div>
+                    </div>
+                """, unsafe_allow_html=True)
+            with col_m2:
+                st.markdown(f"""
+                    <div class="report-card">
+                        <div class="report-title">📥 التحصيل (Collection)</div>
+                        <div class="report-value">{req_row.get('Collection', 0)}</div>
+                    </div>
+                """, unsafe_allow_html=True)
+            with col_m3:
+                st.markdown(f"""
+                    <div class="report-card">
+                        <div class="report-title">🎁 إكرامية (Tip)</div>
+                        <div class="report-value">{req_row.get('Tip', 0)}</div>
+                    </div>
+                """, unsafe_allow_html=True)
+
+            col_m4, col_m5, col_m6 = st.columns(3)
+            with col_m4:
+                st.markdown(f"""
+                    <div class="report-card">
+                        <div class="report-title">🅿️ بارك (Park)</div>
+                        <div class="report-value">{req_row.get('Park', 0)}</div>
+                    </div>
+                """, unsafe_allow_html=True)
+            with col_m5:
+                st.markdown(f"""
+                    <div class="report-card">
+                        <div class="report-title">🍽️ غداء (Lunch)</div>
+                        <div class="report-value">{req_row.get('Lunch', 0)}</div>
+                    </div>
+                """, unsafe_allow_html=True)
+            with col_m6:
+                st.markdown(f"""
+                    <div class="report-card">
+                        <div class="report-title">🎟️ التذاكر (Tickets)</div>
+                        <div class="report-value">{req_row.get('Tickets', 'لا يوجد')}</div>
+                    </div>
+                """, unsafe_allow_html=True)
+
+            st.markdown(f"""
+                <div class="report-card" style="border-right-color: #007bff;">
+                    <div class="report-title">✨ الأوبشنال (Optional)</div>
+                    <div class="report-value">{req_row.get('Option', 'لا يوجد')}</div>
+                </div>
+            """, unsafe_allow_html=True)
+
+            st.markdown(f"""
+                <div class="report-card" style="border-right-color: #ffc107;">
+                    <div class="report-title">🛍️ تفاصيل المحلات</div>
+                    <div class="report-value">{req_row.get('Shops Details', req_row.get('Shop Names', 'لا يوجد'))}</div>
+                </div>
+            """, unsafe_allow_html=True)
+
+            if pd.notna(req_row.get('Other Shops', '')) and str(req_row.get('Other Shops', '')).strip() != "":
+                st.markdown(f"""
+                    <div class="report-card" style="border-right-color: #17a2b8;">
+                        <div class="report-title">🏪 محلات خارجية</div>
+                        <div class="report-value">{req_row.get('Other Shops', '')}</div>
+                    </div>
+                """, unsafe_allow_html=True)
+
+            st.markdown("---")
             st.markdown("#### صور فواتير الغداء:")
             l_paths = req_row.get('Lunch Receipt', '')
             if pd.notna(l_paths) and str(l_paths).strip() != "":
@@ -477,11 +563,8 @@ elif page == "سجلات المرشد":
                 st.info("لا توجد صور لفواتير الغداء.")
 
             st.markdown("---")
-            st.write(f"**تفاصيل المحلات:** {req_row.get('Shops Details', req_row.get('Shop Names', 'لا يوجد'))}")
-            if pd.notna(req_row.get('Other Shops', '')) and str(req_row.get('Other Shops', '')).strip() != "":
-                st.write(f"**محلات خارجية:** {req_row.get('Other Shops', '')}")
-
             s_paths = req_row.get('Shop Images', '')
+            st.markdown("#### صور فواتير المحلات:")
             if pd.notna(s_paths) and str(s_paths).strip() != "":
                 paths_list = str(s_paths).split(",")
                 for idx, p in enumerate(paths_list):
@@ -578,14 +661,101 @@ elif page == "إدارة التصفيات":
                     st.info("لا توجد صور لأمر الشغل.")
 
                 st.markdown("---")
-                st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
-                st.write(f"**التحصيل (Collection):** {req_row.get('Collection', 0)}")
-                st.write(f"**الأوبشنال (Optional):** {req_row.get('Option', '')}")
-                st.write(f"**التذاكر (Tickets):** {req_row.get('Tickets', '')}")
-                st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
-                st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
-                st.write(f"**غداء (Lunch):** {req_row.get('Lunch', 0)}")
+                
+                # --- تصميم احترافي ومنظم لعرض البيانات باستخدام الكاردات في لوحة المدير ---
+                st.markdown("""
+                    <style>
+                    .report-card {
+                        background-color: #f8f9fa;
+                        border: 1px solid #e9ecef;
+                        border-right: 4px solid #28a745;
+                        padding: 15px;
+                        border-radius: 8px;
+                        margin-bottom: 12px;
+                    }
+                    .report-title {
+                        font-weight: bold;
+                        color: #1b5e20;
+                        margin-bottom: 5px;
+                        font-size: 1.05rem;
+                    }
+                    .report-value {
+                        color: #333333;
+                        font-size: 1.1rem;
+                        font-weight: 500;
+                    }
+                    </style>
+                """, unsafe_allow_html=True)
 
+                col_m1, col_m2, col_m3 = st.columns(3)
+                with col_m1:
+                    st.markdown(f"""
+                        <div class="report-card">
+                            <div class="report-title">💰 العهد (Advances)</div>
+                            <div class="report-value">{req_row.get('Advances', 0)}</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+                with col_m2:
+                    st.markdown(f"""
+                        <div class="report-card">
+                            <div class="report-title">📥 التحصيل (Collection)</div>
+                            <div class="report-value">{req_row.get('Collection', 0)}</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+                with col_m3:
+                    st.markdown(f"""
+                        <div class="report-card">
+                            <div class="report-title">🎁 إكرامية (Tip)</div>
+                            <div class="report-value">{req_row.get('Tip', 0)}</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+
+                col_m4, col_m5, col_m6 = st.columns(3)
+                with col_m4:
+                    st.markdown(f"""
+                        <div class="report-card">
+                            <div class="report-title">🅿️ بارك (Park)</div>
+                            <div class="report-value">{req_row.get('Park', 0)}</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+                with col_m5:
+                    st.markdown(f"""
+                        <div class="report-card">
+                            <div class="report-title">🍽️ غداء (Lunch)</div>
+                            <div class="report-value">{req_row.get('Lunch', 0)}</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+                with col_m6:
+                    st.markdown(f"""
+                        <div class="report-card">
+                            <div class="report-title">🎟️ التذاكر (Tickets)</div>
+                            <div class="report-value">{req_row.get('Tickets', 'لا يوجد')}</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+
+                st.markdown(f"""
+                    <div class="report-card" style="border-right-color: #007bff;">
+                        <div class="report-title">✨ الأوبشنال (Optional)</div>
+                        <div class="report-value">{req_row.get('Option', 'لا يوجد')}</div>
+                    </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown(f"""
+                    <div class="report-card" style="border-right-color: #ffc107;">
+                        <div class="report-title">🛍️ تفاصيل المحلات</div>
+                        <div class="report-value">{req_row.get('Shops Details', req_row.get('Shop Names', 'لا يوجد'))}</div>
+                    </div>
+                """, unsafe_allow_html=True)
+
+                if pd.notna(req_row.get('Other Shops', '')) and str(req_row.get('Other Shops', '')).strip() != "":
+                    st.markdown(f"""
+                        <div class="report-card" style="border-right-color: #17a2b8;">
+                            <div class="report-title">🏪 محلات خارجية</div>
+                            <div class="report-value">{req_row.get('Other Shops', '')}</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+
+                st.markdown("---")
                 st.markdown("#### صور فواتير الغداء:")
                 l_paths = req_row.get('Lunch Receipt', '')
                 if pd.notna(l_paths) and str(l_paths).strip() != "":
@@ -597,11 +767,8 @@ elif page == "إدارة التصفيات":
                     st.info("لا توجد صور لفواتير الغداء.")
 
                 st.markdown("---")
-                st.write(f"**تفاصيل المحلات:** {req_row.get('Shops Details', req_row.get('Shop Names', 'لا يوجد'))}")
-                if pd.notna(req_row.get('Other Shops', '')) and str(req_row.get('Other Shops', '')).strip() != "":
-                    st.write(f"**محلات خارجية:** {req_row.get('Other Shops', '')}")
-
                 s_paths = req_row.get('Shop Images', '')
+                st.markdown("#### صور فواتير المحلات:")
                 if pd.notna(s_paths) and str(s_paths).strip() != "":
                     paths_list = str(s_paths).split(",")
                     for idx, p in enumerate(paths_list):
@@ -852,14 +1019,101 @@ elif page == "الأرشيف":
                     st.info("لا توجد صور لأمر الشغل.")
 
                 st.markdown("---")
-                st.write(f"**العهد (Advances):** {req_row.get('Advances', 0)}")
-                st.write(f"**التحصيل (Collection):** {req_row.get('Collection', 0)}")
-                st.write(f"**الأوبشنال (Optional):** {req_row.get('Option', '')}")
-                st.write(f"**التذاكر (Tickets):** {req_row.get('Tickets', '')}")
-                st.write(f"**إكرامية (Tip):** {req_row.get('Tip', 0)}")
-                st.write(f"**بارك (Park):** {req_row.get('Park', 0)}")
-                st.write(f"**غداء (Lunch):** {req_row.get('Lunch', 0)}")
+                
+                # --- تصميم احترافي ومنظم لعرض البيانات باستخدام الكاردات في الأرشيف ---
+                st.markdown("""
+                    <style>
+                    .report-card {
+                        background-color: #f8f9fa;
+                        border: 1px solid #e9ecef;
+                        border-right: 4px solid #28a745;
+                        padding: 15px;
+                        border-radius: 8px;
+                        margin-bottom: 12px;
+                    }
+                    .report-title {
+                        font-weight: bold;
+                        color: #1b5e20;
+                        margin-bottom: 5px;
+                        font-size: 1.05rem;
+                    }
+                    .report-value {
+                        color: #333333;
+                        font-size: 1.1rem;
+                        font-weight: 500;
+                    }
+                    </style>
+                """, unsafe_allow_html=True)
 
+                col_m1, col_m2, col_m3 = st.columns(3)
+                with col_m1:
+                    st.markdown(f"""
+                        <div class="report-card">
+                            <div class="report-title">💰 العهد (Advances)</div>
+                            <div class="report-value">{req_row.get('Advances', 0)}</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+                with col_m2:
+                    st.markdown(f"""
+                        <div class="report-card">
+                            <div class="report-title">📥 التحصيل (Collection)</div>
+                            <div class="report-value">{req_row.get('Collection', 0)}</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+                with col_m3:
+                    st.markdown(f"""
+                        <div class="report-card">
+                            <div class="report-title">🎁 إكرامية (Tip)</div>
+                            <div class="report-value">{req_row.get('Tip', 0)}</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+
+                col_m4, col_m5, col_m6 = st.columns(3)
+                with col_m4:
+                    st.markdown(f"""
+                        <div class="report-card">
+                            <div class="report-title">🅿️ بارك (Park)</div>
+                            <div class="report-value">{req_row.get('Park', 0)}</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+                with col_m5:
+                    st.markdown(f"""
+                        <div class="report-card">
+                            <div class="report-title">🍽️ غداء (Lunch)</div>
+                            <div class="report-value">{req_row.get('Lunch', 0)}</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+                with col_m6:
+                    st.markdown(f"""
+                        <div class="report-card">
+                            <div class="report-title">🎟️ التذاكر (Tickets)</div>
+                            <div class="report-value">{req_row.get('Tickets', 'لا يوجد')}</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+
+                st.markdown(f"""
+                    <div class="report-card" style="border-right-color: #007bff;">
+                        <div class="report-title">✨ الأوبشنال (Optional)</div>
+                        <div class="report-value">{req_row.get('Option', 'لا يوجد')}</div>
+                    </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown(f"""
+                    <div class="report-card" style="border-right-color: #ffc107;">
+                        <div class="report-title">🛍️ تفاصيل المحلات</div>
+                        <div class="report-value">{req_row.get('Shops Details', req_row.get('Shop Names', 'لا يوجد'))}</div>
+                    </div>
+                """, unsafe_allow_html=True)
+
+                if pd.notna(req_row.get('Other Shops', '')) and str(req_row.get('Other Shops', '')).strip() != "":
+                    st.markdown(f"""
+                        <div class="report-card" style="border-right-color: #17a2b8;">
+                            <div class="report-title">🏪 محلات خارجية</div>
+                            <div class="report-value">{req_row.get('Other Shops', '')}</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+
+                st.markdown("---")
                 st.markdown("#### صور فواتير الغداء:")
                 l_paths = req_row.get('Lunch Receipt', '')
                 if pd.notna(l_paths) and str(l_paths).strip() != "":
@@ -871,11 +1125,8 @@ elif page == "الأرشيف":
                     st.info("لا توجد صور لفواتير الغداء.")
 
                 st.markdown("---")
-                st.write(f"**تفاصيل المحلات:** {req_row.get('Shops Details', req_row.get('Shop Names', 'لا يوجد'))}")
-                if pd.notna(req_row.get('Other Shops', '')) and str(req_row.get('Other Shops', '')).strip() != "":
-                    st.write(f"**محلات خارجية:** {req_row.get('Other Shops', '')}")
-
                 s_paths = req_row.get('Shop Images', '')
+                st.markdown("#### صور فواتير المحلات:")
                 if pd.notna(s_paths) and str(s_paths).strip() != "":
                     paths_list = str(s_paths).split(",")
                     for idx, p in enumerate(paths_list):
