@@ -746,9 +746,19 @@ elif page == "سجلات المرشد":
             st.rerun()
     else:
         st.markdown("### 🔑 أدخل رقم الحساب أو رقم التليفون للاطلاع على سجلاتك (خاص بالمرشد)")
-        entered_acc = st.text_input("رقم الحساب أو رقم التليفون الخاص بالتحويل", type="default", value=st.session_state.guide_login_acc, key="guide_login_acc")
+        
+        # عرض دروب داون لأرقام الحسابات فقط بدون الأسماء نهائياً بناءً على طلب المستخدم
+        account_dropdown_options = [None] + guides_df[acc_column].apply(clean_acc_number).tolist()
+        entered_acc = st.selectbox(
+            "اختر رقم الحساب أو رقم التليفون الخاص بك",
+            options=account_dropdown_options,
+            index=0,
+            key="guide_login_acc_select"
+        )
+        if entered_acc:
+            entered_acc = str(entered_acc)
 
-        if entered_acc.strip():
+        if entered_acc and entered_acc.strip():
             g_arch_df = load_data(GUIDE_ARCHIVE_FILE)
             if not g_arch_df.empty:
                 clean_entered_acc = clean_acc_number(entered_acc)
@@ -1751,7 +1761,7 @@ elif page == "الأرشيف":
                                 <div class="card-body-row">
                                     <div class="card-guide">المرشد: {row.get('Guide Name', '')}</div>
                                     <div class="card-time">التاريخ: {row.get('Timestamp', '')}</div>
-                                </div>
+                                القائمة الرئيسية</div>
                             </div>
                         """, unsafe_allow_html=True)
                         
