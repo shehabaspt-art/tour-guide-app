@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import base64
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import time
 
 # ضبط إعدادات الصفحة
@@ -390,9 +391,9 @@ if page == "نموذج تصفية المرشد":
                 matched_guide = guides_df[guides_df[acc_column].apply(clean_acc_number) == clean_acc_selected]
                 guide_name = matched_guide[name_column].values[0] if not matched_guide.empty else "غير معروف"
                 
-                # استخدام التاريخ فقط بدون وقت
-                now_dt = datetime.now()
-                current_time_str = now_dt.strftime('%d-%m-%Y')
+                # تسجيل التاريخ والوقت بتوقيت القاهرة بدقة
+                cairo_dt = datetime.now(ZoneInfo("Africa/Cairo"))
+                current_time_str = cairo_dt.strftime('%Y-%m-%d %I:%M %p')
                 
                 work_order_paths = []
                 if work_order_image:
