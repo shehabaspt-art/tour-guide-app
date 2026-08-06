@@ -136,7 +136,6 @@ st.markdown("""
         margin: 0 !important;
     }
 
-    /* تنسيق الكاردات الموحد */
     .record-card {
         background: #ffffff;
         border: 1px solid #e0e0e0;
@@ -242,7 +241,6 @@ if page == "نموذج تصفية المرشد":
         st.session_state.option_rows_count = 1
     if "shop_rows_count" not in st.session_state:
         st.session_state.shop_rows_count = 1
-    
     if "form_reset_counter" not in st.session_state:
         st.session_state.form_reset_counter = 0
 
@@ -1373,7 +1371,7 @@ elif page == "الأرشيف":
                                     "images": []
                                 })
 
-                            # [التعديل هنا] عرض الكارد الأساسي للفايل والمرشد مرة واحدة فقط لكل سجل في الأرشيف
+                            # عرض الكارد الأساسي للفايل والمرشد مرة واحدة
                             st.markdown(f"""
                                 <div class="record-card" style="margin-bottom: 6px;">
                                     <div class="card-header-row">
@@ -1387,25 +1385,26 @@ elif page == "الأرشيف":
                                 </div>
                             """, unsafe_allow_html=True)
 
-                            # تفصيل كل فاتورة أو عملة تخص نفس المحل داخل الفايل بشكل منفصل بدون تكرار رأس الفايل
-                            for entry in matched_entries_for_shop:
-                                st.markdown(f"""
-                                    <div style="background-color: #fdfefe; border: 1px solid #d4edda; border-right: 5px solid #28a745; padding: 10px 14px; border-radius: 8px; margin-right: 15px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
-                                        <div style="font-size: 1rem; font-weight: bold; color: #333333;">
-                                            🛍️ القيمة / الفاتورة: <span style="color: #28a745;">{entry['text']}</span>
-                                        </div>
-                                    </div>
-                                """, unsafe_allow_html=True)
+                            # [التعديل هنا] عرض الفواتير أو القيم الخاصة بنفس الفايل جنب بعضها باستخدام أعمدة Streamlit المتجاورة
+                            if matched_entries_for_shop:
+                                entry_cols = st.columns(min(len(matched_entries_for_shop), 3))
+                                for col_idx, entry in enumerate(matched_entries_for_shop):
+                                    with entry_cols[col_idx % 3]:
+                                        st.markdown(f"""
+                                            <div style="background-color: #fdfefe; border: 1px solid #d4edda; border-right: 5px solid #28a745; padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+                                                <div style="font-size: 0.95rem; font-weight: bold; color: #333333;">
+                                                    🛍️ الفاتورة: <span style="color: #28a745;">{entry['text']}</span>
+                                                </div>
+                                            </div>
+                                        """, unsafe_allow_html=True)
 
-                                if entry['images']:
-                                    st.markdown("<div style='margin-right: 15px;'>📷 <strong>صورة فاتورة المحل:</strong></div>", unsafe_allow_html=True)
-                                    img_cols = st.columns(min(len(entry['images']), 3))
-                                    for i, p in enumerate(entry['images']):
-                                        if os.path.exists(p):
-                                            with img_cols[i % 3]:
-                                                st.image(p, caption=f"صورة الفاتورة {i+1}", width=220)
-                                else:
-                                    st.markdown("<div style='margin-right: 15px; color: #6c757d; font-size: 0.9rem;'>ℹ️ لم يتم رفع صورة فاتورة مخصصة لهذا الإدخال.</div>", unsafe_allow_html=True)
+                                        if entry['images']:
+                                            st.markdown("<div style='font-size: 0.9rem;'>📷 <strong>صورة الفاتورة:</strong></div>", unsafe_allow_html=True)
+                                            for i, p in enumerate(entry['images']):
+                                                if os.path.exists(p):
+                                                    st.image(p, caption=f"صورة الفاتورة {i+1}", width=200)
+                                        else:
+                                            st.markdown("<div style='color: #6c757d; font-size: 0.85rem;'>ℹ️ لم يتم رفع صورة.</div>", unsafe_allow_html=True)
 
                             st.markdown("---")
                     else:
@@ -1494,3 +1493,4 @@ elif page == "الأرشيف":
     else:
         if password_arch != "":
             st.error("❌ كلمة المرور غير صحيحة!")
+```[cite: 2]
