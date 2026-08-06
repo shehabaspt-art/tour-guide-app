@@ -1435,9 +1435,6 @@ elif page == "الأرشيف":
                     st.markdown(f"إجمالي الطلبات المؤرشفة: {len(archive_df)}")
                     st.markdown("### سجلات الأرشيف")
 
-                    if "transferred_indices" not in st.session_state:
-                        st.session_state.transferred_indices = []
-
                     for idx, row in filtered_arch_df.iterrows():
                         st.markdown(f"""
                             <div class="record-card">
@@ -1452,24 +1449,12 @@ elif page == "الأرشيف":
                             </div>
                         """, unsafe_allow_html=True)
                         
-                        cols = st.columns([3, 1, 1, 1])
+                        cols = st.columns([3, 1, 1])
                         with cols[1]:
-                            is_already_transferred = idx in st.session_state.transferred_indices
-                            btn_label = "تم النقل" if is_already_transferred else "نقل للسجلات"
-                            if st.button(btn_label, key=f"transfer_arch_to_guide_ext_{idx}", type="primary"):
-                                if not is_already_transferred:
-                                    guide_arch_entry = row.to_dict()
-                                    save_to_file(GUIDE_ARCHIVE_FILE, guide_arch_entry)
-                                    st.session_state.transferred_indices.append(idx)
-                                    st.success("✅ تم النقل للسجلات!")
-                                    time.sleep(0.5)
-                                    st.rerun()
-
-                        with cols[2]:
                             if st.button("عرض", key=f"view_arch_btn_{idx}", type="primary"):
                                 st.session_state.viewing_archive_file = idx
                                 st.rerun()
-                        with cols[3]:
+                        with cols[2]:
                             if st.button("🗑️ حذف", key=f"del_arch_btn_{idx}", type="primary"):
                                 st.session_state.confirming_del_archive = idx
                                 st.rerun()
