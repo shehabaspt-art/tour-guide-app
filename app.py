@@ -268,16 +268,16 @@ if page == "نموذج تصفية المرشد":
     with st.form("guide_form", clear_on_submit=False):
         st.subheader("بيانات المرشد")
         
-        # تقسيم الحقول العلوية على عمودين فقط بعد حذف خانة اسم المرشد
-        col_top1, col_top2 = st.columns(2)
+        # تقسيم الحقول العلوية على 3 أعمدة (رقم الحساب، رقم الفايل، والعهد)
+        col_top1, col_top2, col_top3 = st.columns(3)
         with col_top1:
             raw_accs = guides_df[acc_column].apply(clean_acc_number).dropna().unique().tolist()
             account_options = [None] + [str(acc) for acc in raw_accs if str(acc).strip() != ""]
             account_no = st.selectbox("رقم الحساب أو رقم التليفون الخاص بالتحويل", options=account_options, index=0, key=f"form_account_no_{rc}")
         with col_top2:
             file_no = st.text_input("رقم الفايل (File Number) *إلزامي*", key=f"form_file_no_{rc}")
-
-        advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0, key=f"form_advances_{rc}")
+        with col_top3:
+            advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0, key=f"form_advances_{rc}")
 
         work_order_image = st.file_uploader("رفع صور أمر الشغل", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key=f"work_order_imgs_{rc}")
 
