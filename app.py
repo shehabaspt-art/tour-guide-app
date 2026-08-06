@@ -812,13 +812,12 @@ elif page == "إدارة التصفيات":
                     default_opt_collection = 0.0
                     parsed_opts = parse_items_smart(opt_raw_str)
                     for opt_item in parsed_opts:
-                        # محاولة استخراج الرقم من نص الأوبشنال
                         import re
                         numbers_found = re.findall(r"[-+]?\d*\.\d+|\d+", opt_item)
                         if numbers_found:
                             default_opt_collection += float(numbers_found[0])
 
-                    # 1. كروت البيانات الأساسية (اسم المرشد / رقم الفايل / قيمة الارشاد / باركات / إكراميات / غداء / تذاكر)
+                    # 1. كروت البيانات الأساسية
                     st.markdown("### 📋 كروت البيانات الأساسية (تسمع تلقائياً وقابلة للتعديل)")
                     c_k1, c_k2, c_k3, c_k4 = st.columns(4)
                     with c_k1:
@@ -859,7 +858,6 @@ elif page == "إدارة التصفيات":
                         with cols_sh[3]:
                             shop_comm_guid = st.number_input(f"عمولة المرشد ({s_i+1})", min_value=0.0, value=0.0, step=10.0, key=f"sh_cguid_{req_idx}_{s_i}")
                         
-                        # إظهار المعادلة عند الضغط أو التوضيح أسفل الحقول
                         if shop_tot_inv > 0 or shop_comm_comp > 0 or shop_comm_guid > 0:
                             with st.expander(f"🔍 تفاصيل ومعادلة المحل ({s_i+1})"):
                                 st.write(f"معادلة توزيع الفاتورة للمحل **{shop_sel_name}**:")
@@ -903,11 +901,9 @@ elif page == "إدارة التصفيات":
 
                     st.markdown("---")
 
-                    # حسابات الإيرادات والمستحقات التلقائية والكروت المطلوبة
-                    # 4. كارت الإيراد: (قيمه الارشاد / باركات / اكراميات / غداء / تذاكر / عموله المحل / عموله المرشد للأوبشنال)
+                    # حسابات الإيرادات والمستحقات التلقائية
                     total_revenue = card_guidance_val + card_park + card_tip + card_lunch + card_tickets + total_shop_comm_company + total_opt_comm_guide
 
-                    # 5. كارت عهده / تحصيلات / تحصيلات الاوبشنال مع المعادلات عند النقر
                     st.markdown("### 💰 كروت العهد والتحصيلات")
                     cc_col1, cc_col2, cc_col3 = st.columns(3)
                     with cc_col1:
@@ -921,10 +917,7 @@ elif page == "إدارة التصفيات":
                         if st.button("🔍 عرض معادلة تحصيلات الأوبشنال", key=f"btn_eq_optcol_{req_idx}"):
                             st.info(f"معادلة تحصيلات الأوبشنال الحالية:\nمجموع تحصيلات الأوبشنال المسجلة للفايل = {card_opt_collections}")
 
-                    # 6. كارت المستحقات: (عهده + تحصيلات + تحصيلات الاوبشنال)
                     total_dues = card_advances + card_collections + card_opt_collections
-
-                    # 7. كارت الصافي: (القيمه اللي ف كارت الايراد مطروح منها القيمه اللي ف كارت المستحقات)
                     net_balance = total_revenue - total_dues
 
                     st.markdown("---")
@@ -1620,7 +1613,7 @@ elif page == "الأرشيف":
                                 <div class="card-body-row">
                                     <div class="card-guide">المرشد: {row.get('Guide Name', '')}</div>
                                     <div class="card-time">التاريخ: {row.get('Timestamp', '')}</div>
-                                </div>
+                                mathematical</div>
                             </div>
                         """, unsafe_allow_html=True)
                         
@@ -1661,3 +1654,4 @@ elif page == "الأرشيف":
     else:
         if password_arch != "":
             st.error("❌ كلمة المرور غير صحيحة!")
+```[cite: 3]
