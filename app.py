@@ -212,45 +212,19 @@ with cols_badge[1]:
         </div>
     """, unsafe_allow_html=True)
 
-if "sidebar_visible" not in st.session_state:
-    st.session_state.sidebar_visible = True
-
-col_toggle_sidebar = st.columns([1, 10])
-with col_toggle_sidebar[0]:
-    if st.button("🌐", help="إظهار/إخفاء القائمة الجانبية"):
-        st.session_state.sidebar_visible = not st.session_state.sidebar_visible
-        st.rerun()
-
-if st.session_state.sidebar_visible:
-    with st.sidebar:
-        st.markdown("""
-            <div style="display: flex; align-items: center; margin-top: 10px; margin-bottom: 5px;">
-                <h2 style='color: #1b5e20; margin: 0; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        page = st.radio(
-            "اختر الصفحة",
-            ["نموذج تصفية المرشد", "سجلات المرشد", "إدارة التصفيات", "الأرشيف"],
-            label_visibility="collapsed"
-        )
-else:
+# تشغيل القائمة الجانبية بشكل دائم دون زر إخفاء
+with st.sidebar:
     st.markdown("""
-        <style>
-        [data-testid="stSidebar"] {
-            display: none !important;
-        }
-        section[data-testid="stSidebar"] {
-            width: 0 !important;
-            display: none !important;
-            visibility: hidden !important;
-        }
-        .main .block-container {
-            max-width: 100% !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-    page = "نموذج تصفية المرشد"
+        <div style="display: flex; align-items: center; margin-top: 10px; margin-bottom: 5px;">
+            <h2 style='color: #1b5e20; margin: 0; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    page = st.radio(
+        "اختر الصفحة",
+        ["نموذج تصفية المرشد", "سجلات المرشد", "إدارة التصفيات", "الأرشيف"],
+        label_visibility="collapsed"
+    )
 
 if page == "نموذج تصفية المرشد":
     st.title("🧭 نموذج تصفية المرشدين")
@@ -268,7 +242,6 @@ if page == "نموذج تصفية المرشد":
     with st.form("guide_form", clear_on_submit=False):
         st.subheader("بيانات المرشد")
         
-        # تقسيم الحقول العلوية على 3 أعمدة (رقم الحساب، رقم الفايل، والعهد)
         col_top1, col_top2, col_top3 = st.columns(3)
         with col_top1:
             raw_accs = guides_df[acc_column].apply(clean_acc_number).dropna().unique().tolist()
