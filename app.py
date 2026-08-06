@@ -775,17 +775,12 @@ elif page == "إدارة التصفيات":
                 st.markdown("---")
 
                 # ==========================================
-                # زر "بدء التصفية" لعرض صفحة الكروت والمعادلات التفصيلية
+                # شاشة التصفية الذكية والكروت الحسابية (تظهر مباشرة عند الضغط على بدء التصفية)
                 # ==========================================
-                st.markdown("---")
-                if st.button("🚀 بدء التصفية (عرض تفاصيل الحسابات والكروت)", type="primary", key="start_liquidation_btn"):
-                    st.session_state.show_liquidation_cards = True
-                
                 if st.session_state.get("show_liquidation_cards", False):
                     st.markdown("---")
                     st.markdown("## 🧮 شاشة التصفية الذكية والكروت الحسابية")
                     
-                    # استخراج وتجهيز القيم التلقائية من بيانات المرشد
                     def parse_val(val_str):
                         try:
                             return float(str(val_str).split()[0])
@@ -808,7 +803,6 @@ elif page == "إدارة التصفيات":
                     collection_raw = str(req_row.get('Collection', '0'))
                     default_collection = parse_val(collection_raw)
 
-                    # استخراج تحصيلات الأوبشنال إن وجدت
                     opt_raw_str = str(req_row.get('Option', ''))
                     default_opt_collection = 0.0
                     parsed_opts = parse_items_smart(opt_raw_str)
@@ -818,7 +812,6 @@ elif page == "إدارة التصفيات":
                         if numbers_found:
                             default_opt_collection += float(numbers_found[0])
 
-                    # 1. كروت البيانات الأساسية
                     st.markdown("### 📋 كروت البيانات الأساسية (تسمع تلقائياً وقابلة للتعديل)")
                     c_k1, c_k2, c_k3, c_k4 = st.columns(4)
                     with c_k1:
@@ -840,7 +833,6 @@ elif page == "إدارة التصفيات":
 
                     st.markdown("---")
 
-                    # 2. بند عمولة المحلات
                     st.markdown("### 🛍️ بند عمولة المحلات")
                     if f"shop_rows_{req_idx}" not in st.session_state:
                         st.session_state[f"shop_rows_{req_idx}"] = 1
@@ -873,7 +865,6 @@ elif page == "إدارة التصفيات":
 
                     st.markdown("---")
 
-                    # 3. بند عمولة الأوبشنال
                     st.markdown("### ✨ بند عمولة الأوبشنال")
                     if f"opt_rows_{req_idx}" not in st.session_state:
                         st.session_state[f"opt_rows_{req_idx}"] = 1
@@ -902,7 +893,6 @@ elif page == "إدارة التصفيات":
 
                     st.markdown("---")
 
-                    # حسابات الإيرادات والمستحقات التلقائية
                     total_revenue = card_guidance_val + card_park + card_tip + card_lunch + card_tickets + total_shop_comm_company + total_opt_comm_guide
 
                     st.markdown("### 💰 كروت العهد والتحصيلات")
@@ -930,8 +920,7 @@ elif page == "إدارة التصفيات":
                         st.metric(label="📉 إجمالي المستحقات", value=f"{total_dues:,.2f}")
                     with res_c3:
                         st.metric(label="💎 الصافي النهائي", value=f"{net_balance:,.2f}", delta=f"{net_balance:,.2f}")
-
-                st.markdown("---")
+                    st.markdown("---")
 
                 st.markdown("#### صور أمر الشغل:")
                 wo_paths = req_row.get('Work Order Images', '')
@@ -1153,7 +1142,6 @@ elif page == "إدارة التصفيات":
                         </div>
                     """, unsafe_allow_html=True)
                     
-                    # أزرار الإجراءات (عرض، بدء التصفية، حذف) بجانب بعضها
                     col_actions = st.columns([3, 1, 1, 1])
                     with col_actions[1]:
                         if st.button("عرض", key=f"view_btn_{idx}", type="primary"):
@@ -1333,10 +1321,99 @@ elif page == "الأرشيف":
                 
                 if st.button("⬅️ رجوع إلى قائمة الأرشيف", key="back_to_arch_list"):
                     st.session_state.viewing_archive_file = None
+                    st.session_state.show_archive_liquidation_cards = False
                     st.rerun()
 
                 st.markdown(f"### 📄 تفاصيل الأرشيف للفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
                 st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
+                st.markdown("---")
+
+                # ==========================================
+                # زر "بدء التصفية" في تفاصيل الأرشيف
+                # ==========================================
+                st.markdown("---")
+                if st.button("🚀 بدء التصفية (عرض تفاصيل الحسابات والكروت)", type="primary", key="start_arch_liquidation_btn"):
+                    st.session_state.show_archive_liquidation_cards = True
+                
+                if st.session_state.get("show_archive_liquidation_cards", False):
+                    st.markdown("---")
+                    st.markdown("## 🧮 شاشة التصفية الذكية والكروت الحسابية (الأرشيف)")
+                    
+                    def parse_val(val_str):
+                        try:
+                            return float(str(val_str).split()[0])
+                        except:
+                            try:
+                                return float(val_str)
+                            except:
+                                return 0.0
+
+                    default_guide_name = req_row.get('Guide Name', '')
+                    default_file_no = req_row.get('File No', '')
+                    default_park = float(req_row.get('Park', 0.0))
+                    default_tip = float(req_row.get('Tip', 0.0))
+                    default_lunch = float(req_row.get('Lunch', 0.0))
+                    
+                    tkt_raw = str(req_row.get('Tickets', '0'))
+                    default_tickets = parse_val(tkt_raw.split('-')[0]) if '-' in tkt_raw else parse_val(tkt_raw)
+                    
+                    advances_val = float(req_row.get('Advances', 0.0))
+                    collection_raw = str(req_row.get('Collection', '0'))
+                    default_collection = parse_val(collection_raw)
+
+                    opt_raw_str = str(req_row.get('Option', ''))
+                    default_opt_collection = 0.0
+                    parsed_opts = parse_items_smart(opt_raw_str)
+                    for opt_item in parsed_opts:
+                        import re
+                        numbers_found = re.findall(r"[-+]?\d*\.\d+|\d+", opt_item)
+                        if numbers_found:
+                            default_opt_collection += float(numbers_found[0])
+
+                    st.markdown("### 📋 كروت البيانات الأساسية")
+                    c_k1, c_k2, c_k3, c_k4 = st.columns(4)
+                    with c_k1:
+                        card_guide_name = st.text_input("اسم المرشد", value=default_guide_name, key=f"arch_lk_gname_{req_idx}")
+                    with c_k2:
+                        card_file_no = st.text_input("رقم الفايل", value=default_file_no, key=f"arch_lk_fno_{req_idx}")
+                    with c_k3:
+                        card_guidance_val = st.number_input("قيمة الارشاد", min_value=0.0, value=0.0, step=10.0, key=f"arch_lk_guidance_{req_idx}")
+                    with c_k4:
+                        card_park = st.number_input("باركات", min_value=0.0, value=default_park, step=10.0, key=f"arch_lk_park_{req_idx}")
+
+                    c_k5, c_k6, c_k7 = st.columns(3)
+                    with c_k5:
+                        card_tip = st.number_input("إكراميات", min_value=0.0, value=default_tip, step=10.0, key=f"arch_lk_tip_{req_idx}")
+                    with c_k6:
+                        card_lunch = st.number_input("غداء", min_value=0.0, value=default_lunch, step=10.0, key=f"arch_lk_lunch_{req_idx}")
+                    with c_k7:
+                        card_tickets = st.number_input("تذاكر", min_value=0.0, value=default_tickets, step=10.0, key=f"arch_lk_tickets_{req_idx}")
+
+                    st.markdown("---")
+                    total_revenue = card_guidance_val + card_park + card_tip + card_lunch + card_tickets
+
+                    st.markdown("### 💰 كروت العهد والتحصيلات")
+                    cc_col1, cc_col2, cc_col3 = st.columns(3)
+                    with cc_col1:
+                        card_advances = st.number_input("عهدة", min_value=0.0, value=advances_val, step=10.0, key=f"arch_lk_adv_{req_idx}")
+                    with cc_col2:
+                        card_collections = st.number_input("تحصيلات", min_value=0.0, value=default_collection, step=10.0, key=f"arch_lk_collec_{req_idx}")
+                    with cc_col3:
+                        card_opt_collections = st.number_input("تحصيلات الأوبشنال", min_value=0.0, value=default_opt_collection, step=10.0, key=f"arch_lk_opt_collec_{req_idx}")
+
+                    total_dues = card_advances + card_collections + card_opt_collections
+                    net_balance = total_revenue - total_dues
+
+                    st.markdown("---")
+                    st.markdown("### 📊 الملخص النهائي للكروت الحسابية")
+                    res_c1, res_c2, res_c3 = st.columns(3)
+                    with res_c1:
+                        st.metric(label="📈 إجمالي الإيراد", value=f"{total_revenue:,.2f}")
+                    with res_c2:
+                        st.metric(label="📉 إجمالي المستحقات", value=f"{total_dues:,.2f}")
+                    with res_c3:
+                        st.metric(label="💎 الصافي النهائي", value=f"{net_balance:,.2f}", delta=f"{net_balance:,.2f}")
+
                 st.markdown("---")
 
                 st.markdown("#### صور أمر الشغل:")
@@ -1627,12 +1704,19 @@ elif page == "الأرشيف":
                             </div>
                         """, unsafe_allow_html=True)
                         
-                        cols = st.columns([3, 1, 1])
+                        # إضافة زر "بدء التصفية" بجانب زر "عرض" وحذف في الأرشيف
+                        cols = st.columns([2, 1, 1, 1])
                         with cols[1]:
                             if st.button("عرض", key=f"view_arch_btn_{idx}", type="primary"):
                                 st.session_state.viewing_archive_file = idx
+                                st.session_state.show_archive_liquidation_cards = False
                                 st.rerun()
                         with cols[2]:
+                            if st.button("بدء التصفية", key=f"start_arch_liq_list_btn_{idx}", type="primary"):
+                                st.session_state.viewing_archive_file = idx
+                                st.session_state.show_archive_liquidation_cards = True
+                                st.rerun()
+                        with cols[3]:
                             if st.button("🗑️ حذف", key=f"del_arch_btn_{idx}", type="primary"):
                                 st.session_state.confirming_del_archive = idx
                                 st.rerun()
