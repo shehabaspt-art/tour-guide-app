@@ -253,18 +253,43 @@ with cols_badge[1]:
         </div>
     """, unsafe_allow_html=True)
 
-with st.sidebar:
+# إدارة حالة إظهار/إخفاء القائمة الجانبية تماماً بناءً على طلب المستخدم
+if "sidebar_visible" not in st.session_state:
+    st.session_state.sidebar_visible = True
+
+col_toggle_sidebar = st.columns([1, 10])
+with col_toggle_sidebar[0]:
+    if st.button("🌐", help="إظهار/إخفاء القائمة الجانبية"):
+        st.session_state.sidebar_visible = not st.session_state.sidebar_visible
+        st.rerun()
+
+if st.session_state.sidebar_visible:
+    with st.sidebar:
+        st.markdown("""
+            <div style="display: flex; align-items: center; margin-top: 10px; margin-bottom: 5px;">
+                <h2 style='color: #1b5e20; margin: 0; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        page = st.radio(
+            "اختر الصفحة",
+            ["نموذج تصفية المرشد", "سجلات المرشد", "إدارة التصفيات", "الأرشيف"],
+            label_visibility="collapsed"
+        )
+else:
+    # إخفاء القائمة الجانبية بالكامل عبر حقن CSS لتختفي خااااالص
     st.markdown("""
-        <div style="display: flex; align-items: center; margin-top: 10px; margin-bottom: 5px;">
-            <h2 style='color: #1b5e20; margin: 0; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    page = st.radio(
-        "اختر الصفحة",
-        ["نموذج تصفية المرشد", "سجلات المرشد", "إدارة التصفيات", "الأرشيف"],
-        label_visibility="collapsed"
-    )
+        <style>
+        [data-testid="stSidebar"] {
+            display: none !important;
+        }
+        section[data-testid="stSidebar"] {
+            width: 0 !important;
+            display: none !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    page = "نموذج تصفية المرشد"
 
 if page == "نموذج تصفية المرشد":
     st.title("🧭 نموذج تصفية المرشدين")
@@ -284,12 +309,16 @@ if page == "نموذج تصفية المرشد":
         
         col_top1, col_top2, col_top3 = st.columns(3)
         with col_top1:
+            # تعديل ظهور أرقام الحسابات كدروب داون لأرقام الحسابات فقط بدون إظهار الأسماء نهائياً للمرشد
             account_options = [None] + guides_df[acc_column].apply(clean_acc_number).tolist()
             account_no = st.selectbox("رقم الحساب أو رقم التليفون الخاص بالتحويل", options=account_options, index=0, key=f"form_account_no_{rc}")
         with col_top2:
             file_no = st.text_input("رقم الفايل (File Number) *إلزامي*", key=f"form_file_no_{rc}")
         with col_top3:
-            advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0, key=f"form_advances_{rc}")
+            # حقل كتابة اسم المرشد يدوياً نظراً لكثرة المرشدين وعدم وجود شيت مسبق للأسماء
+            guide_typed_name = st.text_input("اسم المرشد *إلزامي*", key=f"form_guide_typed_name_{rc}")
+
+        advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0, key=f"form_advances_{rc}")
 
         work_order_image = st.file_uploader("رفع صور أمر الشغل", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key=f"work_order_imgs_{rc}")
 
@@ -414,14 +443,15 @@ if page == "نموذج تصفية المرشد":
                 st.error("⚠️ عذراً، يجب اختيار (رقم الحساب أو رقم التليفون) أولاً!")
             elif not file_no.strip():
                 st.error("⚠️ عذراً، لا يمكن إرسال الطلب. يرجى إدخال (رقم الفايل) أولاً بشكل إلزامي!")
+            elif not guide_typed_name.strip():
+                st.error("⚠️ عذراً، يجب إدخال اسم المرشد بشكل إلزامي!")
             elif validation_pay_error:
                 st.error("⚠️ عذراً، نظراً لإدخال قيمة أو نوع في أحد الأوبشنالز، يجب اختيار (طريقة الدفع) [كاش / لينك] بشكل إلزامي!")
             elif validation_error:
                 st.error("⚠️ عذراً، نظراً لاختيار طريقة الدفع (كاش)، يجب اختيار (المبلغ) [مع المرشد / مع السواق] بشكل إلزامي!")
             else:
                 clean_acc_selected = clean_acc_number(account_no)
-                matched_guide = guides_df[guides_df[acc_column].apply(clean_acc_number) == clean_acc_selected]
-                guide_name = matched_guide[name_column].values[0] if not matched_guide.empty else "غير معروف"
+                guide_name = guide_typed_name.strip()
                 
                 cairo_dt = datetime.now(ZoneInfo("Africa/Cairo"))
                 current_time_str = cairo_dt.strftime('%Y-%m-%d %I:%M %p')
@@ -797,9 +827,6 @@ elif page == "إدارة التصفيات":
                 st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
                 st.markdown("---")
 
-                # ==========================================
-                # شاشة التصفية الذكية والكروت الحسابية (تظهر مباشرة عند الضغط على بدء التصفية)
-                # ==========================================
                 if st.session_state.get("show_liquidation_cards", False):
                     st.markdown("---")
                     st.markdown("## 🧮 شاشة التصفية الذكية والكروت الحسابية")
@@ -924,13 +951,11 @@ elif page == "إدارة التصفيات":
                     with cc_col1:
                         card_advances = st.number_input("عهدة", min_value=0.0, value=advances_val, step=10.0, key=f"lk_adv_{req_idx}")
                     with cc_col2:
-                        # تحويل حقل التحصيلات إلى نص (text_input) لقبول المعادلات الرياضية وحسابها تلقائياً
                         collec_expr = st.text_input("تحصيلات (اكتب معادلة أو رقم)", value=default_collection_str, key=f"lk_collec_{req_idx}")
                         card_collections = evaluate_expression(collec_expr)
                         if collec_expr != default_collection_str:
                             st.caption(f"الناتج المحسوب للمعادلة: **{card_collections:,.2f}**")
                     with cc_col3:
-                        # تحويل حقل تحصيلات الأوبشنال إلى نص (text_input) لقبول المعادلات
                         opt_collec_expr = st.text_input("تحصيلات الأوبشنال (اكتب معادلة أو رقم)", value=default_opt_collection_str, key=f"lk_opt_collec_{req_idx}")
                         card_opt_collections = evaluate_expression(opt_collec_expr)
                         if opt_collec_expr != default_opt_collection_str:
@@ -1356,9 +1381,6 @@ elif page == "الأرشيف":
                 st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
                 st.markdown("---")
 
-                # ==========================================
-                # زر "بدء التصفية" في تفاصيل الأرشيف
-                # ==========================================
                 st.markdown("---")
                 if st.button("🚀 بدء التصفية (عرض تفاصيل الحسابات والكروت)", type="primary", key="start_arch_liquidation_btn"):
                     st.session_state.show_archive_liquidation_cards = True
@@ -1762,7 +1784,7 @@ elif page == "الأرشيف":
                                     st.success("تم الحذف من الأرشيف بنجاح.")
                                     st.rerun()
                             with ac_col2:
-                                if st.button("❌ رجوع (إلغاء)", key=f"cancel_del_arch_{idx}", type="primary"):
+                                if st.button("❌ رجوع (إلغاء)", key=f"cancel_del_arch_{idx}",, type="primary"):
                                     st.session_state.confirming_del_archive = None
                                     st.rerun()
 
@@ -1778,3 +1800,4 @@ elif page == "الأرشيف":
     else:
         if password_arch != "":
             st.error("❌ كلمة المرور غير صحيحة!")
+```[cite: 5]
