@@ -404,7 +404,7 @@ if page == "نموذج تصفية المرشد":
                     "Advances": advances,
                     "Collection": f"{collection_val} {collection_curr}",
                     "Option Type": ", ".join(option_types_list),
-                    "Option": "<br>".join(options_summary_list),
+                    "Option": "|||".join(options_summary_list),
                     "Tickets": f"{ticket_value} - {ticket_type}",
                     "Tip": tip,
                     "Park": park,
@@ -412,7 +412,7 @@ if page == "نموذج تصفية المرشد":
                     "Lunch Receipt": ",".join(lunch_paths) if lunch_paths else "",
                     "Shop Names": ", ".join(shops_names_only),
                     "Other Shops": f"{other_shops} : {other_shops_val} {other_shops_curr}" if other_shops.strip() else "",
-                    "Shops Details": "<br>".join(shops_summary_list),
+                    "Shops Details": "|||".join(shops_summary_list),
                     "Shop Images": ",".join(all_shop_paths) if all_shop_paths else ""
                 }
                 save_to_file(SUBMISSIONS_FILE, new_entry)
@@ -458,7 +458,6 @@ elif page == "سجلات المرشد":
 
             st.markdown("---")
             
-            # --- تصميم احترافي ومنظم لعرض البيانات باستخدام الكاردات ---
             st.markdown("""
                 <style>
                 .report-card {
@@ -479,6 +478,17 @@ elif page == "سجلات المرشد":
                     color: #333333;
                     font-size: 1.1rem;
                     font-weight: 500;
+                }
+                .sub-item-card {
+                    background-color: #ffffff;
+                    border: 1px solid #d4edda;
+                    border-left: 4px solid #28a745;
+                    padding: 8px 12px;
+                    border-radius: 6px;
+                    margin-top: 6px;
+                    font-size: 1.05rem;
+                    color: #155724;
+                    font-weight: 600;
                 }
                 </style>
             """, unsafe_allow_html=True)
@@ -529,17 +539,39 @@ elif page == "سجلات المرشد":
                     </div>
                 """, unsafe_allow_html=True)
 
+            # عرض الأوبشنال بشكل كاردات منفصلة تحت بعضها
+            opt_content_raw = str(req_row.get('Option', ''))
+            opt_items = [item.strip() for item in opt_content_raw.split("|||") if item.strip()]
+            
+            opt_inner_html = ""
+            if opt_items:
+                for item in opt_items:
+                    opt_inner_html += f'<div class="sub-item-card">✨ {item}</div>'
+            else:
+                opt_inner_html = '<div class="report-value" style="color: #6c757d; font-size: 0.95rem;">لا يوجد</div>'
+
             st.markdown(f"""
                 <div class="report-card" style="border-right-color: #007bff;">
                     <div class="report-title">✨ الأوبشنال (Optional)</div>
-                    <div class="report-value">{req_row.get('Option', 'لا يوجد')}</div>
+                    {opt_inner_html}
                 </div>
             """, unsafe_allow_html=True)
+
+            # عرض المحلات بشكل كاردات منفصلة تحت بعضها
+            shops_content_raw = str(req_row.get('Shops Details', req_row.get('Shop Names', '')))
+            shop_items = [item.strip() for item in shops_content_raw.split("|||") if item.strip()]
+            
+            shop_inner_html = ""
+            if shop_items:
+                for item in shop_items:
+                    shop_inner_html += f'<div class="sub-item-card" style="border-left-color: #ffc107; color: #856404;">🛍️ {item}</div>'
+            else:
+                shop_inner_html = '<div class="report-value" style="color: #6c757d; font-size: 0.95rem;">لا يوجد</div>'
 
             st.markdown(f"""
                 <div class="report-card" style="border-right-color: #ffc107;">
                     <div class="report-title">🛍️ تفاصيل المحلات</div>
-                    <div class="report-value">{req_row.get('Shops Details', req_row.get('Shop Names', 'لا يوجد'))}</div>
+                    {shop_inner_html}
                 </div>
             """, unsafe_allow_html=True)
 
@@ -662,7 +694,6 @@ elif page == "إدارة التصفيات":
 
                 st.markdown("---")
                 
-                # --- تصميم احترافي ومنظم لعرض البيانات باستخدام الكاردات في لوحة المدير ---
                 st.markdown("""
                     <style>
                     .report-card {
@@ -683,6 +714,17 @@ elif page == "إدارة التصفيات":
                         color: #333333;
                         font-size: 1.1rem;
                         font-weight: 500;
+                    }
+                    .sub-item-card {
+                        background-color: #ffffff;
+                        border: 1px solid #d4edda;
+                        border-left: 4px solid #28a745;
+                        padding: 8px 12px;
+                        border-radius: 6px;
+                        margin-top: 6px;
+                        font-size: 1.05rem;
+                        color: #155724;
+                        font-weight: 600;
                     }
                     </style>
                 """, unsafe_allow_html=True)
@@ -733,17 +775,39 @@ elif page == "إدارة التصفيات":
                         </div>
                     """, unsafe_allow_html=True)
 
+                # عرض الأوبشنال بشكل كاردات منفصلة
+                opt_content_raw = str(req_row.get('Option', ''))
+                opt_items = [item.strip() for item in opt_content_raw.split("|||") if item.strip()]
+                
+                opt_inner_html = ""
+                if opt_items:
+                    for item in opt_items:
+                        opt_inner_html += f'<div class="sub-item-card">✨ {item}</div>'
+                else:
+                    opt_inner_html = '<div class="report-value" style="color: #6c757d; font-size: 0.95rem;">لا يوجد</div>'
+
                 st.markdown(f"""
                     <div class="report-card" style="border-right-color: #007bff;">
                         <div class="report-title">✨ الأوبشنال (Optional)</div>
-                        <div class="report-value">{req_row.get('Option', 'لا يوجد')}</div>
+                        {opt_inner_html}
                     </div>
                 """, unsafe_allow_html=True)
+
+                # عرض المحلات بشكل كاردات منفصلة
+                shops_content_raw = str(req_row.get('Shops Details', req_row.get('Shop Names', '')))
+                shop_items = [item.strip() for item in shops_content_raw.split("|||") if item.strip()]
+                
+                shop_inner_html = ""
+                if shop_items:
+                    for item in shop_items:
+                        shop_inner_html += f'<div class="sub-item-card" style="border-left-color: #ffc107; color: #856404;">🛍️ {item}</div>'
+                else:
+                    shop_inner_html = '<div class="report-value" style="color: #6c757d; font-size: 0.95rem;">لا يوجد</div>'
 
                 st.markdown(f"""
                     <div class="report-card" style="border-right-color: #ffc107;">
                         <div class="report-title">🛍️ تفاصيل المحلات</div>
-                        <div class="report-value">{req_row.get('Shops Details', req_row.get('Shop Names', 'لا يوجد'))}</div>
+                        {shop_inner_html}
                     </div>
                 """, unsafe_allow_html=True)
 
@@ -1020,7 +1084,6 @@ elif page == "الأرشيف":
 
                 st.markdown("---")
                 
-                # --- تصميم احترافي ومنظم لعرض البيانات باستخدام الكاردات في الأرشيف ---
                 st.markdown("""
                     <style>
                     .report-card {
@@ -1041,6 +1104,17 @@ elif page == "الأرشيف":
                         color: #333333;
                         font-size: 1.1rem;
                         font-weight: 500;
+                    }
+                    .sub-item-card {
+                        background-color: #ffffff;
+                        border: 1px solid #d4edda;
+                        border-left: 4px solid #28a745;
+                        padding: 8px 12px;
+                        border-radius: 6px;
+                        margin-top: 6px;
+                        font-size: 1.05rem;
+                        color: #155724;
+                        font-weight: 600;
                     }
                     </style>
                 """, unsafe_allow_html=True)
@@ -1091,17 +1165,39 @@ elif page == "الأرشيف":
                         </div>
                     """, unsafe_allow_html=True)
 
+                # عرض الأوبشنال كاردات منفصلة
+                opt_content_raw = str(req_row.get('Option', ''))
+                opt_items = [item.strip() for item in opt_content_raw.split("|||") if item.strip()]
+                
+                opt_inner_html = ""
+                if opt_items:
+                    for item in opt_items:
+                        opt_inner_html += f'<div class="sub-item-card">✨ {item}</div>'
+                else:
+                    opt_inner_html = '<div class="report-value" style="color: #6c757d; font-size: 0.95rem;">لا يوجد</div>'
+
                 st.markdown(f"""
                     <div class="report-card" style="border-right-color: #007bff;">
                         <div class="report-title">✨ الأوبشنال (Optional)</div>
-                        <div class="report-value">{req_row.get('Option', 'لا يوجد')}</div>
+                        {opt_inner_html}
                     </div>
                 """, unsafe_allow_html=True)
+
+                # عرض المحلات كاردات منفصلة
+                shops_content_raw = str(req_row.get('Shops Details', req_row.get('Shop Names', '')))
+                shop_items = [item.strip() for item in shops_content_raw.split("|||") if item.strip()]
+                
+                shop_inner_html = ""
+                if shop_items:
+                    for item in shop_items:
+                        shop_inner_html += f'<div class="sub-item-card" style="border-left-color: #ffc107; color: #856404;">🛍️ {item}</div>'
+                else:
+                    shop_inner_html = '<div class="report-value" style="color: #6c757d; font-size: 0.95rem;">لا يوجد</div>'
 
                 st.markdown(f"""
                     <div class="report-card" style="border-right-color: #ffc107;">
                         <div class="report-title">🛍️ تفاصيل المحلات</div>
-                        <div class="report-value">{req_row.get('Shops Details', req_row.get('Shop Names', 'لا يوجد'))}</div>
+                        {shop_inner_html}
                     </div>
                 """, unsafe_allow_html=True)
 
