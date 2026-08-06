@@ -136,7 +136,6 @@ st.markdown("""
         margin: 0 !important;
     }
 
-    /* تنسيق الكاردات الموحد */
     .record-card {
         background: #ffffff;
         border: 1px solid #e0e0e0;
@@ -513,7 +512,6 @@ elif page == "سجلات المرشد":
         if req_idx in g_arch_df.index:
             req_row = g_arch_df.loc[req_idx]
             
-            # تم تعديل زر الرجوع ليحتفظ برقم الحساب ويعيد المرشد لصفحة الأرشيف الخاصة به
             if st.button("رجوع"):
                 st.session_state.guide_login_acc = str(req_row.get('Account', ''))
                 st.session_state.viewing_guide_archive_file = None
@@ -1374,15 +1372,17 @@ elif page == "الأرشيف":
                                     "images": []
                                 })
 
+                            # عرض كل فاتورة منفصلة بنفس تصميم الكارد الموحد بدون تكرار عنوان الفايل واسم المرشد لكل فاتورة فرعية
                             for entry in matched_entries_for_shop:
                                 st.markdown(f"""
-                                    <div style="background-color: #fdfefe; border: 1px solid #d4edda; border-right: 5px solid #28a745; padding: 12px; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
-                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                            <h4 style="color: #1b5e20; margin: 0; font-size: 1rem;">🧭 فايل رقم: {row.get('File No', '')} &nbsp;|&nbsp; المرشد: {row.get('Guide Name', '')}</h4>
-                                            <span style="color: #6c757d; font-size: 0.8rem;">{row.get('Timestamp', '')}</span>
+                                    <div class="record-card">
+                                        <div class="card-header-row">
+                                            <span class="card-file">فايل رقم: {row.get('File No', '')} &nbsp;|&nbsp; المرشد: {row.get('Guide Name', '')}</span>
+                                            <span class="card-time">{row.get('Timestamp', '')}</span>
                                         </div>
-                                        <div style="font-size: 1rem; font-weight: bold; color: #333333; background-color: #f1f8f1; padding: 8px; border-radius: 6px; margin-bottom: 8px;">
-                                            🛍️ القيمة المسجلة: <span style="color: #28a745;">{entry['text']}</span>
+                                        <div style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-right: 4px solid #28a745; padding: 12px; border-radius: 8px; margin-top: 8px;">
+                                            <div style="font-size: 1.05rem; font-weight: bold; color: #1b5e20; margin-bottom: 5px;">🛍️ القيمة المسجلة:</div>
+                                            <div style="color: #333333; font-size: 1.1rem; font-weight: 500;">{entry['text']}</div>
                                         </div>
                                     </div>
                                 """, unsafe_allow_html=True)
