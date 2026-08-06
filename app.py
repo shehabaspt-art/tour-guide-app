@@ -23,6 +23,15 @@ ARCHIVE_FILE = "archive.xlsx"
 GUIDES_FILE = "guides.xlsx"
 GUIDE_ARCHIVE_FILE = "guide_archive.xlsx"
 
+# حذف التصفيات والبيانات القديمة في سجلات المرشد والبدء بنظافة
+if os.path.exists(GUIDE_ARCHIVE_FILE):
+    try:
+        df_temp = pd.read_excel(GUIDE_ARCHIVE_FILE)
+        empty_df = pd.DataFrame(columns=df_temp.columns)
+        empty_df.to_excel(GUIDE_ARCHIVE_FILE, index=False)
+    except:
+        os.remove(GUIDE_ARCHIVE_FILE)
+
 def get_current_logo():
     fixed_logo_path = "sun_2.png"
     if os.path.exists(fixed_logo_path):
@@ -391,7 +400,6 @@ if page == "نموذج تصفية المرشد":
                 matched_guide = guides_df[guides_df[acc_column].apply(clean_acc_number) == clean_acc_selected]
                 guide_name = matched_guide[name_column].values[0] if not matched_guide.empty else "غير معروف"
                 
-                # تسجيل التاريخ والوقت بتوقيت القاهرة بدقة
                 cairo_dt = datetime.now(ZoneInfo("Africa/Cairo"))
                 current_time_str = cairo_dt.strftime('%Y-%m-%d %I:%M %p')
                 
