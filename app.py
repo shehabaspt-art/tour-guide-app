@@ -135,6 +135,58 @@ st.markdown("""
         font-size: 0.95rem !important;
         margin: 0 !important;
     }
+
+    /* تنسيق الكاردات الموحد */
+    .record-card {
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-right: 5px solid #28a745;
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        direction: rtl;
+    }
+    .card-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #f0f0f0;
+        padding-bottom: 8px;
+        margin-bottom: 10px;
+    }
+    .card-id {
+        background: #eef2ff;
+        color: #4f46e5;
+        font-weight: bold;
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-size: 13px;
+    }
+    .card-file {
+        color: #1f2937;
+        font-size: 15px;
+        font-weight: bold;
+    }
+    .card-body-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #4b5563;
+        font-size: 14px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .card-guide {
+        font-weight: 600;
+        color: #1b5e20;
+    }
+    .card-time {
+        direction: ltr;
+        unicode-bidi: embed;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -647,17 +699,22 @@ elif page == "سجلات المرشد":
                     st.markdown("### 📋 سجلات الأرشيف الخاصة بك")
 
                     for idx, row in matched_guide_records.iterrows():
-                        cols = st.columns([1, 2, 3, 3, 1.5])
-                        with cols[0]:
-                            st.write(f"**#{idx+1}**")
-                        with cols[1]:
-                            st.write(f"الفايل: {row.get('File No', '')}")
-                        with cols[2]:
-                            st.write(f"المرشد: {row.get('Guide Name', '')}")
-                        with cols[3]:
-                            st.markdown(f'<div style="direction: ltr; text-align: right;">الوقت: {row.get("Timestamp", "")}</div>', unsafe_allow_html=True)
-                        with cols[4]:
-                            if st.button("عرض", key=f"view_g_arch_{idx}", type="primary"):
+                        st.markdown(f"""
+                            <div class="record-card">
+                                <div class="card-header-row">
+                                    <span class="card-id">#{idx+1}</span>
+                                    <span class="card-file">الفايل: {row.get('File No', '')}</span>
+                                </div>
+                                <div class="card-body-row">
+                                    <div class="card-guide">المرشد: {row.get('Guide Name', '')}</div>
+                                    <div class="card-time">الوقت: {row.get('Timestamp', '')}</div>
+                                </div>
+                            </div>
+                        """, unsafe_allow_html=True)
+                        
+                        col_vw = st.columns([6, 1])
+                        with col_vw[1]:
+                            if st.button("عرض التفاصيل", key=f"view_g_arch_{idx}", type="primary"):
                                 st.session_state.viewing_guide_archive_file = idx
                                 st.rerun()
                         st.markdown("---")
@@ -909,20 +966,25 @@ elif page == "إدارة التصفيات":
                 st.markdown("### الطلبات الواردة")
 
                 for idx, row in filtered_sub_df.iterrows():
-                    cols = st.columns([1, 2, 2, 2, 1.5, 1.5])
-                    with cols[0]:
-                        st.write(f"**#{idx+1}**")
-                    with cols[1]:
-                        st.write(f"الفايل: {row.get('File No', '')}")
-                    with cols[2]:
-                        st.write(f"المرشد: {row.get('Guide Name', '')}")
-                    with cols[3]:
-                        st.markdown(f'<div style="direction: ltr; text-align: right;">الوقت: {row.get("Timestamp", "")}</div>', unsafe_allow_html=True)
-                    with cols[4]:
+                    st.markdown(f"""
+                        <div class="record-card">
+                            <div class="card-header-row">
+                                <span class="card-id">#{idx+1}</span>
+                                <span class="card-file">الفايل: {row.get('File No', '')}</span>
+                            </div>
+                            <div class="card-body-row">
+                                <div class="card-guide">المرشد: {row.get('Guide Name', '')}</div>
+                                <div class="card-time">الوقت: {row.get('Timestamp', '')}</div>
+                            </div>
+                        </div>
+                    """, unsafe_allow_html=True)
+                    
+                    col_actions = st.columns([4, 1, 1])
+                    with col_actions[1]:
                         if st.button("عرض", key=f"view_btn_{idx}", type="primary"):
                             st.session_state.viewing_file = idx
                             st.rerun()
-                    with cols[5]:
+                    with col_actions[2]:
                         if st.button("🗑️ حذف", key=f"del_sub_btn_{idx}", type="primary"):
                             st.session_state.confirming_del_sub = idx
                             st.rerun()
@@ -1355,19 +1417,23 @@ elif page == "الأرشيف":
                         st.session_state.transferred_indices = []
 
                     for idx, row in filtered_arch_df.iterrows():
-                        cols = st.columns([1, 1.8, 1.8, 2, 1, 1, 1])
-                        with cols[0]:
-                            st.write(f"**#{idx+1}**")
-                        with cols[1]:
-                            st.write(f"الفايل: {row.get('File No', '')}")
-                        with cols[2]:
-                            st.write(f"المرشد: {row.get('Guide Name', '')}")
-                        with cols[3]:
-                            st.markdown(f'<div style="direction: ltr; text-align: right;">الوقت: {row.get("Timestamp", "")}</div>', unsafe_allow_html=True)
+                        st.markdown(f"""
+                            <div class="record-card">
+                                <div class="card-header-row">
+                                    <span class="card-id">#{idx+1}</span>
+                                    <span class="card-file">الفايل: {row.get('File No', '')}</span>
+                                </div>
+                                <div class="card-body-row">
+                                    <div class="card-guide">المرشد: {row.get('Guide Name', '')}</div>
+                                    <div class="card-time">الوقت: {row.get('Timestamp', '')}</div>
+                                </div>
+                            </div>
+                        """, unsafe_allow_html=True)
                         
-                        with cols[4]:
+                        cols = st.columns([3, 1, 1, 1])
+                        with cols[1]:
                             is_already_transferred = idx in st.session_state.transferred_indices
-                            btn_label = "تم" if is_already_transferred else "نقل"
+                            btn_label = "تم النقل" if is_already_transferred else "نقل للسجلات"
                             if st.button(btn_label, key=f"transfer_arch_to_guide_ext_{idx}", type="primary"):
                                 if not is_already_transferred:
                                     guide_arch_entry = row.to_dict()
@@ -1377,11 +1443,11 @@ elif page == "الأرشيف":
                                     time.sleep(0.5)
                                     st.rerun()
 
-                        with cols[5]:
+                        with cols[2]:
                             if st.button("عرض", key=f"view_arch_btn_{idx}", type="primary"):
                                 st.session_state.viewing_archive_file = idx
                                 st.rerun()
-                        with cols[6]:
+                        with cols[3]:
                             if st.button("🗑️ حذف", key=f"del_arch_btn_{idx}", type="primary"):
                                 st.session_state.confirming_del_archive = idx
                                 st.rerun()
