@@ -767,6 +767,7 @@ elif page == "إدارة التصفيات":
                 
                 if st.button("⬅️ رجوع إلى إدارة التصفيات"):
                     st.session_state.viewing_file = None
+                    st.session_state.show_liquidation_cards = False
                     st.rerun()
 
                 st.markdown(f"### 📄 تفاصيل تصفية الفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
@@ -1107,12 +1108,14 @@ elif page == "إدارة التصفيات":
                         overwrite_data(SUBMISSIONS_FILE, sub_df)
                         
                         st.session_state.viewing_file = None
+                        st.session_state.show_liquidation_cards = False
                         st.success("✅ تم نقل الطلب للأرشيف بنجاح!")
                         st.rerun()
 
                 with col_btn2:
                     if st.button("🔄 متابعة", use_container_width=True):
                         st.session_state.viewing_file = None
+                        st.session_state.show_liquidation_cards = False
                         st.rerun()
             else:
                 st.session_state.viewing_file = None
@@ -1150,12 +1153,19 @@ elif page == "إدارة التصفيات":
                         </div>
                     """, unsafe_allow_html=True)
                     
-                    col_actions = st.columns([4, 1, 1])
+                    # أزرار الإجراءات (عرض، بدء التصفية، حذف) بجانب بعضها
+                    col_actions = st.columns([3, 1, 1, 1])
                     with col_actions[1]:
                         if st.button("عرض", key=f"view_btn_{idx}", type="primary"):
                             st.session_state.viewing_file = idx
+                            st.session_state.show_liquidation_cards = False
                             st.rerun()
                     with col_actions[2]:
+                        if st.button("بدء التصفية", key=f"start_liq_list_btn_{idx}", type="primary"):
+                            st.session_state.viewing_file = idx
+                            st.session_state.show_liquidation_cards = True
+                            st.rerun()
+                    with col_actions[3]:
                         if st.button("🗑️ حذف", key=f"del_sub_btn_{idx}", type="primary"):
                             st.session_state.confirming_del_sub = idx
                             st.rerun()
