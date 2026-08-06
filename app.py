@@ -1784,7 +1784,7 @@ elif page == "الأرشيف":
                                     st.success("تم الحذف من الأرشيف بنجاح.")
                                     st.rerun()
                             with ac_col2:
-                                if st.button("❌ رجوع (إلغاء)", key=f"cancel_del_arch_{idx}",, type="primary"):
+                                if st.button("❌ رجوع (إلغاء)", key=f"cancel_del_arch_{idx}", type="primary"):
                                     st.session_state.confirming_del_archive = None
                                     st.rerun()
 
