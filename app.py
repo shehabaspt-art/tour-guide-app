@@ -404,7 +404,7 @@ if page == "نموذج تصفية المرشد":
                     "Advances": advances,
                     "Collection": f"{collection_val} {collection_curr}",
                     "Option Type": ", ".join(option_types_list),
-                    "Option": " | ".join(options_summary_list),
+                    "Option": "<br>".join(options_summary_list),
                     "Tickets": f"{ticket_value} - {ticket_type}",
                     "Tip": tip,
                     "Park": park,
@@ -412,7 +412,7 @@ if page == "نموذج تصفية المرشد":
                     "Lunch Receipt": ",".join(lunch_paths) if lunch_paths else "",
                     "Shop Names": ", ".join(shops_names_only),
                     "Other Shops": f"{other_shops} : {other_shops_val} {other_shops_curr}" if other_shops.strip() else "",
-                    "Shops Details": " | ".join(shops_summary_list),
+                    "Shops Details": "<br>".join(shops_summary_list),
                     "Shop Images": ",".join(all_shop_paths) if all_shop_paths else ""
                 }
                 save_to_file(SUBMISSIONS_FILE, new_entry)
