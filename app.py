@@ -390,8 +390,9 @@ if page == "نموذج تصفية المرشد":
                 matched_guide = guides_df[guides_df[acc_column].apply(clean_acc_number) == clean_acc_selected]
                 guide_name = matched_guide[name_column].values[0] if not matched_guide.empty else "غير معروف"
                 
+                # استخدام التاريخ فقط بدون وقت
                 now_dt = datetime.now()
-                current_time_str = f"{now_dt.strftime('%d-%m-%Y')} {now_dt.strftime('%I:%M %p')}"
+                current_time_str = now_dt.strftime('%d-%m-%Y')
                 
                 work_order_paths = []
                 if work_order_image:
@@ -517,7 +518,7 @@ elif page == "سجلات المرشد":
                 st.rerun()
 
             st.markdown(f"### 📄 تفاصيل التصفية المؤرشفة للفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
-            st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
+            st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
             st.markdown("---")
 
             st.markdown("#### صور أمر الشغل:")
@@ -709,7 +710,7 @@ elif page == "سجلات المرشد":
                                 </div>
                                 <div class="card-body-row">
                                     <div class="card-guide">المرشد: {row.get('Guide Name', '')}</div>
-                                    <div class="card-time">الوقت: {row.get('Timestamp', '')}</div>
+                                    <div class="card-time">التاريخ: {row.get('Timestamp', '')}</div>
                                 </div>
                             </div>
                         """, unsafe_allow_html=True)
@@ -760,7 +761,7 @@ elif page == "إدارة التصفيات":
                     st.rerun()
 
                 st.markdown(f"### 📄 تفاصيل تصفية الفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
-                st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
+                st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
                 st.markdown("---")
 
                 st.markdown("#### صور أمر الشغل:")
@@ -976,7 +977,7 @@ elif page == "إدارة التصفيات":
                             </div>
                             <div class="card-body-row">
                                 <div class="card-guide">المرشد: {row.get('Guide Name', '')}</div>
-                                <div class="card-time">الوقت: {row.get('Timestamp', '')}</div>
+                                <div class="card-time">التاريخ: {row.get('Timestamp', '')}</div>
                             </div>
                         </div>
                     """, unsafe_allow_html=True)
@@ -1157,7 +1158,7 @@ elif page == "الأرشيف":
                     st.rerun()
 
                 st.markdown(f"### 📄 تفاصيل الأرشيف للفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
-                st.markdown(f"**التاريخ والوقت:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
+                st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
                 st.markdown("---")
 
                 st.markdown("#### صور أمر الشغل:")
@@ -1379,7 +1380,7 @@ elif page == "الأرشيف":
                                     </div>
                                     <div class="card-body-row">
                                         <div class="card-guide">المرشد: {row.get('Guide Name', '')}</div>
-                                        <div class="card-time">الوقت: {row.get('Timestamp', '')}</div>
+                                        <div class="card-time">التاريخ: {row.get('Timestamp', '')}</div>
                                     </div>
                                 </div>
                             """, unsafe_allow_html=True)
@@ -1437,7 +1438,7 @@ elif page == "الأرشيف":
                                 </div>
                                 <div class="card-body-row">
                                     <div class="card-guide">المرشد: {row.get('Guide Name', '')}</div>
-                                    <div class="card-time">الوقت: {row.get('Timestamp', '')}</div>
+                                    <div class="card-time">التاريخ: {row.get('Timestamp', '')}</div>
                                 </div>
                             </div>
                         """, unsafe_allow_html=True)
