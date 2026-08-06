@@ -861,7 +861,7 @@ elif page == "إدارة التصفيات":
                         if shop_tot_inv > 0 or shop_comm_comp > 0 or shop_comm_guid > 0:
                             with st.expander(f"🔍 تفاصيل ومعادلة المحل ({s_i+1})"):
                                 st.write(f"معادلة توزيع الفاتورة للمحل **{shop_sel_name}**:")
-                                st.latex(f"\\text{{إجمالي الفاتورة}} = {shop_tot_inv} \\quad \\rightarrow \\quad \\text{{عمولة الشركة}} ({shop_comm_comp}) + \\text{{عمولة المرشد}} ({shop_comm_guid})")
+                                st.write(f"إجمالي الفاتورة = {shop_tot_inv} -> عمولة الشركة ({shop_comm_comp}) + عمولة المرشد ({shop_comm_guid})")
 
                         total_shop_comm_guide += shop_comm_guid
                         total_shop_comm_company += shop_comm_comp
@@ -891,7 +891,7 @@ elif page == "إدارة التصفيات":
                         if opt_val_item > 0 or opt_comm_guid > 0:
                             with st.expander(f"🔍 تفاصيل ومعادلة الأوبشنال ({o_i+1})"):
                                 st.write(f"معادلة الأوبشنال **{opt_type_name or 'بدون اسم'}**:")
-                                st.latex(f"\\text{{قيمة الأوبشنال}} = {opt_val_item} \\quad \\rightarrow \\quad \\text{{عمولة المرشد}} = {opt_comm_guid}")
+                                st.write(f"قيمة الأوبشنال = {opt_val_item} -> عمولة المرشد = {opt_comm_guid}")
 
                         total_opt_comm_guide += opt_comm_guid
 
@@ -1613,7 +1613,7 @@ elif page == "الأرشيف":
                                 <div class="card-body-row">
                                     <div class="card-guide">المرشد: {row.get('Guide Name', '')}</div>
                                     <div class="card-time">التاريخ: {row.get('Timestamp', '')}</div>
-                                mathematical</div>
+                                </div>
                             </div>
                         """, unsafe_allow_html=True)
                         
@@ -1654,4 +1654,3 @@ elif page == "الأرشيف":
     else:
         if password_arch != "":
             st.error("❌ كلمة المرور غير صحيحة!")
-```[cite: 3]
