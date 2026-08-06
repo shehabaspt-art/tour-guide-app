@@ -88,6 +88,29 @@ def parse_items_smart(raw_text):
         
     return [p.strip() for p in parts if p.strip()]
 
+# دالة آمنة لحساب المعادلات النصية مثل "100+200*2"
+def evaluate_expression(expr_str):
+    if not expr_str or pd.isna(expr_str):
+        return 0.0
+    cleaned = str(expr_str).strip()
+    if not cleaned:
+        return 0.0
+    try:
+        # السماح بالأرقام وعمليات الحساب الأساسية فقط لأمان التنفيذ
+        allowed_chars = set("0123456789+-*/(). ")
+        if all(c in allowed_chars for c in cleaned):
+            result = float(eval(cleaned))
+            return result
+        else:
+            # محاولة استخراج أول رقم لو فشلت المعادلة المباشرة
+            import re
+            nums = re.findall(r"[-+]?\d*\.\d+|\d+", cleaned)
+            if nums:
+                return float(nums[0])
+    except:
+        pass
+    return 0.0
+
 current_logo_path = get_current_logo()
 if current_logo_path:
     try:
@@ -801,7 +824,7 @@ elif page == "إدارة التصفيات":
                     
                     advances_val = float(req_row.get('Advances', 0.0))
                     collection_raw = str(req_row.get('Collection', '0'))
-                    default_collection = parse_val(collection_raw)
+                    default_collection_str = str(parse_val(collection_raw))
 
                     opt_raw_str = str(req_row.get('Option', ''))
                     default_opt_collection = 0.0
@@ -811,6 +834,7 @@ elif page == "إدارة التصفيات":
                         numbers_found = re.findall(r"[-+]?\d*\.\d+|\d+", opt_item)
                         if numbers_found:
                             default_opt_collection += float(numbers_found[0])
+                    default_opt_collection_str = str(default_opt_collection)
 
                     st.markdown("### 📋 كروت البيانات الأساسية (تسمع تلقائياً وقابلة للتعديل)")
                     c_k1, c_k2, c_k3, c_k4 = st.columns(4)
@@ -895,18 +919,22 @@ elif page == "إدارة التصفيات":
 
                     total_revenue = card_guidance_val + card_park + card_tip + card_lunch + card_tickets + total_shop_comm_company + total_opt_comm_guide
 
-                    st.markdown("### 💰 كروت العهد والتحصيلات")
+                    st.markdown("### 💰 كروت العهد والتحصيلات (يمكنك كتابة معادلة مثل: 100+200 أو 50*2)")
                     cc_col1, cc_col2, cc_col3 = st.columns(3)
                     with cc_col1:
                         card_advances = st.number_input("عهدة", min_value=0.0, value=advances_val, step=10.0, key=f"lk_adv_{req_idx}")
                     with cc_col2:
-                        card_collections = st.number_input("تحصيلات", min_value=0.0, value=default_collection, step=10.0, key=f"lk_collec_{req_idx}")
-                        if st.button("🔍 عرض معادلة التحصيلات", key=f"btn_eq_col_{req_idx}"):
-                            st.info(f"معادلة التحصيلات الحالية:\nمجموع المبالغ المحصلة المسجلة من الفايل = {card_collections}")
+                        # تحويل حقل التحصيلات إلى نص (text_input) لقبول المعادلات الرياضية وحسابها تلقائياً
+                        collec_expr = st.text_input("تحصيلات (اكتب معادلة أو رقم)", value=default_collection_str, key=f"lk_collec_{req_idx}")
+                        card_collections = evaluate_expression(collec_expr)
+                        if collec_expr != default_collection_str:
+                            st.caption(f"الناتج المحسوب للمعادلة: **{card_collections:,.2f}**")
                     with cc_col3:
-                        card_opt_collections = st.number_input("تحصيلات الأوبشنال", min_value=0.0, value=default_opt_collection, step=10.0, key=f"lk_opt_collec_{req_idx}")
-                        if st.button("🔍 عرض معادلة تحصيلات الأوبشنال", key=f"btn_eq_optcol_{req_idx}"):
-                            st.info(f"معادلة تحصيلات الأوبشنال الحالية:\nمجموع تحصيلات الأوبشنال المسجلة للفايل = {card_opt_collections}")
+                        # تحويل حقل تحصيلات الأوبشنال إلى نص (text_input) لقبول المعادلات
+                        opt_collec_expr = st.text_input("تحصيلات الأوبشنال (اكتب معادلة أو رقم)", value=default_opt_collection_str, key=f"lk_opt_collec_{req_idx}")
+                        card_opt_collections = evaluate_expression(opt_collec_expr)
+                        if opt_collec_expr != default_opt_collection_str:
+                            st.caption(f"الناتج المحسوب للمعادلة: **{card_opt_collections:,.2f}**")
 
                     total_dues = card_advances + card_collections + card_opt_collections
                     net_balance = total_revenue - total_dues
@@ -1359,7 +1387,7 @@ elif page == "الأرشيف":
                     
                     advances_val = float(req_row.get('Advances', 0.0))
                     collection_raw = str(req_row.get('Collection', '0'))
-                    default_collection = parse_val(collection_raw)
+                    default_collection_str = str(parse_val(collection_raw))
 
                     opt_raw_str = str(req_row.get('Option', ''))
                     default_opt_collection = 0.0
@@ -1369,6 +1397,7 @@ elif page == "الأرشيف":
                         numbers_found = re.findall(r"[-+]?\d*\.\d+|\d+", opt_item)
                         if numbers_found:
                             default_opt_collection += float(numbers_found[0])
+                    default_opt_collection_str = str(default_opt_collection)
 
                     st.markdown("### 📋 كروت البيانات الأساسية")
                     c_k1, c_k2, c_k3, c_k4 = st.columns(4)
@@ -1392,14 +1421,16 @@ elif page == "الأرشيف":
                     st.markdown("---")
                     total_revenue = card_guidance_val + card_park + card_tip + card_lunch + card_tickets
 
-                    st.markdown("### 💰 كروت العهد والتحصيلات")
+                    st.markdown("### 💰 كروت العهد والتحصيلات (يمكنك كتابة معادلة مثل: 100+200)")
                     cc_col1, cc_col2, cc_col3 = st.columns(3)
                     with cc_col1:
                         card_advances = st.number_input("عهدة", min_value=0.0, value=advances_val, step=10.0, key=f"arch_lk_adv_{req_idx}")
                     with cc_col2:
-                        card_collections = st.number_input("تحصيلات", min_value=0.0, value=default_collection, step=10.0, key=f"arch_lk_collec_{req_idx}")
+                        collec_expr = st.text_input("تحصيلات (اكتب معادلة أو رقم)", value=default_collection_str, key=f"arch_lk_collec_{req_idx}")
+                        card_collections = evaluate_expression(collec_expr)
                     with cc_col3:
-                        card_opt_collections = st.number_input("تحصيلات الأوبشنال", min_value=0.0, value=default_opt_collection, step=10.0, key=f"arch_lk_opt_collec_{req_idx}")
+                        opt_collec_expr = st.text_input("تحصيلات الأوبشنال (اكتب معادلة أو رقم)", value=default_opt_collection_str, key=f"arch_lk_opt_collec_{req_idx}")
+                        card_opt_collections = evaluate_expression(opt_collec_expr)
 
                     total_dues = card_advances + card_collections + card_opt_collections
                     net_balance = total_revenue - total_dues
@@ -1704,7 +1735,6 @@ elif page == "الأرشيف":
                             </div>
                         """, unsafe_allow_html=True)
                         
-                        # إضافة زر "بدء التصفية" بجانب زر "عرض" وحذف في الأرشيف
                         cols = st.columns([2, 1, 1, 1])
                         with cols[1]:
                             if st.button("عرض", key=f"view_arch_btn_{idx}", type="primary"):
