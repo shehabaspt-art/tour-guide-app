@@ -309,13 +309,11 @@ if page == "نموذج تصفية المرشد":
         
         col_top1, col_top2, col_top3 = st.columns(3)
         with col_top1:
-            # تعديل ظهور أرقام الحسابات كدروب داون لأرقام الحسابات فقط بدون إظهار الأسماء نهائياً للمرشد
             account_options = [None] + guides_df[acc_column].apply(clean_acc_number).tolist()
             account_no = st.selectbox("رقم الحساب أو رقم التليفون الخاص بالتحويل", options=account_options, index=0, key=f"form_account_no_{rc}")
         with col_top2:
             file_no = st.text_input("رقم الفايل (File Number) *إلزامي*", key=f"form_file_no_{rc}")
         with col_top3:
-            # حقل كتابة اسم المرشد يدوياً نظراً لكثرة المرشدين وعدم وجود شيت مسبق للأسماء
             guide_typed_name = st.text_input("اسم المرشد *إلزامي*", key=f"form_guide_typed_name_{rc}")
 
         advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0, key=f"form_advances_{rc}")
@@ -1800,4 +1798,3 @@ elif page == "الأرشيف":
     else:
         if password_arch != "":
             st.error("❌ كلمة المرور غير صحيحة!")
-[cite: 5]
