@@ -69,7 +69,6 @@ def parse_items_smart(raw_text):
     if not text_str:
         return []
     
-    # التقسيم الذكي سواء كان الفاصل الجديد ||| أو الفاصل القديم |
     if "|||" in text_str:
         parts = text_str.split("|||")
     elif "|" in text_str:
@@ -377,19 +376,23 @@ if page == "نموذج تصفية المرشد":
                     s_curr = st.session_state.get(f"shop_curr_{rc}_{j}", "مصري")
                     s_imgs = st.session_state.get(f"shop_img_{rc}_{j}", [])
                     
+                    shop_img_paths_str = ""
                     if s_imgs:
+                        paths_single_shop = []
                         for img in s_imgs:
                             s_path = os.path.join(UPLOAD_DIR, f"shop_{time.time()}_{img.name}")
                             with open(s_path, "wb") as f:
                                 f.write(img.getbuffer())
+                            paths_single_shop.append(s_path)
                             all_shop_paths.append(s_path)
+                        shop_img_paths_str = ",".join(paths_single_shop)
 
                     if s_name:
                         shops_names_only.append(s_name)
-                        shops_summary_list.append(f"{s_name}: {s_val} {s_curr}")
+                        shops_summary_list.append(f"{s_name}: {s_val} {s_curr} [IMG:{shop_img_paths_str}]")
 
                 if other_shops.strip():
-                    shops_summary_list.append(f"{other_shops} (خارجي): {other_shops_val} {other_shops_curr}")
+                    shops_summary_list.append(f"{other_shops} (خارجي): {other_shops_val} {other_shops_curr} [IMG:{','.join(other_shops_paths)}]")
 
                 all_shop_paths.extend(other_shops_paths)
 
@@ -556,7 +559,6 @@ elif page == "سجلات المرشد":
                     </div>
                 """, unsafe_allow_html=True)
 
-            # عرض الأوبشنال بشكل كاردات منفصلة تحت بعضها باستخدام الدالة الذكية
             opt_items = parse_items_smart(req_row.get('Option', ''))
             opt_inner_html = ""
             if opt_items:
@@ -572,13 +574,13 @@ elif page == "سجلات المرشد":
                 </div>
             """, unsafe_allow_html=True)
 
-            # عرض المحلات بشكل كاردات منفصلة تحت بعضها باستخدام الدالة الذكية
             shop_raw = req_row.get('Shops Details', req_row.get('Shop Names', ''))
             shop_items = parse_items_smart(shop_raw)
             shop_inner_html = ""
             if shop_items:
                 for item in shop_items:
-                    shop_inner_html += f'<div class="sub-item-card" style="border-left-color: #ffc107; color: #856404;">🛍️ {item}</div>'
+                    clean_item_text = item.split("[IMG:")[0].strip()
+                    shop_inner_html += f'<div class="sub-item-card" style="border-left-color: #ffc107; color: #856404;">🛍️ {clean_item_text}</div>'
             else:
                 shop_inner_html = '<div class="report-value" style="color: #6c757d; font-size: 0.95rem;">لا يوجد</div>'
 
@@ -789,7 +791,6 @@ elif page == "إدارة التصفيات":
                         </div>
                     """, unsafe_allow_html=True)
 
-                # عرض الأوبشنال بشكل كاردات منفصلة
                 opt_items = parse_items_smart(req_row.get('Option', ''))
                 opt_inner_html = ""
                 if opt_items:
@@ -805,13 +806,13 @@ elif page == "إدارة التصفيات":
                     </div>
                 """, unsafe_allow_html=True)
 
-                # عرض المحلات بشكل كاردات منفصلة
                 shop_raw = req_row.get('Shops Details', req_row.get('Shop Names', ''))
                 shop_items = parse_items_smart(shop_raw)
                 shop_inner_html = ""
                 if shop_items:
                     for item in shop_items:
-                        shop_inner_html += f'<div class="sub-item-card" style="border-left-color: #ffc107; color: #856404;">🛍️ {item}</div>'
+                        clean_item_text = item.split("[IMG:")[0].strip()
+                        shop_inner_html += f'<div class="sub-item-card" style="border-left-color: #ffc107; color: #856404;">🛍️ {clean_item_text}</div>'
                 else:
                     shop_inner_html = '<div class="report-value" style="color: #6c757d; font-size: 0.95rem;">لا يوجد</div>'
 
@@ -1176,7 +1177,6 @@ elif page == "الأرشيف":
                         </div>
                     """, unsafe_allow_html=True)
 
-                # عرض الأوبشنال كاردات منفصلة
                 opt_items = parse_items_smart(req_row.get('Option', ''))
                 opt_inner_html = ""
                 if opt_items:
@@ -1192,13 +1192,13 @@ elif page == "الأرشيف":
                     </div>
                 """, unsafe_allow_html=True)
 
-                # عرض المحلات كاردات منفصلة
                 shop_raw = req_row.get('Shops Details', req_row.get('Shop Names', ''))
                 shop_items = parse_items_smart(shop_raw)
                 shop_inner_html = ""
                 if shop_items:
                     for item in shop_items:
-                        shop_inner_html += f'<div class="sub-item-card" style="border-left-color: #ffc107; color: #856404;">🛍️ {item}</div>'
+                        clean_item_text = item.split("[IMG:")[0].strip()
+                        shop_inner_html += f'<div class="sub-item-card" style="border-left-color: #ffc107; color: #856404;">🛍️ {clean_item_text}</div>'
                 else:
                     shop_inner_html = '<div class="report-value" style="color: #6c757d; font-size: 0.95rem;">لا يوجد</div>'
 
@@ -1261,29 +1261,64 @@ elif page == "الأرشيف":
                     
                     if not matched_arch_df.empty:
                         for idx, row in matched_arch_df.iterrows():
-                            st.markdown(f"#### 🏷️ فايل رقم: {row.get('File No', '')} | المرشد: **{row.get('Guide Name', '')}**")
-                            col_info1, col_info2 = st.columns(2)
-                            with col_info1:
-                                st.write(f"**تاريخ التصفية:** {row.get('Timestamp', '')}")
-                                st.write(f"**تفاصيل المحلات:** {row.get('Shops Details', row.get('Shop Names', 'لا يوجد'))}")
-                                if pd.notna(row.get('Other Shops', '')) and str(row.get('Other Shops', '')).strip() != "":
-                                    st.write(f"**محلات خارجية:** {row.get('Other Shops', '')}")
-                            with col_info2:
-                                st.write(f"**التحصيل / القيمة:** {row.get('Collection', '0')}")
-                                st.write(f"**الأوبشنال:** {row.get('Option', 'لا يوجد')}")
+                            # استخراج القيمة الخاصة بالمحل المختار فقط وصورة الفاتورة المخصصة له
+                            shop_detail_raw = str(row.get('Shops Details', ''))
+                            shop_items_list = parse_items_smart(shop_detail_raw)
                             
-                            s_paths = row.get('Shop Images', '')
-                            if pd.notna(s_paths) and str(s_paths).strip() != "":
-                                st.markdown("📷 فواتير المحلات المرفوعة:")
-                                paths_list = str(s_paths).split(",")
-                                img_cols = st.columns(min(len(paths_list), 3))
-                                for i, p in enumerate(paths_list):
+                            target_shop_text = "لا توجد تفاصيل مسجلة"
+                            specific_img_paths = []
+                            
+                            for s_item in shop_items_list:
+                                if selected_shop_filter in s_item:
+                                    if "[IMG:" in s_item:
+                                        parts_img = s_item.split("[IMG:")
+                                        target_shop_text = parts_img[0].strip()
+                                        img_part = parts_img[1].replace("]", "").strip()
+                                        if img_part:
+                                            specific_img_paths = [p.strip() for p in img_part.split(",") if p.strip()]
+                                    else:
+                                        target_shop_text = s_item.strip()
+                                    break
+                            
+                            # لو مش موجودة في Details، نشوف Other Shops لو مطابقة
+                            other_shops_val_str = str(row.get('Other Shops', ''))
+                            if selected_shop_filter in other_shops_val_str and target_shop_text == "لا توجد تفاصيل مسجلة":
+                                target_shop_text = other_shops_val_str
+
+                            # تصميم كارد احترافي ومنظم للنتيجة
+                            st.markdown(f"""
+                                <div style="background-color: #fdfefe; border: 1px solid #d4edda; border-right: 5px solid #28a745; padding: 15px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                        <h4 style="color: #1b5e20; margin: 0;">🧭 فايل رقم: {row.get('File No', '')} &nbsp;|&nbsp; المرشد: {row.get('Guide Name', '')}</h4>
+                                        <span style="color: #6c757d; font-size: 0.85rem;">{row.get('Timestamp', '')}</span>
+                                    </div>
+                                    <div style="font-size: 1.1rem; font-weight: bold; color: #333333; background-color: #f1f8f1; padding: 10px; border-radius: 6px; margin-bottom: 10px;">
+                                        🛍️ القيمة المسجلة: <span style="color: #28a745;">{target_shop_text}</span>
+                                    </div>
+                                </div>
+                            """, unsafe_allow_html=True)
+
+                            # عرض صورة الفاتورة الخاصة بهذا المحل فقط إن وجدت
+                            if specific_img_paths:
+                                st.markdown("📷 **صورة فاتورة المحل:**")
+                                img_cols = st.columns(min(len(specific_img_paths), 3))
+                                for i, p in enumerate(specific_img_paths):
                                     if os.path.exists(p):
                                         with img_cols[i % 3]:
                                             st.image(p, caption=f"صورة الفاتورة {i+1}", use_container_width=True)
                             else:
-                                st.info("لا توجد صور فواتير مرفوعة لهذا المحل.")
-                            
+                                # محاولة البحث الاحتياطي في الصور العامة لو مش مسجلة بدقة في الكارد
+                                all_general_imgs = str(row.get('Shop Images', '')).split(",")
+                                valid_general = [p.strip() for p in all_general_imgs if p.strip() and os.path.exists(p.strip())]
+                                if valid_general:
+                                    st.markdown("📷 **صور فواتير مرفقة:**")
+                                    img_cols = st.columns(min(len(valid_general), 3))
+                                    for i, p in enumerate(valid_general):
+                                        with img_cols[i % 3]:
+                                            st.image(p, caption=f"صورة {i+1}", use_container_width=True)
+                                else:
+                                    st.info("ℹ️ لم يتم رفع صورة فاتورة مخصصة لهذا المحل في هذه التصفية.")
+
                             st.markdown("---")
                     else:
                         st.warning("⚠️ لا توجد أي عمليات تسجيل أو مبيعات لهذا المحل في الأرشيف حتى الآن.")
