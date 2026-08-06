@@ -95,10 +95,6 @@ if current_logo_path:
     except:
         pass
 
-# تهيئة حالة إخفاء/إظهار الشريط الجانبى تماماً
-if "sidebar_state" not in st.session_state:
-    st.session_state.sidebar_state = "expanded"
-
 st.markdown("""
     <style>
     div.stFormSubmitButton > button, div.stButton > button {
@@ -111,66 +107,45 @@ st.markdown("""
         background-color: #218838 !important;
         color: white !important;
     }
-    """, unsafe_allow_html=True)
+    
+    [data-testid="stSidebar"] {
+        background-color: transparent !important;
+        border-left: none !important;
+    }
+    [data-testid="stSidebar"] > div:first-child {
+        background-color: #d8ebd8 !important;
+        border-right: 2px solid #c2e0c2 !important;
+        border-bottom: 2px solid #c2e0c2 !important;
+        border-top: 2px solid #c2e0c2 !important;
+        border-radius: 0 15px 15px 0 !important;
+        margin-top: 0rem !important;
+        padding-top: 1.5rem !important;
+        height: 100vh !important;
+    }
+    
+    [data-testid="stSidebar"] img {
+        max-width: 100% !important;
+        width: 260px !important;
+        height: auto !important;
+    }
 
-# إدارة حالة الشريط الجانبي تماماً عبر الكود بناءً على طلب المستخدم
-if st.session_state.sidebar_state == "collapsed":
-    st.markdown("""
-        <style>
-        [data-testid="stSidebar"] {
-            display: none !important;
-        }
-        section[data-testid="stSidebar"] {
-            width: 0px !important;
-            min-width: 0px !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-else:
-    st.markdown("""
-        <style>
-        [data-testid="stSidebar"] {
-            background-color: transparent !important;
-            border-left: none !important;
-        }
-        [data-testid="stSidebar"] > div:first-child {
-            background-color: #d8ebd8 !important;
-            border-right: 2px solid #c2e0c2 !important;
-            border-bottom: 2px solid #c2e0c2 !important;
-            border-top: 2px solid #c2e0c2 !important;
-            border-radius: 0 15px 15px 0 !important;
-            margin-top: 0rem !important;
-            padding-top: 1.5rem !important;
-            height: 100vh !important;
-        }
-        
-        [data-testid="stSidebar"] img {
-            max-width: 100% !important;
-            width: 260px !important;
-            height: auto !important;
-        }
+    [data-testid="stSidebar"] .stRadio > label {
+        display: none !important;
+    }
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label {
+        background-color: #ffffff !important;
+        padding: 10px 14px !important;
+        border-radius: 10px !important;
+        border: 1px solid #a3d9a3 !important;
+        margin-bottom: 8px !important;
+    }
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label p {
+        font-weight: 700 !important;
+        color: #1b5e20 !important;
+        font-size: 0.95rem !important;
+        margin: 0 !important;
+    }
 
-        [data-testid="stSidebar"] .stRadio > label {
-            display: none !important;
-        }
-        [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label {
-            background-color: #ffffff !important;
-            padding: 10px 14px !important;
-            border-radius: 10px !important;
-            border: 1px solid #a3d9a3 !important;
-            margin-bottom: 8px !important;
-        }
-        [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label p {
-            font-weight: 700 !important;
-            color: #1b5e20 !important;
-            font-size: 0.95rem !important;
-            margin: 0 !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-
-st.markdown("""
-    <style>
     .record-card {
         background: #ffffff;
         border: 1px solid #e0e0e0;
@@ -247,17 +222,8 @@ SHOPS_LIST = [
 current_subs_df = load_data(SUBMISSIONS_FILE)
 pending_count = len(current_subs_df)
 
-cols_badge = st.columns([3, 1, 1])
+cols_badge = st.columns([4, 1])
 with cols_badge[1]:
-    toggle_label = "👁️ إخفاء الشريط الجانبي" if st.session_state.sidebar_state == "expanded" else "👁️ إظهار الشريط الجانبي"
-    if st.button(toggle_label, type="primary"):
-        if st.session_state.sidebar_state == "expanded":
-            st.session_state.sidebar_state = "collapsed"
-        else:
-            st.session_state.sidebar_state = "expanded"
-        st.rerun()
-
-with cols_badge[2]:
     st.markdown(f"""
         <div style="background-color: #d8ebd8; border: 2px solid #28a745; padding: 8px 12px; border-radius: 10px; text-align: center; margin-bottom: 15px;">
             <span style="color: #1b5e20; font-weight: bold; font-size: 0.95rem;">🔔 الطلبات الجديدة: <span style="color: #d9534f; font-size: 1.1rem;">{pending_count}</span></span>
@@ -295,14 +261,12 @@ if page == "نموذج تصفية المرشد":
         
         col_top1, col_top2, col_top3 = st.columns(3)
         with col_top1:
-            # دروب داون لأرقام الحسابات فقط بدون إظهار الأسماء الخارجية
             account_options = [None] + guides_df[acc_column].apply(clean_acc_number).tolist()
             account_no = st.selectbox("رقم الحساب أو رقم التليفون الخاص بالتحويل", options=account_options, index=0, key=f"form_account_no_{rc}")
         with col_top2:
             file_no = st.text_input("رقم الفايل (File Number) *إلزامي*", key=f"form_file_no_{rc}")
         with col_top3:
-            # خانة إدخال اسم المرشد يدوياً بناءً على طلب المستخدم
-            guide_name_input = st.text_input("اسم المرشد *إلزامي*", key=f"form_guide_name_{rc}")
+            advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0, key=f"form_advances_{rc}")
 
         work_order_image = st.file_uploader("رفع صور أمر الشغل", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key=f"work_order_imgs_{rc}")
 
@@ -331,8 +295,7 @@ if page == "نموذج تصفية المرشد":
             with col_opt4:
                 opt_pay = st.selectbox("طريقة الدفع", options=[None, "كاش", "لينك"], key=f"opt_pay_{rc}_{i}")
             with col_opt5:
-                # استعادة كولوم تتبع ما إذا كانت الفلوس مع المرشد أو السواق
-                cash_h = st.selectbox("المبلغ مع المرشد ولا مع السواق", options=[None, "مع المرشد", "مع السواق"], key=f"cash_h_{rc}_{i}")
+                cash_h = st.selectbox("المبلغ", options=[None, "مع المرشد", "مع السواق"], key=f"cash_h_{rc}_{i}")
             
             option_data_list.append({
                 "type": opt_type, "value": opt_val, "curr": opt_curr, "pay": opt_pay, "holder": cash_h
@@ -428,15 +391,14 @@ if page == "نموذج تصفية المرشد":
                 st.error("⚠️ عذراً، يجب اختيار (رقم الحساب أو رقم التليفون) أولاً!")
             elif not file_no.strip():
                 st.error("⚠️ عذراً، لا يمكن إرسال الطلب. يرجى إدخال (رقم الفايل) أولاً بشكل إلزامي!")
-            elif not guide_name_input.strip():
-                st.error("⚠️ عذراً، يجب كتابة (اسم المرشد) بشكل إلزامي!")
             elif validation_pay_error:
                 st.error("⚠️ عذراً، نظراً لإدخال قيمة أو نوع في أحد الأوبشنالز، يجب اختيار (طريقة الدفع) [كاش / لينك] بشكل إلزامي!")
             elif validation_error:
-                st.error("⚠️ عذراً، نظراً لاختيار طريقة الدفع (كاش)، يجب اختيار (المبلغ مع المرشد ولا مع السواق) بشكل إلزامي!")
+                st.error("⚠️ عذراً، نظراً لاختيار طريقة الدفع (كاش)، يجب اختيار (المبلغ) [مع المرشد / مع السواق] بشكل إلزامي!")
             else:
                 clean_acc_selected = clean_acc_number(account_no)
-                guide_name = guide_name_input.strip()
+                matched_guide = guides_df[guides_df[acc_column].apply(clean_acc_number) == clean_acc_selected]
+                guide_name = matched_guide[name_column].values[0] if not matched_guide.empty else "غير معروف"
                 
                 cairo_dt = datetime.now(ZoneInfo("Africa/Cairo"))
                 current_time_str = cairo_dt.strftime('%Y-%m-%d %I:%M %p')
@@ -822,6 +784,7 @@ elif page == "إدارة التصفيات":
                     st.markdown("---")
                     st.markdown("## 🧮 شاشة التصفية الذكية والكروت الحسابية")
                     
+                    # استخراج وتجهيز القيم التلقائية من بيانات المرشد
                     def parse_val(val_str):
                         try:
                             return float(str(val_str).split()[0])
@@ -844,6 +807,7 @@ elif page == "إدارة التصفيات":
                     collection_raw = str(req_row.get('Collection', '0'))
                     default_collection = parse_val(collection_raw)
 
+                    # استخراج تحصيلات الأوبشنال إن وجدت
                     opt_raw_str = str(req_row.get('Option', ''))
                     default_opt_collection = 0.0
                     parsed_opts = parse_items_smart(opt_raw_str)
@@ -853,6 +817,7 @@ elif page == "إدارة التصفيات":
                         if numbers_found:
                             default_opt_collection += float(numbers_found[0])
 
+                    # 1. كروت البيانات الأساسية
                     st.markdown("### 📋 كروت البيانات الأساسية (تسمع تلقائياً وقابلة للتعديل)")
                     c_k1, c_k2, c_k3, c_k4 = st.columns(4)
                     with c_k1:
@@ -874,6 +839,7 @@ elif page == "إدارة التصفيات":
 
                     st.markdown("---")
 
+                    # 2. بند عمولة المحلات
                     st.markdown("### 🛍️ بند عمولة المحلات")
                     if f"shop_rows_{req_idx}" not in st.session_state:
                         st.session_state[f"shop_rows_{req_idx}"] = 1
@@ -906,6 +872,7 @@ elif page == "إدارة التصفيات":
 
                     st.markdown("---")
 
+                    # 3. بند عمولة الأوبشنال
                     st.markdown("### ✨ بند عمولة الأوبشنال")
                     if f"opt_rows_{req_idx}" not in st.session_state:
                         st.session_state[f"opt_rows_{req_idx}"] = 1
@@ -934,6 +901,7 @@ elif page == "إدارة التصفيات":
 
                     st.markdown("---")
 
+                    # حسابات الإيرادات والمستحقات التلقائية
                     total_revenue = card_guidance_val + card_park + card_tip + card_lunch + card_tickets + total_shop_comm_company + total_opt_comm_guide
 
                     st.markdown("### 💰 كروت العهد والتحصيلات")
@@ -1647,7 +1615,7 @@ elif page == "الأرشيف":
                                     <div class="card-time">التاريخ: {row.get('Timestamp', '')}</div>
                                 </div>
                             </div>
-                        """, unsafe_allow_html+True)
+                        """, unsafe_allow_html=True)
                         
                         cols = st.columns([3, 1, 1])
                         with cols[1]:
