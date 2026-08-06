@@ -784,7 +784,6 @@ elif page == "إدارة التصفيات":
                     st.markdown("---")
                     st.markdown("## 🧮 شاشة التصفية الذكية والكروت الحسابية")
                     
-                    # استخراج وتجهيز القيم التلقائية من بيانات المرشد
                     def parse_val(val_str):
                         try:
                             return float(str(val_str).split()[0])
@@ -807,7 +806,6 @@ elif page == "إدارة التصفيات":
                     collection_raw = str(req_row.get('Collection', '0'))
                     default_collection = parse_val(collection_raw)
 
-                    # استخراج تحصيلات الأوبشنال إن وجدت
                     opt_raw_str = str(req_row.get('Option', ''))
                     default_opt_collection = 0.0
                     parsed_opts = parse_items_smart(opt_raw_str)
@@ -818,7 +816,7 @@ elif page == "إدارة التصفيات":
                             default_opt_collection += float(numbers_found[0])
 
                     # 1. كروت البيانات الأساسية
-                    st.markdown("### 📋 كروت البيانات الأساسية (تسمع تلقائياً وقابلة للتعديل)")
+                    st.markdown("### 📋 1. البيانات الأساسية للتصفية")
                     c_k1, c_k2, c_k3, c_k4 = st.columns(4)
                     with c_k1:
                         card_guide_name = st.text_input("اسم المرشد", value=default_guide_name, key=f"lk_gname_{req_idx}")
@@ -839,18 +837,19 @@ elif page == "إدارة التصفيات":
 
                     st.markdown("---")
 
-                    # 2. بند عمولة المحلات
-                    st.markdown("### 🛍️ بند عمولة المحلات")
+                    # 2. بند عمولة المحلات (مع دعم القائمة المنسدلة ومحلات أخرى)
+                    st.markdown("### 🛍️ 2. عمولة المحلات")
                     if f"shop_rows_{req_idx}" not in st.session_state:
                         st.session_state[f"shop_rows_{req_idx}"] = 1
 
                     total_shop_comm_guide = 0.0
-                    total_shop_comm_company = 0.0
+
+                    extended_shop_options = SHOPS_LIST + ["محلات اخري"]
 
                     for s_i in range(st.session_state[f"shop_rows_{req_idx}"]):
-                        cols_sh = st.columns([2, 2, 2, 2])
+                        cols_sh = st.columns(4)
                         with cols_sh[0]:
-                            shop_sel_name = st.selectbox(f"اسم المحل ({s_i+1})", options=SHOPS_LIST, key=f"sh_name_{req_idx}_{s_i}")
+                            shop_sel_name = st.selectbox(f"اسم المحل ({s_i+1})", options=extended_shop_options, key=f"sh_name_{req_idx}_{s_i}")
                         with cols_sh[1]:
                             shop_tot_inv = st.number_input(f"إجمالي الفاتورة ({s_i+1})", min_value=0.0, value=0.0, step=10.0, key=f"sh_inv_{req_idx}_{s_i}")
                         with cols_sh[2]:
@@ -858,29 +857,26 @@ elif page == "إدارة التصفيات":
                         with cols_sh[3]:
                             shop_comm_guid = st.number_input(f"عمولة المرشد ({s_i+1})", min_value=0.0, value=0.0, step=10.0, key=f"sh_cguid_{req_idx}_{s_i}")
                         
-                        if shop_tot_inv > 0 or shop_comm_comp > 0 or shop_comm_guid > 0:
-                            with st.expander(f"🔍 تفاصيل ومعادلة المحل ({s_i+1})"):
-                                st.write(f"معادلة توزيع الفاتورة للمحل **{shop_sel_name}**:")
-                                st.write(f"إجمالي الفاتورة = {shop_tot_inv} -> عمولة الشركة ({shop_comm_comp}) + عمولة المرشد ({shop_comm_guid})")
+                        # إمكانية النقر لرؤية المعادلة في خانة المبلغ
+                        if st.checkbox(f"عرض معادلة حساب المحل ({s_i+1})", key=f"show_shop_eq_{req_idx}_{s_i}"):
+                            st.info(f"المعادلة: إجمالي الفاتورة ({shop_tot_inv}) / عمولة الشركة ({shop_comm_comp}) / عمولة المرشد ({shop_comm_guid})")
 
                         total_shop_comm_guide += shop_comm_guid
-                        total_shop_comm_company += shop_comm_comp
+                        st.markdown("---")
 
-                    if st.button("➕ إضافة محل آخر", key=f"add_shop_row_btn_{req_idx}"):
+                    if st.button("➕ إضافة محل", key=f"add_shop_row_btn_{req_idx}"):
                         st.session_state[f"shop_rows_{req_idx}"] += 1
                         st.rerun()
 
-                    st.markdown("---")
-
                     # 3. بند عمولة الأوبشنال
-                    st.markdown("### ✨ بند عمولة الأوبشنال")
+                    st.markdown("### ✨ 3. عمولة الأوبشنال")
                     if f"opt_rows_{req_idx}" not in st.session_state:
                         st.session_state[f"opt_rows_{req_idx}"] = 1
 
                     total_opt_comm_guide = 0.0
 
                     for o_i in range(st.session_state[f"opt_rows_{req_idx}"]):
-                        cols_op = st.columns([3, 2, 2])
+                        cols_op = st.columns(3)
                         with cols_op[0]:
                             opt_type_name = st.text_input(f"نوع الأوبشنال ({o_i+1})", key=f"op_type_{req_idx}_{o_i}")
                         with cols_op[1]:
@@ -888,47 +884,56 @@ elif page == "إدارة التصفيات":
                         with cols_op[2]:
                             opt_comm_guid = st.number_input(f"عمولة المرشد ({o_i+1})", min_value=0.0, value=0.0, step=10.0, key=f"op_cguid_{req_idx}_{o_i}")
 
-                        if opt_val_item > 0 or opt_comm_guid > 0:
-                            with st.expander(f"🔍 تفاصيل ومعادلة الأوبشنال ({o_i+1})"):
-                                st.write(f"معادلة الأوبشنال **{opt_type_name or 'بدون اسم'}**:")
-                                st.write(f"قيمة الأوبشنال = {opt_val_item} -> عمولة المرشد = {opt_comm_guid}")
+                        if st.checkbox(f"عرض معادلة الأوبشنال ({o_i+1})", key=f"show_opt_eq_{req_idx}_{o_i}"):
+                            st.info(f"المعادلة: قيمة الأوبشنال ({opt_val_item}) / عمولة المرشد ({opt_comm_guid})")
 
                         total_opt_comm_guide += opt_comm_guid
+                        st.markdown("---")
 
-                    if st.button("➕ إضافة أوبشنال آخر", key=f"add_opt_row_btn_{req_idx}"):
+                    if st.button("➕ إضافة أوبشنال", key=f"add_opt_row_btn_{req_idx}"):
                         st.session_state[f"opt_rows_{req_idx}"] += 1
                         st.rerun()
 
-                    st.markdown("---")
+                    # 4. كارت الإيراد (تجميع تلقائي لكل البنود)
+                    total_revenue = (
+                        card_guidance_val +
+                        card_park +
+                        card_tip +
+                        card_lunch +
+                        card_tickets +
+                        total_shop_comm_guide +
+                        total_opt_comm_guide
+                    )
 
-                    # حسابات الإيرادات والمستحقات التلقائية
-                    total_revenue = card_guidance_val + card_park + card_tip + card_lunch + card_tickets + total_shop_comm_company + total_opt_comm_guide
-
-                    st.markdown("### 💰 كروت العهد والتحصيلات")
+                    # 5. كارت العهده / التحصيلات / تحصيلات الأوبشنال
+                    st.markdown("### 💰 5. العهد والتحصيلات")
                     cc_col1, cc_col2, cc_col3 = st.columns(3)
                     with cc_col1:
                         card_advances = st.number_input("عهدة", min_value=0.0, value=advances_val, step=10.0, key=f"lk_adv_{req_idx}")
                     with cc_col2:
                         card_collections = st.number_input("تحصيلات", min_value=0.0, value=default_collection, step=10.0, key=f"lk_collec_{req_idx}")
-                        if st.button("🔍 عرض معادلة التحصيلات", key=f"btn_eq_col_{req_idx}"):
-                            st.info(f"معادلة التحصيلات الحالية:\nمجموع المبالغ المحصلة المسجلة من الفايل = {card_collections}")
                     with cc_col3:
                         card_opt_collections = st.number_input("تحصيلات الأوبشنال", min_value=0.0, value=default_opt_collection, step=10.0, key=f"lk_opt_collec_{req_idx}")
-                        if st.button("🔍 عرض معادلة تحصيلات الأوبشنال", key=f"btn_eq_optcol_{req_idx}"):
-                            st.info(f"معادلة تحصيلات الأوبشنال الحالية:\nمجموع تحصيلات الأوبشنال المسجلة للفايل = {card_opt_collections}")
 
-                    total_dues = card_advances + card_collections + card_opt_collections
-                    net_balance = total_revenue - total_dues
+                    if st.checkbox("عرض معادلة التحصيلات والعهد", key=f"show_col_eq_{req_idx}"):
+                        st.info(f"المعادلة: تحصيلات ({card_collections}) + تحصيلات الأوبشنال ({card_opt_collections})")
 
                     st.markdown("---")
-                    st.markdown("### 📊 الملخص النهائي للكروت الحسابية")
+
+                    # 6. كارت المستحقات (تجميع تلقائي لـ عهدة + تحصيلات + تحصيلات الأوبشنال)
+                    total_dues = card_advances + card_collections + card_opt_collections
+
+                    # 7. كارت الصافي (الإيراد - المستحقات)
+                    net_balance = total_revenue - total_dues
+
+                    st.markdown("### 📊 الملخص المالي النهائي")
                     res_c1, res_c2, res_c3 = st.columns(3)
                     with res_c1:
-                        st.metric(label="📈 إجمالي الإيراد", value=f"{total_revenue:,.2f}")
+                        st.metric(label="ايراد", value=f"{total_revenue:,.2f} ج.م")
                     with res_c2:
-                        st.metric(label="📉 إجمالي المستحقات", value=f"{total_dues:,.2f}")
+                        st.metric(label="مستحقات", value=f"{total_dues:,.2f} ج.م")
                     with res_c3:
-                        st.metric(label="💎 الصافي النهائي", value=f"{net_balance:,.2f}", delta=f"{net_balance:,.2f}")
+                        st.metric(label="الصافي", value=f"{net_balance:,.2f} ج.م", delta=f"{net_balance:,.2f}")
 
                 st.markdown("---")
 
