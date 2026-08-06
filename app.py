@@ -513,7 +513,9 @@ elif page == "سجلات المرشد":
         if req_idx in g_arch_df.index:
             req_row = g_arch_df.loc[req_idx]
             
-            if st.button("⬅️ رجوع"):
+            # تم تعديل زر الرجوع ليحتفظ برقم الحساب ويعيد المرشد لصفحة الأرشيف الخاصة به
+            if st.button("رجوع"):
+                st.session_state.guide_login_acc = str(req_row.get('Account', ''))
                 st.session_state.viewing_guide_archive_file = None
                 st.rerun()
 
