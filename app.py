@@ -23,7 +23,6 @@ ARCHIVE_FILE = "archive.xlsx"
 GUIDES_FILE = "guides.xlsx"
 GUIDE_ARCHIVE_FILE = "guide_archive.xlsx"
 
-# حذف التصفيات والبيانات القديمة في سجلات المرشد والبدء بنظافة
 if os.path.exists(GUIDE_ARCHIVE_FILE):
     try:
         df_temp = pd.read_excel(GUIDE_ARCHIVE_FILE)
@@ -72,42 +71,6 @@ def save_to_file(file_path, new_data):
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
 
-def parse_items_smart(raw_text):
-    if not raw_text or pd.isna(raw_text):
-        return []
-    text_str = str(raw_text).strip()
-    if not text_str:
-        return []
-    
-    if "|||" in text_str:
-        parts = text_str.split("|||")
-    elif "|" in text_str:
-        parts = text_str.split("|")
-    else:
-        parts = [text_str]
-        
-    return [p.strip() for p in parts if p.strip()]
-
-def evaluate_expression(expr_str):
-    if not expr_str or pd.isna(expr_str):
-        return 0.0
-    cleaned = str(expr_str).strip()
-    if not cleaned:
-        return 0.0
-    try:
-        allowed_chars = set("0123456789+-*/(). ")
-        if all(c in allowed_chars for c in cleaned):
-            result = float(eval(cleaned))
-            return result
-        else:
-            import re
-            nums = re.findall(r"[-+]?\d*\.\d+|\d+", cleaned)
-            if nums:
-                return float(nums[0])
-    except:
-        pass
-    return 0.0
-
 current_logo_path = get_current_logo()
 if current_logo_path:
     try:
@@ -129,18 +92,8 @@ st.markdown("""
     }
     
     [data-testid="stSidebar"] {
-        background-color: transparent !important;
-        border-left: none !important;
-    }
-    [data-testid="stSidebar"] > div:first-child {
         background-color: #d8ebd8 !important;
         border-right: 2px solid #c2e0c2 !important;
-        border-bottom: 2px solid #c2e0c2 !important;
-        border-top: 2px solid #c2e0c2 !important;
-        border-radius: 0 15px 15px 0 !important;
-        margin-top: 0rem !important;
-        padding-top: 1.5rem !important;
-        height: 100vh !important;
     }
     
     [data-testid="stSidebar"] img {
@@ -164,57 +117,6 @@ st.markdown("""
         color: #1b5e20 !important;
         font-size: 0.95rem !important;
         margin: 0 !important;
-    }
-
-    .record-card {
-        background: #ffffff;
-        border: 1px solid #e0e0e0;
-        border-right: 5px solid #28a745;
-        border-radius: 10px;
-        padding: 14px 18px;
-        margin-bottom: 12px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        direction: rtl;
-    }
-    .card-header-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid #f0f0f0;
-        padding-bottom: 8px;
-        margin-bottom: 10px;
-    }
-    .card-id {
-        background: #eef2ff;
-        color: #4f46e5;
-        font-weight: bold;
-        padding: 3px 8px;
-        border-radius: 6px;
-        font-size: 13px;
-    }
-    .card-file {
-        color: #1f2937;
-        font-size: 15px;
-        font-weight: bold;
-    }
-    .card-body-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        color: #4b5563;
-        font-size: 14px;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-    .card-guide {
-        font-weight: 600;
-        color: #1b5e20;
-    }
-    .card-time {
-        direction: ltr;
-        unicode-bidi: embed;
-        color: #6c757d;
-        font-size: 0.9rem;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -250,43 +152,19 @@ with cols_badge[1]:
         </div>
     """, unsafe_allow_html=True)
 
-# إدارة حالة إظهار/إخفاء القائمة الجانبية تماماً بناءً على طلب المستخدم
-if "sidebar_visible" not in st.session_state:
-    st.session_state.sidebar_visible = True
-
-col_toggle_sidebar = st.columns([1, 10])
-with col_toggle_sidebar[0]:
-    if st.button("🌐", help="إظهار/إخفاء القائمة الجانبية"):
-        st.session_state.sidebar_visible = not st.session_state.sidebar_visible
-        st.rerun()
-
-if st.session_state.sidebar_visible:
-    with st.sidebar:
-        st.markdown("""
-            <div style="display: flex; align-items: center; margin-top: 10px; margin-bottom: 5px;">
-                <h2 style='color: #1b5e20; margin: 0; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        page = st.radio(
-            "اختر الصفحة",
-            ["نموذج تصفية المرشد", "سجلات المرشد", "إدارة التصفيات", "الأرشيف"],
-            label_visibility="collapsed"
-        )
-else:
-    # إخفاء القائمة الجانبية بالكامل عبر حقن CSS لتختفي خااااالص
+# استخدام القائمة الجانبية الطبيعية والآمنة تماماً لمنع أي أخطاء في العرض
+with st.sidebar:
     st.markdown("""
-        <style>
-        [data-testid="stSidebar"] {
-            display: none !important;
-        }
-        section[data-testid="stSidebar"] {
-            width: 0 !important;
-            display: none !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-    page = "نموذج تصفية المرشد"
+        <div style="display: flex; align-items: center; margin-top: 10px; margin-bottom: 5px;">
+            <h2 style='color: #1b5e20; margin: 0; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    page = st.radio(
+        "اختر الصفحة",
+        ["نموذج تصفية المرشد", "سجلات المرشد", "إدارة التصفيات", "الأرشيف"],
+        label_visibility="collapsed"
+    )
 
 if page == "نموذج تصفية المرشد":
     st.title("🧭 نموذج تصفية المرشدين")
@@ -306,17 +184,14 @@ if page == "نموذج تصفية المرشد":
         
         col_top1, col_top2, col_top3 = st.columns(3)
         with col_top1:
-            # عرض أرقام الحسابات فقط بدون إظهار الأسماء للمرشد
             account_options = [None] + guides_df[acc_column].apply(clean_acc_number).tolist()
             account_no = st.selectbox("رقم الحساب أو رقم التليفون الخاص بالتحويل", options=account_options, index=0, key=f"form_account_no_{rc}")
         with col_top2:
             file_no = st.text_input("رقم الفايل (File Number) *إلزامي*", key=f"form_file_no_{rc}")
         with col_top3:
-            # اسم المرشد يُكتب يدوياً كما طلب المستخدم
             guide_typed_name = st.text_input("اسم المرشد *إلزامي*", key=f"form_guide_typed_name_{rc}")
 
         advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0, key=f"form_advances_{rc}")
-
         work_order_image = st.file_uploader("رفع صور أمر الشغل", type=["png", "jpg", "jpeg"], accept_multiple_files=True, key=f"work_order_imgs_{rc}")
 
         st.markdown("---")
@@ -344,7 +219,6 @@ if page == "نموذج تصفية المرشد":
             with col_opt4:
                 opt_pay = st.selectbox("طريقة الدفع", options=[None, "كاش", "لينك"], key=f"opt_pay_{rc}_{i}")
             with col_opt5:
-                # الحفاظ على عمود تحديد ما إذا كان المبلغ مع المرشد أو السواق
                 cash_h = st.selectbox("المبلغ", options=[None, "مع المرشد", "مع السواق"], key=f"cash_h_{rc}_{i}")
             
             option_data_list.append({
@@ -560,24 +434,10 @@ elif page == "سجلات المرشد":
     st.title("👤 سجلات المرشد")
     st.markdown("---")
 
-    if "viewing_guide_archive_file" not in st.session_state:
-        st.session_state.viewing_guide_archive_file = None
+elif page == "إدارة التصفيات":
+    st.title("⚙️ إدارة التصفيات")
+    st.markdown("---")
 
-    if "guide_login_acc" not in st.session_state:
-        st.session_state.guide_login_acc = ""
-
-    if st.session_state.viewing_guide_archive_file is not None:
-        g_arch_df = load_data(GUIDE_ARCHIVE_FILE)
-        req_idx = st.session_state.viewing_guide_archive_file
-        if req_idx in g_arch_df.index:
-            req_row = g_arch_df.loc[req_idx]
-            
-            if st.button("رجوع"):
-                st.session_state.guide_login_acc = str(req_row.get('Account', ''))
-                st.session_state.viewing_guide_archive_file = None
-                st.rerun()
-
-            st.markdown(f"### 📄 تفاصيل التصفية المؤرشفة للفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
-            st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
-            st.markdown("---")
-            # باقي الكود الخاص بعرض التفاصيل...
+elif page == "الأرشيف":
+    st.title("📦 الأرشيف")
+    st.markdown("---")
