@@ -504,13 +504,16 @@ elif page == "سجلات المرشد":
     if "viewing_guide_archive_file" not in st.session_state:
         st.session_state.viewing_guide_archive_file = None
 
+    if "guide_login_acc" not in st.session_state:
+        st.session_state.guide_login_acc = ""
+
     if st.session_state.viewing_guide_archive_file is not None:
         g_arch_df = load_data(GUIDE_ARCHIVE_FILE)
         req_idx = st.session_state.viewing_guide_archive_file
         if req_idx in g_arch_df.index:
             req_row = g_arch_df.loc[req_idx]
             
-            if st.button("⬅️ رجوع إلى بحث رقم الحساب"):
+            if st.button("⬅️ رجوع"):
                 st.session_state.viewing_guide_archive_file = None
                 st.rerun()
 
@@ -683,7 +686,7 @@ elif page == "سجلات المرشد":
             st.rerun()
     else:
         st.markdown("### 🔑 أدخل رقم الحساب أو رقم التليفون للاطلاع على سجلاتك (خاص بالمرشد)")
-        entered_acc = st.text_input("رقم الحساب أو رقم التليفون الخاص بالتحويل", type="default", key="guide_login_acc")
+        entered_acc = st.text_input("رقم الحساب أو رقم التليفون الخاص بالتحويل", type="default", value=st.session_state.guide_login_acc, key="guide_login_acc")
 
         if entered_acc.strip():
             g_arch_df = load_data(GUIDE_ARCHIVE_FILE)
