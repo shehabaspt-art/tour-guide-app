@@ -62,6 +62,23 @@ def save_to_file(file_path, new_data):
 def overwrite_data(file_path, df):
     df.to_excel(file_path, index=False)
 
+def parse_items_smart(raw_text):
+    if not raw_text or pd.isna(raw_text):
+        return []
+    text_str = str(raw_text).strip()
+    if not text_str:
+        return []
+    
+    # التقسيم الذكي سواء كان الفاصل الجديد ||| أو الفاصل القديم |
+    if "|||" in text_str:
+        parts = text_str.split("|||")
+    elif "|" in text_str:
+        parts = text_str.split("|")
+    else:
+        parts = [text_str]
+        
+    return [p.strip() for p in parts if p.strip()]
+
 current_logo_path = get_current_logo()
 if current_logo_path:
     try:
@@ -539,10 +556,8 @@ elif page == "سجلات المرشد":
                     </div>
                 """, unsafe_allow_html=True)
 
-            # عرض الأوبشنال بشكل كاردات منفصلة تحت بعضها
-            opt_content_raw = str(req_row.get('Option', ''))
-            opt_items = [item.strip() for item in opt_content_raw.split("|||") if item.strip()]
-            
+            # عرض الأوبشنال بشكل كاردات منفصلة تحت بعضها باستخدام الدالة الذكية
+            opt_items = parse_items_smart(req_row.get('Option', ''))
             opt_inner_html = ""
             if opt_items:
                 for item in opt_items:
@@ -557,10 +572,9 @@ elif page == "سجلات المرشد":
                 </div>
             """, unsafe_allow_html=True)
 
-            # عرض المحلات بشكل كاردات منفصلة تحت بعضها
-            shops_content_raw = str(req_row.get('Shops Details', req_row.get('Shop Names', '')))
-            shop_items = [item.strip() for item in shops_content_raw.split("|||") if item.strip()]
-            
+            # عرض المحلات بشكل كاردات منفصلة تحت بعضها باستخدام الدالة الذكية
+            shop_raw = req_row.get('Shops Details', req_row.get('Shop Names', ''))
+            shop_items = parse_items_smart(shop_raw)
             shop_inner_html = ""
             if shop_items:
                 for item in shop_items:
@@ -776,9 +790,7 @@ elif page == "إدارة التصفيات":
                     """, unsafe_allow_html=True)
 
                 # عرض الأوبشنال بشكل كاردات منفصلة
-                opt_content_raw = str(req_row.get('Option', ''))
-                opt_items = [item.strip() for item in opt_content_raw.split("|||") if item.strip()]
-                
+                opt_items = parse_items_smart(req_row.get('Option', ''))
                 opt_inner_html = ""
                 if opt_items:
                     for item in opt_items:
@@ -794,9 +806,8 @@ elif page == "إدارة التصفيات":
                 """, unsafe_allow_html=True)
 
                 # عرض المحلات بشكل كاردات منفصلة
-                shops_content_raw = str(req_row.get('Shops Details', req_row.get('Shop Names', '')))
-                shop_items = [item.strip() for item in shops_content_raw.split("|||") if item.strip()]
-                
+                shop_raw = req_row.get('Shops Details', req_row.get('Shop Names', ''))
+                shop_items = parse_items_smart(shop_raw)
                 shop_inner_html = ""
                 if shop_items:
                     for item in shop_items:
@@ -1166,9 +1177,7 @@ elif page == "الأرشيف":
                     """, unsafe_allow_html=True)
 
                 # عرض الأوبشنال كاردات منفصلة
-                opt_content_raw = str(req_row.get('Option', ''))
-                opt_items = [item.strip() for item in opt_content_raw.split("|||") if item.strip()]
-                
+                opt_items = parse_items_smart(req_row.get('Option', ''))
                 opt_inner_html = ""
                 if opt_items:
                     for item in opt_items:
@@ -1184,9 +1193,8 @@ elif page == "الأرشيف":
                 """, unsafe_allow_html=True)
 
                 # عرض المحلات كاردات منفصلة
-                shops_content_raw = str(req_row.get('Shops Details', req_row.get('Shop Names', '')))
-                shop_items = [item.strip() for item in shops_content_raw.split("|||") if item.strip()]
-                
+                shop_raw = req_row.get('Shops Details', req_row.get('Shop Names', ''))
+                shop_items = parse_items_smart(shop_raw)
                 shop_inner_html = ""
                 if shop_items:
                     for item in shop_items:
