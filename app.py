@@ -470,9 +470,11 @@ elif page == "سجلات المرشد":
             wo_paths = req_row.get('Work Order Images', '')
             if pd.notna(wo_paths) and str(wo_paths).strip() != "":
                 wo_list = str(wo_paths).split(",")
+                wo_cols = st.columns(min(len(wo_list), 3))
                 for idx, p in enumerate(wo_list):
                     if os.path.exists(p):
-                        st.image(p, caption=f"صورة أمر الشغل رقم {idx+1}", width=300)
+                        with wo_cols[idx % 3]:
+                            st.image(p, caption=f"صورة أمر الشغل رقم {idx+1}", width=220)
             else:
                 st.info("لا توجد صور لأمر الشغل.")
 
@@ -604,9 +606,11 @@ elif page == "سجلات المرشد":
             l_paths = req_row.get('Lunch Receipt', '')
             if pd.notna(l_paths) and str(l_paths).strip() != "":
                 l_list = str(l_paths).split(",")
+                l_cols = st.columns(min(len(l_list), 3))
                 for idx, p in enumerate(l_list):
                     if os.path.exists(p):
-                        st.image(p, caption=f"صورة فاتورة الغداء رقم {idx+1}", width=300)
+                        with l_cols[idx % 3]:
+                            st.image(p, caption=f"صورة فاتورة الغداء رقم {idx+1}", width=220)
             else:
                 st.info("لا توجد صور لفواتير الغداء.")
 
@@ -615,9 +619,11 @@ elif page == "سجلات المرشد":
             st.markdown("#### صور فواتير المحلات:")
             if pd.notna(s_paths) and str(s_paths).strip() != "":
                 paths_list = str(s_paths).split(",")
+                s_cols = st.columns(min(len(paths_list), 3))
                 for idx, p in enumerate(paths_list):
                     if os.path.exists(p):
-                        st.image(p, caption=f"صورة محلات رقم {idx+1}", width=300)
+                        with s_cols[idx % 3]:
+                            st.image(p, caption=f"صورة محلات رقم {idx+1}", width=220)
             else:
                 st.info("لا توجد صور لفواتير المحلات.")
         else:
@@ -702,9 +708,11 @@ elif page == "إدارة التصفيات":
                 wo_paths = req_row.get('Work Order Images', '')
                 if pd.notna(wo_paths) and str(wo_paths).strip() != "":
                     wo_list = str(wo_paths).split(",")
+                    wo_cols = st.columns(min(len(wo_list), 3))
                     for idx, p in enumerate(wo_list):
                         if os.path.exists(p):
-                            st.image(p, caption=f"صورة أمر الشغل رقم {idx+1}", width=300)
+                            with wo_cols[idx % 3]:
+                                st.image(p, caption=f"صورة أمر الشغل رقم {idx+1}", width=220)
                 else:
                     st.info("لا توجد صور لأمر الشغل.")
 
@@ -836,9 +844,11 @@ elif page == "إدارة التصفيات":
                 l_paths = req_row.get('Lunch Receipt', '')
                 if pd.notna(l_paths) and str(l_paths).strip() != "":
                     l_list = str(l_paths).split(",")
+                    l_cols = st.columns(min(len(l_list), 3))
                     for idx, p in enumerate(l_list):
                         if os.path.exists(p):
-                            st.image(p, caption=f"صورة فاتورة الغداء رقم {idx+1}", width=300)
+                            with l_cols[idx % 3]:
+                                st.image(p, caption=f"صورة فاتورة الغداء رقم {idx+1}", width=220)
                 else:
                     st.info("لا توجد صور لفواتير الغداء.")
 
@@ -847,9 +857,11 @@ elif page == "إدارة التصفيات":
                 st.markdown("#### صور فواتير المحلات:")
                 if pd.notna(s_paths) and str(s_paths).strip() != "":
                     paths_list = str(s_paths).split(",")
+                    s_cols = st.columns(min(len(paths_list), 3))
                     for idx, p in enumerate(paths_list):
                         if os.path.exists(p):
-                            st.image(p, caption=f"صورة محلات رقم {idx+1}", width=300)
+                            with s_cols[idx % 3]:
+                                st.image(p, caption=f"صورة محلات رقم {idx+1}", width=220)
                 else:
                     st.info("لا توجد صور لفواتير المحلات.")
 
@@ -1088,9 +1100,11 @@ elif page == "الأرشيف":
                 wo_paths = req_row.get('Work Order Images', '')
                 if pd.notna(wo_paths) and str(wo_paths).strip() != "":
                     wo_list = str(wo_paths).split(",")
+                    wo_cols = st.columns(min(len(wo_list), 3))
                     for idx, p in enumerate(wo_list):
                         if os.path.exists(p):
-                            st.image(p, caption=f"صورة أمر الشغل رقم {idx+1}", width=300)
+                            with wo_cols[idx % 3]:
+                                st.image(p, caption=f"صورة أمر الشغل رقم {idx+1}", width=220)
                 else:
                     st.info("لا توجد صور لأمر الشغل.")
 
@@ -1222,9 +1236,11 @@ elif page == "الأرشيف":
                 l_paths = req_row.get('Lunch Receipt', '')
                 if pd.notna(l_paths) and str(l_paths).strip() != "":
                     l_list = str(l_paths).split(",")
+                    l_cols = st.columns(min(len(l_list), 3))
                     for idx, p in enumerate(l_list):
                         if os.path.exists(p):
-                            st.image(p, caption=f"صورة فاتورة الغداء رقم {idx+1}", width=300)
+                            with l_cols[idx % 3]:
+                                st.image(p, caption=f"صورة فاتورة الغداء رقم {idx+1}", width=220)
                 else:
                     st.info("لا توجد صور لفواتير الغداء.")
 
@@ -1233,9 +1249,11 @@ elif page == "الأرشيف":
                 st.markdown("#### صور فواتير المحلات:")
                 if pd.notna(s_paths) and str(s_paths).strip() != "":
                     paths_list = str(s_paths).split(",")
+                    s_cols = st.columns(min(len(paths_list), 3))
                     for idx, p in enumerate(paths_list):
                         if os.path.exists(p):
-                            st.image(p, caption=f"صورة محلات رقم {idx+1}", width=300)
+                            with s_cols[idx % 3]:
+                                st.image(p, caption=f"صورة محلات رقم {idx+1}", width=220)
                 else:
                     st.info("لا توجد صور لفواتير المحلات.")
             else:
@@ -1264,7 +1282,6 @@ elif page == "الأرشيف":
                             shop_detail_raw = str(row.get('Shops Details', ''))
                             shop_items_list = parse_items_smart(shop_detail_raw)
                             
-                            # استخراج كل المدخلات الخاصة بالمحل المختار حتى لو تكررت بأكثر من عملة لنفس المرشد
                             matched_entries_for_shop = []
                             for s_item in shop_items_list:
                                 if selected_shop_filter in s_item:
@@ -1283,7 +1300,6 @@ elif page == "الأرشيف":
                                         "images": specific_img_paths
                                     })
                             
-                            # فحص المحلات الخارجية أيضاً لو مطابقة
                             other_shops_val_str = str(row.get('Other Shops', ''))
                             if selected_shop_filter in other_shops_val_str and not matched_entries_for_shop:
                                 matched_entries_for_shop.append({
@@ -1291,7 +1307,6 @@ elif page == "الأرشيف":
                                     "images": []
                                 })
 
-                            # عرض كل إدخال مستقل بقيمته وعمليته وصورته الخاصة
                             for entry in matched_entries_for_shop:
                                 st.markdown(f"""
                                     <div style="background-color: #fdfefe; border: 1px solid #d4edda; border-right: 5px solid #28a745; padding: 12px; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
@@ -1305,14 +1320,13 @@ elif page == "الأرشيف":
                                     </div>
                                 """, unsafe_allow_html=True)
 
-                                # عرض الصور المخصصة لهذا الإدخال بحجم أصغر وأنيق (عرض 250 بكسل)
                                 if entry['images']:
                                     st.markdown("📷 **صورة فاتورة المحل:**")
                                     img_cols = st.columns(min(len(entry['images']), 3))
                                     for i, p in enumerate(entry['images']):
                                         if os.path.exists(p):
                                             with img_cols[i % 3]:
-                                                st.image(p, caption=f"صورة الفاتورة {i+1}", width=250)
+                                                st.image(p, caption=f"صورة الفاتورة {i+1}", width=220)
                                 else:
                                     st.info("ℹ️ لم يتم رفع صورة فاتورة مخصصة لهذا الإدخال.")
 
