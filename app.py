@@ -85,7 +85,6 @@ st.markdown("""
         display: none !important;
     }
     
-    /* إخفاء أيقونات عائمة في الزوايا */
     div.stToolbar, div[class*="st-emotion-cache"] > div > button[kind="header"] {
         display: none !important;
     }
@@ -148,46 +147,6 @@ st.markdown("""
         margin-bottom: 12px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         direction: rtl;
-    }
-    .card-header-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid #f0f0f0;
-        padding-bottom: 8px;
-        margin-bottom: 10px;
-    }
-    .card-id {
-        background: #eef2ff;
-        color: #4f46e5;
-        font-weight: bold;
-        padding: 3px 8px;
-        border-radius: 6px;
-        font-size: 13px;
-    }
-    .card-file {
-        color: #1f2937;
-        font-size: 15px;
-        font-weight: bold;
-    }
-    .card-body-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        color: #4b5563;
-        font-size: 14px;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-    .card-guide {
-        font-weight: 600;
-        color: #1b5e20;
-    }
-    .card-time {
-        direction: ltr;
-        unicode-bidi: embed;
-        color: #6c757d;
-        font-size: 0.9rem;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -525,43 +484,48 @@ elif page == "إدارة التصفيات":
             st.info("𭭑 لا توجد طلبات جديدة حالياً في الانتظار.")
         else:
             st.subheader(f"الطلبات الواردة ({len(subs_df)})")
+            
             for idx, row in subs_df.iterrows():
                 file_val = row.get('File No', 'بدون')
                 acc_val = row.get('Account', '')
                 time_val = row.get('Timestamp', '')
                 
-                exp_label = f"📁 فايل رقم: {file_val}  |  الحساب: {acc_val}  |  التاريخ: {time_val}"
+                # تقسيم الصف لعمودين: الكارت يمين/يسار وأزرار الإجراءات جنبه برا الكارت تماماً
+                c_card, c_btn1, c_btn2, c_btn3 = st.columns([6, 1.5, 1.5, 1.5])
                 
-                with st.expander(exp_label):
-                    st.markdown(f"""
-                    * **رقم الفايل:** {file_val}
-                    * **رقم الحساب/التليفون:** {acc_val}
-                    * **التاريخ:** {time_val}
-                    * **العهد (Advances):** {row.get('Advances', 0.0)}
-                    * **التحصيل:** {row.get('Collection', '')}
-                    * **الأوبشنال:** {row.get('Option', '').replace('|||', ' | ')}
-                    * **التذاكر:** {row.get('Tickets', '')}
-                    * **الإكرامية / البارك / الغداء:** إكرامية: {row.get('Tip', 0)} | بارك: {row.get('Park', 0)} | غداء: {row.get('Lunch', 0)}
-                    * **تفاصيل المحلات:** {row.get('Shops Details', '').replace('|||', ' | ')}
-                    """)
-                    
-                    col_act1, col_act2 = st.columns(2)
-                    with col_act1:
-                        if st.button("✅ اعتماد الأرشيف ونقل الطلب", key=f"approve_{idx}"):
-                            save_to_file(ARCHIVE_FILE, row.to_dict())
-                            save_to_file(GUIDE_ARCHIVE_FILE, row.to_dict())
-                            subs_df = subs_df.drop(idx)
-                            overwrite_data(SUBMISSIONS_FILE, subs_df)
-                            st.success("تم اعتماد الطلب ونقله بنجاح!")
-                            time.sleep(1)
-                            st.rerun()
-                    with col_act2:
-                        if st.button("❌ حذف الطلب", key=f"delete_{idx}"):
-                            subs_df = subs_df.drop(idx)
-                            overwrite_data(SUBMISSIONS_FILE, subs_df)
-                            st.warning("تم حذف الطلب.")
-                            time.sleep(1)
-                            st.rerun()
+                with c_card:
+                    with st.expander(f"📁 فايل رقم: {file_val}  |  الحساب: {acc_val}  |  التاريخ: {time_val}"):
+                        st.markdown(f"""
+                        * **رقم الفايل:** {file_val}
+                        * **رقم الحساب/التليفون:** {acc_val}
+                        * **التاريخ:** {time_val}
+                        * **العهد (Advances):** {row.get('Advances', 0.0)}
+                        * **التحصيل:** {row.get('Collection', '')}
+                        * **الأوبشنال:** {row.get('Option', '').replace('|||', ' | ')}
+                        * **التذاكر:** {row.get('Tickets', '')}
+                        * **الإكرامية / البارك / الغداء:** إكرامية: {row.get('Tip', 0)} | بارك: {row.get('Park', 0)} | غداء: {row.get('Lunch', 0)}
+                        * **تفاصيل المحلات:** {row.get('Shops Details', '').replace('|||', ' | ')}
+                        """)
+                
+                with c_btn1:
+                    st.write("") # محاذاة رأسية خفيفة
+                    if st.button("✅ اعتماد", key=f"approve_{idx}"):
+                        save_to_file(ARCHIVE_FILE, row.to_dict())
+                        save_to_file(GUIDE_ARCHIVE_FILE, row.to_dict())
+                        subs_df = subs_df.drop(idx)
+                        overwrite_data(SUBMISSIONS_FILE, subs_df)
+                        st.success("تم اعتماد الطلب ونقله بنجاح!")
+                        time.sleep(1)
+                        st.rerun()
+                
+                with c_btn2:
+                    st.write("")
+                    if st.button("❌ حذف", key=f"delete_{idx}"):
+                        subs_df = subs_df.drop(idx)
+                        overwrite_data(SUBMISSIONS_FILE, subs_df)
+                        st.warning("تم حذف الطلب.")
+                        time.sleep(1)
+                        st.rerun()
 
 elif page == "الأرشيف":
     st.title("📁 أرشيف التصفيات المنتهية")
