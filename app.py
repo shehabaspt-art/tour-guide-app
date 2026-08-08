@@ -24,7 +24,6 @@ ARCHIVE_FILE = "archive.xlsx"
 GUIDES_FILE = "guides.xlsx"
 GUIDE_ARCHIVE_FILE = "guide_archive.xlsx"
 
-# حذف التصفيات والبيانات القديمة في سجلات المرشد والبدء بنظافة
 if os.path.exists(GUIDE_ARCHIVE_FILE):
     try:
         df_temp = pd.read_excel(GUIDE_ARCHIVE_FILE)
@@ -89,7 +88,6 @@ def parse_items_smart(raw_text):
         
     return [p.strip() for p in parts if p.strip()]
 
-# دالة آمنة لحساب المعادلات النصية مثل "100+200*2"
 def evaluate_expression(expr_str):
     if not expr_str or pd.isna(expr_str):
         return 0.0
@@ -110,13 +108,28 @@ def evaluate_expression(expr_str):
         pass
     return 0.0
 
-# دالة لطباعة الصفحة الحالية
 def print_button():
     print_html = """
     <style>
     @media print {
-        body {visibility: hidden;}
-        .printable-area {visibility: visible; position: absolute; left: 0; top: 0; width: 100%;}
+        /* إخفاء القائمة الجانبية وكل عناصر الصفحة غير المرغوب فيها عند الطباعة */
+        [data-testid="stSidebar"], header, .print-btn, button {
+            display: none !important;
+        }
+        body, html {
+            background-color: white !important;
+            direction: rtl !important;
+        }
+        /* إظهار محتوى الصفحة الرئيسي بوضوح */
+        .main, [data-testid="stMain"], [data-testid="stVerticalBlock"] {
+            visibility: visible !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
     }
     .print-btn {
         background-color: #007bff;
@@ -135,7 +148,7 @@ def print_button():
     </style>
     <button class="print-btn" onclick="window.print()">🖨️ طباعة الصفحة / التقرير</button>
     """
-    components.html(print_html, height=50)
+    components.html(print_html, height=60)
 
 current_logo_path = get_current_logo()
 if current_logo_path:
@@ -308,14 +321,12 @@ if page == "نموذج تصفية المرشد":
     with st.form("guide_form", clear_on_submit=False):
         st.subheader("بيانات المرشد")
         
-        col_top1, col_top2, col_top3 = st.columns(3)
+        col_top1, col_top2 = st.columns(2)
         with col_top1:
             account_options = [None] + guides_df[acc_column].apply(clean_acc_number).tolist()
             account_no = st.selectbox("رقم الحساب أو رقم التليفون الخاص بالتحويل", options=account_options, index=0, key=f"form_account_no_{rc}")
         with col_top2:
             file_no = st.text_input("رقم الفايل (File Number) *إلزامي*", key=f"form_file_no_{rc}")
-        with col_top3:
-            guide_typed_name = st.text_input("اسم المرشد *إلزامي*", key=f"form_guide_typed_name_{rc}")
 
         advances = st.number_input("العهد (Advances)", min_value=0.0, step=10.0, key=f"form_advances_{rc}")
 
@@ -442,15 +453,18 @@ if page == "نموذج تصفية المرشد":
                 st.error("⚠️ عذراً، يجب اختيار (رقم الحساب أو رقم التليفون) أولاً!")
             elif not file_no.strip():
                 st.error("⚠️ عذراً، لا يمكن إرسال الطلب. يرجى إدخال (رقم الفايل) أولاً بشكل إلزامي!")
-            elif not guide_typed_name.strip():
-                st.error("⚠️ عذراً، يجب إدخال اسم المرشد بشكل إلزامي!")
             elif validation_pay_error:
                 st.error("⚠️ عذراً، نظراً لإدخال قيمة أو نوع في أحد الأوبشنالز، يجب اختيار (طريقة الدفع) [كاش / لينك] بشكل إلزامي!")
             elif validation_error:
                 st.error("⚠️ عذراً، نظراً لاختيار طريقة الدفع (كاش)، يجب اختيار (المبلغ) [مع المرشد / مع السواق] بشكل إلزامي!")
             else:
                 clean_acc_selected = clean_acc_number(account_no)
-                guide_name = guide_typed_name.strip()
+                
+                matched_guide_row = guides_df[guides_df[acc_column].apply(clean_acc_number) == clean_acc_selected]
+                if not matched_guide_row.empty:
+                    guide_name = str(matched_guide_row[name_column].values[0])
+                else:
+                    guide_name = "غير معروف"
                 
                 cairo_dt = datetime.now(ZoneInfo("Africa/Cairo"))
                 current_time_str = cairo_dt.strftime('%Y-%m-%d %I:%M %p')
@@ -578,11 +592,10 @@ elif page == "سجلات المرشد":
                 st.session_state.viewing_guide_archive_file = None
                 st.rerun()
 
-            # زر الطباعة هنا
             print_button()
 
-            st.markdown(f"### 📄 تفاصيل التصفية المؤرشفة للفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
-            st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
+            st.markdown(f"### 📄 تفاصيل التصفية المؤرشفة للفايل: {req_row.get('File No', '')} (رقم الحساب: {req_row.get('Account', '')})")
+            st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')}")
             st.markdown("---")
 
             st.markdown("#### صور أمر الشغل:")
@@ -770,8 +783,7 @@ elif page == "سجلات المرشد":
                 matched_guide_records = g_arch_df[g_arch_df['Account'] == clean_entered_acc]
                 
                 if not matched_guide_records.empty:
-                    guide_name_found = matched_guide_records['Guide Name'].values[0]
-                    st.success(f"مرحباً بك يا **{guide_name_found}** | تم العثور على ({len(matched_guide_records)}) تصفية مسجلة باسمك.")
+                    st.success(f"تم العثور على ({len(matched_guide_records)}) تصفية مسجلة برقم الحساب: **{clean_entered_acc}**")
                     st.markdown("### 📋 سجلات الأرشيف الخاصة بك")
 
                     for idx, row in matched_guide_records.iterrows():
@@ -782,7 +794,7 @@ elif page == "سجلات المرشد":
                                     <span class="card-file">الفايل: {row.get('File No', '')}</span>
                                 </div>
                                 <div class="card-body-row">
-                                    <div class="card-guide">المرشد: {row.get('Guide Name', '')}</div>
+                                    <div class="card-guide">رقم الحساب: {row.get('Account', '')}</div>
                                     <div class="card-time">التاريخ: {row.get('Timestamp', '')}</div>
                                 </div>
                             </div>
@@ -834,11 +846,10 @@ elif page == "إدارة التصفيات":
                     st.session_state.show_liquidation_cards = False
                     st.rerun()
 
-                # زر الطباعة هنا
                 print_button()
 
-                st.markdown(f"### 📄 تفاصيل تصفية الفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
-                st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
+                st.markdown(f"### 📄 تفاصيل تصفية الفايل: {req_row.get('File No', '')} (رقم الحساب: {req_row.get('Account', '')})")
+                st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')}")
                 st.markdown("---")
 
                 if st.session_state.get("show_liquidation_cards", False):
@@ -1179,15 +1190,15 @@ elif page == "إدارة التصفيات":
             if not sub_df.empty:
                 st.markdown("### 🔍 فلترة وعرض تصفيات المرشدين")
                 
-                all_guides_in_subs = sub_df['Guide Name'].dropna().unique().tolist()
+                all_guides_in_subs = sub_df['Account'].dropna().unique().tolist()
                 selected_guide_filter = st.selectbox(
-                    "اختر اسم المرشد لعرض جميع تصفياته وسجلاته",
-                    options=["الكل (جميع المرشدين)"] + all_guides_in_subs
+                    "اختر رقم الحساب أو التليفون لعرض جميع تصفياته وسجلاته",
+                    options=["الكل (جميع الحسابات)"] + all_guides_in_subs
                 )
 
-                if selected_guide_filter != "الكل (جميع المرشدين)":
-                    filtered_sub_df = sub_df[sub_df['Guide Name'] == selected_guide_filter]
-                    st.info(f"عرض التصفيات الخاصة بالمرشد: **{selected_guide_filter}** (عدد الطلبات: {len(filtered_sub_df)})")
+                if selected_guide_filter != "الكل (جميع الحسابات)":
+                    filtered_sub_df = sub_df[sub_df['Account'] == selected_guide_filter]
+                    st.info(f"عرض التصفيات الخاصة برقم الحساب: **{selected_guide_filter}** (عدد الطلبات: {len(filtered_sub_df)})")
                 else:
                     filtered_sub_df = sub_df
 
@@ -1201,7 +1212,7 @@ elif page == "إدارة التصفيات":
                                 <span class="card-file">الفايل: {row.get('File No', '')}</span>
                             </div>
                             <div class="card-body-row">
-                                <div class="card-guide">المرشد: {row.get('Guide Name', '')}</div>
+                                <div class="card-guide">رقم الحساب: {row.get('Account', '')}</div>
                                 <div class="card-time">التاريخ: {row.get('Timestamp', '')}</div>
                             </div>
                         </div>
@@ -1389,11 +1400,10 @@ elif page == "الأرشيف":
                     st.session_state.show_archive_liquidation_cards = False
                     st.rerun()
 
-                # زر الطباعة هنا
                 print_button()
 
-                st.markdown(f"### 📄 تفاصيل الأرشيف للفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
-                st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
+                st.markdown(f"### 📄 تفاصيل الأرشيف للفايل: {req_row.get('File No', '')} (رقم الحساب: {req_row.get('Account', '')})")
+                st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')}")
                 st.markdown("---")
 
                 st.markdown("---")
@@ -1702,7 +1712,7 @@ elif page == "الأرشيف":
                                         <span class="card-file">الفايل: {row.get('File No', '')}</span>
                                     </div>
                                     <div class="card-body-row">
-                                        <div class="card-guide">المرشد: {row.get('Guide Name', '')}</div>
+                                        <div class="card-guide">رقم الحساب: {row.get('Account', '')}</div>
                                         <div class="card-time">التاريخ: {row.get('Timestamp', '')}</div>
                                     </div>
                                 </div>
@@ -1743,17 +1753,17 @@ elif page == "الأرشيف":
                     else:
                         st.warning("⚠️ لا توجد أي عمليات تسجيل أو مبيعات لهذا المحل في الأرشيف حتى الآن.")
                 else:
-                    st.markdown("### 🔍 فلترة وعرض الأرشيف حسب المرشد")
-                    all_guides_in_arch = archive_df['Guide Name'].dropna().unique().tolist()
+                    st.markdown("### 🔍 فلترة وعرض الأرشيف حسب رقم الحساب")
+                    all_guides_in_arch = archive_df['Account'].dropna().unique().tolist()
                     selected_guide_arch_filter = st.selectbox(
-                        "اختر اسم المرشد لعرض جميع أرشيفه",
-                        options=["الكل (جميع المرشدين)"] + all_guides_in_arch,
+                        "اختر رقم الحساب لعرض جميع أرشيفه",
+                        options=["الكل (جميع الحسابات)"] + all_guides_in_arch,
                         key="arch_guide_filter"
                     )
 
-                    if selected_guide_arch_filter != "الكل (جميع المرشدين)":
-                        filtered_arch_df = archive_df[archive_df['Guide Name'] == selected_guide_arch_filter]
-                        st.info(f"عرض الأرشيف الخاص بالمرشد: **{selected_guide_arch_filter}** (عدد الطلبات: {len(filtered_arch_df)})")
+                    if selected_guide_arch_filter != "الكل (جميع الحسابات)":
+                        filtered_arch_df = archive_df[archive_df['Account'] == selected_guide_arch_filter]
+                        st.info(f"عرض الأرشيف الخاص برقم الحساب: **{selected_guide_arch_filter}** (عدد الطلبات: {len(filtered_arch_df)})")
                     else:
                         filtered_arch_df = archive_df
 
@@ -1768,7 +1778,7 @@ elif page == "الأرشيف":
                                     <span class="card-file">الفايل: {row.get('File No', '')}</span>
                                 </div>
                                 <div class="card-body-row">
-                                    <div class="card-guide">المرشد: {row.get('Guide Name', '')}</div>
+                                    <div class="card-guide">رقم الحساب: {row.get('Account', '')}</div>
                                     <div class="card-time">التاريخ: {row.get('Timestamp', '')}</div>
                                 </div>
                             </div>
