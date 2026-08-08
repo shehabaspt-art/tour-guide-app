@@ -257,11 +257,13 @@ if page == "نموذج تصفية المرشد":
         st.markdown("---")
         st.subheader("التحصيل (Collection)")
         
-        col_c1, col_c2 = st.columns([2, 1])
+        col_c1, col_c2, col_c3 = st.columns(3)
         with col_c1:
             collection_val = st.number_input("قيمة التحصيل", min_value=0.0, step=10.0, key=f"form_collection_val_{rc}")
         with col_c2:
             collection_curr = st.selectbox("عملة التحصيل", options=["جنية", "يورو", "دولار"], key=f"form_collection_curr_{rc}")
+        with col_c3:
+            collection_holder = st.selectbox("المبلغ", options=[None, "مع المرشد", "مع السواق"], key=f"form_collection_holder_{rc}")
 
         st.markdown("---")
         st.subheader("أوبشنال (Optional)")
@@ -279,7 +281,7 @@ if page == "نموذج تصفية المرشد":
             with col_opt4:
                 opt_pay = st.selectbox("طريقة الدفع", options=[None, "كاش", "لينك"], key=f"opt_pay_{rc}_{i}")
             with col_opt5:
-                cash_h = st.selectbox("الفلوس مع مين؟", options=[None, "مع المرشد", "مع السواق"], key=f"cash_h_{rc}_{i}")
+                cash_h = st.selectbox("المبلغ", options=[None, "مع المرشد", "مع السواق"], key=f"cash_h_{rc}_{i}")
             
             option_data_list.append({
                 "type": opt_type, "value": opt_val, "curr": opt_curr, "pay": opt_pay, "holder": cash_h
@@ -457,6 +459,10 @@ if page == "نموذج تصفية المرشد":
                             detail_str = f"{o_type}: " + detail_str
                         options_summary_list.append(detail_str)
 
+                collection_str = f"{collection_val} {collection_curr}"
+                if collection_holder:
+                    collection_str += f" - [{collection_holder}]"
+
                 new_entry = {
                     "Timestamp": current_time_str,
                     "Guide Name": "",
@@ -464,7 +470,7 @@ if page == "نموذج تصفية المرشد":
                     "File No": file_no,
                     "Work Order Images": ",".join(work_order_paths) if work_order_paths else "",
                     "Advances": advances,
-                    "Collection": f"{collection_val} {collection_curr}",
+                    "Collection": collection_str,
                     "Option Type": ", ".join(option_types_list),
                     "Option": "|||".join(options_summary_list),
                     "Tickets": f"{ticket_value} - {ticket_type}",
