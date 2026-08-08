@@ -128,6 +128,57 @@ st.markdown("""
         font-size: 0.95rem !important;
         margin: 0 !important;
     }
+
+    .record-card {
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-right: 5px solid #28a745;
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        direction: rtl;
+    }
+    .card-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #f0f0f0;
+        padding-bottom: 8px;
+        margin-bottom: 10px;
+    }
+    .card-id {
+        background: #eef2ff;
+        color: #4f46e5;
+        font-weight: bold;
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-size: 13px;
+    }
+    .card-file {
+        color: #1f2937;
+        font-size: 15px;
+        font-weight: bold;
+    }
+    .card-body-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #4b5563;
+        font-size: 14px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .card-guide {
+        font-weight: 600;
+        color: #1b5e20;
+    }
+    .card-time {
+        direction: ltr;
+        unicode-bidi: embed;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -161,6 +212,7 @@ with cols_badge[1]:
         </div>
     """, unsafe_allow_html=True)
 
+# تشغيل القائمة الجانبية بشكل دائم دون زر إخفاء
 with st.sidebar:
     st.markdown("""
         <div style="display: flex; align-items: center; margin-top: 10px; margin-bottom: 5px;">
@@ -205,13 +257,11 @@ if page == "نموذج تصفية المرشد":
         st.markdown("---")
         st.subheader("التحصيل (Collection)")
         
-        col_c1, col_c2, col_c3 = st.columns(3)
+        col_c1, col_c2 = st.columns([2, 1])
         with col_c1:
             collection_val = st.number_input("قيمة التحصيل", min_value=0.0, step=10.0, key=f"form_collection_val_{rc}")
         with col_c2:
             collection_curr = st.selectbox("عملة التحصيل", options=["جنية", "يورو", "دولار"], key=f"form_collection_curr_{rc}")
-        with col_c3:
-            collection_holder = st.selectbox("المبلغ", options=[None, "مع المرشد", "مع السواق"], key=f"form_collection_holder_{rc}")
 
         st.markdown("---")
         st.subheader("أوبشنال (Optional)")
@@ -229,7 +279,7 @@ if page == "نموذج تصفية المرشد":
             with col_opt4:
                 opt_pay = st.selectbox("طريقة الدفع", options=[None, "كاش", "لينك"], key=f"opt_pay_{rc}_{i}")
             with col_opt5:
-                cash_h = st.selectbox("المبلغ", options=[None, "مع المرشد", "مع السواق"], key=f"cash_h_{rc}_{i}")
+                cash_h = st.selectbox("الفلوس مع مين؟", options=[None, "مع المرشد", "مع السواق"], key=f"cash_h_{rc}_{i}")
             
             option_data_list.append({
                 "type": opt_type, "value": opt_val, "curr": opt_curr, "pay": opt_pay, "holder": cash_h
@@ -407,10 +457,6 @@ if page == "نموذج تصفية المرشد":
                             detail_str = f"{o_type}: " + detail_str
                         options_summary_list.append(detail_str)
 
-                collection_str = f"{collection_val} {collection_curr}"
-                if collection_holder:
-                    collection_str += f" - [{collection_holder}]"
-
                 new_entry = {
                     "Timestamp": current_time_str,
                     "Guide Name": "",
@@ -418,7 +464,7 @@ if page == "نموذج تصفية المرشد":
                     "File No": file_no,
                     "Work Order Images": ",".join(work_order_paths) if work_order_paths else "",
                     "Advances": advances,
-                    "Collection": collection_str,
+                    "Collection": f"{collection_val} {collection_curr}",
                     "Option Type": ", ".join(option_types_list),
                     "Option": "|||".join(options_summary_list),
                     "Tickets": f"{ticket_value} - {ticket_type}",
@@ -463,50 +509,6 @@ elif page == "إدارة التصفيات":
     password = st.text_input("أدخل كلمة المرور لعرض لوحة الإدارة", type="password", key="mgr_pass")
     if password == "159753":
         st.success("تم تسجيل الدخول بنجاح.")
-        st.markdown("---")
-        
-        subs_df = load_data(SUBMISSIONS_FILE)
-        if subs_df.empty:
-            st.info("𭭑 لا توجد طلبات جديدة حالياً في الانتظار.")
-        else:
-            st.subheader(f"الطلبات الواردة ({len(subs_df)})")
-            for idx, row in subs_df.iterrows():
-                file_val = row.get('File No', 'بدون')
-                acc_val = row.get('Account', '')
-                time_val = row.get('Timestamp', '')
-                
-                exp_label = f"📁 فايل رقم: {file_val}  |  الحساب: {acc_val}  |  التاريخ: {time_val}"
-                
-                with st.expander(exp_label):
-                    st.markdown(f"""
-                    * **رقم الفايل:** {file_val}
-                    * **رقم الحساب/التليفون:** {acc_val}
-                    * **التاريخ:** {time_val}
-                    * **العهد (Advances):** {row.get('Advances', 0.0)}
-                    * **التحصيل:** {row.get('Collection', '')}
-                    * **الأوبشنال:** {row.get('Option', '').replace('|||', ' | ')}
-                    * **التذاكر:** {row.get('Tickets', '')}
-                    * **الإكرامية / البارك / الغداء:** إكرامية: {row.get('Tip', 0)} | بارك: {row.get('Park', 0)} | غداء: {row.get('Lunch', 0)}
-                    * **تفاصيل المحلات:** {row.get('Shops Details', '').replace('|||', ' | ')}
-                    """)
-                    
-                    col_act1, col_act2 = st.columns(2)
-                    with col_act1:
-                        if st.button("✅ اعتماد الأرشيف ونقل الطلب", key=f"approve_{idx}"):
-                            save_to_file(ARCHIVE_FILE, row.to_dict())
-                            save_to_file(GUIDE_ARCHIVE_FILE, row.to_dict())
-                            subs_df = subs_df.drop(idx)
-                            overwrite_data(SUBMISSIONS_FILE, subs_df)
-                            st.success("تم اعتماد الطلب ونقله بنجاح!")
-                            time.sleep(1)
-                            st.rerun()
-                    with col_act2:
-                        if st.button("❌ حذف الطلب", key=f"delete_{idx}"):
-                            subs_df = subs_df.drop(idx)
-                            overwrite_data(SUBMISSIONS_FILE, subs_df)
-                            st.warning("تم حذف الطلب.")
-                            time.sleep(1)
-                            st.rerun()
 
 elif page == "الأرشيف":
     st.title("📁 أرشيف التصفيات المنتهية")
@@ -514,9 +516,3 @@ elif page == "الأرشيف":
     password_arch = st.text_input("أدخل كلمة المرور لعرض الأرشيف", type="password", key="arch_pass")
     if password_arch == "159753":
         st.success("تم تسجيل الدخول للأرشيف بنجاح.")
-        st.markdown("---")
-        arch_df = load_data(ARCHIVE_FILE)
-        if arch_df.empty:
-            st.info("𭭑 الأرشيف فارغ حالياً.")
-        else:
-            st.dataframe(arch_df, use_container_width=True)
