@@ -128,6 +128,15 @@ st.markdown("""
         font-size: 0.95rem !important;
         margin: 0 !important;
     }
+
+    /* تنسيق واجهة الـ Expander لضبط اتجاه النص وترتيبه بصرياً */
+    [data-testid="stExpander"] summary div {
+        direction: rtl !important;
+        text-align: right !important;
+    }
+    [data-testid="stExpander"] summary span {
+        width: 100%;
+    }
     </style>
 """, unsafe_allow_html=True)
 
