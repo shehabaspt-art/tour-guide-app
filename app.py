@@ -1708,8 +1708,7 @@ elif page == "الأرشيف":
                     else:
                         st.warning("⚠️ لا توجد أي عمليات تسجيل أو مبيعات لهذا المحل في الأرشيف حتى الآن.")
                 else:
-                    # تم تعديل الفلتر هنا ليكون باسم المرشد بدلاً من رقم الحساب
-                    st.markdown("### 🔍 فلترة وعرض الأرشيف حسب اسم المرشد")
+                    st.markdown("### 🔍 فلترة وعرض الأرشيف حسب المرشد")
                     all_guides_in_arch = archive_df['Guide Name'].dropna().unique().tolist()
                     selected_guide_arch_filter = st.selectbox(
                         "اختر اسم المرشد لعرض جميع أرشيفه",
