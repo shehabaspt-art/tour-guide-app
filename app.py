@@ -143,9 +143,9 @@ st.markdown("""
         border: 1px solid #e0e0e0;
         border-right: 5px solid #28a745;
         border-radius: 10px;
-        padding: 14px 18px;
+        padding: 16px 20px;
         margin-bottom: 12px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
         direction: rtl;
     }
     </style>
@@ -490,42 +490,71 @@ elif page == "إدارة التصفيات":
                 acc_val = row.get('Account', '')
                 time_val = row.get('Timestamp', '')
                 
-                # تقسيم الصف لعمودين: الكارت يمين/يسار وأزرار الإجراءات جنبه برا الكارت تماماً
-                c_card, c_btn1, c_btn2, c_btn3 = st.columns([6, 1.5, 1.5, 1.5])
+                # استخدام Session State لتتبع حالة عرض تفاصيل كل طلب بشكل مستقل
+                detail_key = f"show_detail_{idx}"
+                if detail_key not in st.session_state:
+                    st.session_state[detail_key] = False
+
+                # تقسيم الصفحة لجزأين: الكارت الأساسي (يمين)، والأزرار بجانبه (يسار)
+                c_card, c_view, c_approve, c_delete = st.columns([5, 1.2, 1.2, 1.2])
                 
                 with c_card:
-                    with st.expander(f"📁 فايل رقم: {file_val}  |  الحساب: {acc_val}  |  التاريخ: {time_val}"):
-                        st.markdown(f"""
-                        * **رقم الفايل:** {file_val}
-                        * **رقم الحساب/التليفون:** {acc_val}
-                        * **التاريخ:** {time_val}
-                        * **العهد (Advances):** {row.get('Advances', 0.0)}
-                        * **التحصيل:** {row.get('Collection', '')}
-                        * **الأوبشنال:** {row.get('Option', '').replace('|||', ' | ')}
-                        * **التذاكر:** {row.get('Tickets', '')}
-                        * **الإكرامية / البارك / الغداء:** إكرامية: {row.get('Tip', 0)} | بارك: {row.get('Park', 0)} | غداء: {row.get('Lunch', 0)}
-                        * **تفاصيل المحلات:** {row.get('Shops Details', '').replace('|||', ' | ')}
-                        """)
+                    st.markdown(f"""
+                        <div class="record-card">
+                            📁 <b>فايل رقم:</b> {file_val} &nbsp;|&nbsp; <b>الحساب:</b> {acc_val} &nbsp;|&nbsp; <b>التاريخ:</b> {time_val}
+                        </div>
+                    """, unsafe_allow_html=True)
                 
-                with c_btn1:
-                    st.write("") # محاذاة رأسية خفيفة
+                with c_view:
+                    st.write("")
+                    btn_text = "إخفاء" if st.session_state[detail_key] else "عرض"
+                    if st.button(btn_text, key=f"view_{idx}"):
+                        st.session_state[detail_key] = not st.session_state[detail_key]
+                        st.rerun()
+
+                with c_approve:
+                    st.write("")
                     if st.button("✅ اعتماد", key=f"approve_{idx}"):
                         save_to_file(ARCHIVE_FILE, row.to_dict())
                         save_to_file(GUIDE_ARCHIVE_FILE, row.to_dict())
                         subs_df = subs_df.drop(idx)
                         overwrite_data(SUBMISSIONS_FILE, subs_df)
+                        if detail_key in st.session_state:
+                            del st.session_state[detail_key]
                         st.success("تم اعتماد الطلب ونقله بنجاح!")
                         time.sleep(1)
                         st.rerun()
                 
-                with c_btn2:
+                with c_delete:
                     st.write("")
                     if st.button("❌ حذف", key=f"delete_{idx}"):
                         subs_df = subs_df.drop(idx)
                         overwrite_data(SUBMISSIONS_FILE, subs_df)
+                        if detail_key in st.session_state:
+                            del st.session_state[detail_key]
                         st.warning("تم حذف الطلب.")
                         time.sleep(1)
                         st.rerun()
+
+                # إذا تم الضغط على زر عرض، تفتح تفاصيل التصفية بنفس الشكل الاحترافي
+                if st.session_state[detail_key]:
+                    with st.container():
+                        st.markdown(f"""
+                        <div style="background: #f9fbf9; border: 1px solid #c2e0c2; border-radius: 10px; padding: 18px 22px; margin-bottom: 20px; direction: rtl;">
+                            <h4 style="color: #1b5e20; margin-top: 0;">تفاصيل التصفية - فايل رقم: {file_val}</h4>
+                            <ul style="line-height: 1.8; color: #333;">
+                                <li><b>رقم الفايل:</b> {file_val}</li>
+                                <li><b>رقم الحساب/التليفون:</b> {acc_val}</li>
+                                <li><b>التاريخ:</b> {time_val}</li>
+                                <li><b>العهد (Advances):</b> {row.get('Advances', 0.0)}</li>
+                                <li><b>التحصيل:</b> {row.get('Collection', '')}</li>
+                                <li><b>الأوبشنال:</b> {row.get('Option', '').replace('|||', ' | ')}</li>
+                                <li><b>التذاكر:</b> {row.get('Tickets', '')}</li>
+                                <li><b>الإكرامية / البارك / الغداء:</b> إكرامية: {row.get('Tip', 0)} | بارك: {row.get('Park', 0)} | غداء: {row.get('Lunch', 0)}</li>
+                                <li><b>تفاصيل المحلات:</b> {row.get('Shops Details', '').replace('|||', ' | ')}</li>
+                            </ul>
+                        </div>
+                        """, unsafe_allow_html=True)
 
 elif page == "الأرشيف":
     st.title("📁 أرشيف التصفيات المنتهية")
