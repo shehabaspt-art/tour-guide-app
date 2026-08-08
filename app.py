@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 import os
 import base64
@@ -96,13 +97,11 @@ def evaluate_expression(expr_str):
     if not cleaned:
         return 0.0
     try:
-        # السماح بالأرقام وعمليات الحساب الأساسية فقط لأمان التنفيذ
         allowed_chars = set("0123456789+-*/(). ")
         if all(c in allowed_chars for c in cleaned):
             result = float(eval(cleaned))
             return result
         else:
-            # محاولة استخراج أول رقم لو فشلت المعادلة المباشرة
             import re
             nums = re.findall(r"[-+]?\d*\.\d+|\d+", cleaned)
             if nums:
@@ -110,6 +109,33 @@ def evaluate_expression(expr_str):
     except:
         pass
     return 0.0
+
+# دالة لطباعة الصفحة الحالية
+def print_button():
+    print_html = """
+    <style>
+    @media print {
+        body {visibility: hidden;}
+        .printable-area {visibility: visible; position: absolute; left: 0; top: 0; width: 100%;}
+    }
+    .print-btn {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+    .print-btn:hover {
+        background-color: #0056b3;
+    }
+    </style>
+    <button class="print-btn" onclick="window.print()">🖨️ طباعة الصفحة / التقرير</button>
+    """
+    components.html(print_html, height=50)
 
 current_logo_path = get_current_logo()
 if current_logo_path:
@@ -552,6 +578,9 @@ elif page == "سجلات المرشد":
                 st.session_state.viewing_guide_archive_file = None
                 st.rerun()
 
+            # زر الطباعة هنا
+            print_button()
+
             st.markdown(f"### 📄 تفاصيل التصفية المؤرشفة للفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
             st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
             st.markdown("---")
@@ -804,6 +833,9 @@ elif page == "إدارة التصفيات":
                     st.session_state.viewing_file = None
                     st.session_state.show_liquidation_cards = False
                     st.rerun()
+
+                # زر الطباعة هنا
+                print_button()
 
                 st.markdown(f"### 📄 تفاصيل تصفية الفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
                 st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
@@ -1356,6 +1388,9 @@ elif page == "الأرشيف":
                     st.session_state.viewing_archive_file = None
                     st.session_state.show_archive_liquidation_cards = False
                     st.rerun()
+
+                # زر الطباعة هنا
+                print_button()
 
                 st.markdown(f"### 📄 تفاصيل الأرشيف للفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
                 st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
