@@ -283,7 +283,7 @@ if page == "نموذج تصفية المرشد":
         col_top1, col_top2 = st.columns(2)
         with col_top1:
             account_options = [None] + guides_df[acc_column].apply(clean_acc_number).tolist()
-            account_no = st.selectbox("رقم الحساب أو رقم التليفون الخاص بالتحويل", options=account_options, index=0, key=f"form_account_no_{rc}")
+            account_no = st.selectbox("رقم الحساب", options=account_options, index=0, key=f"form_account_no_{rc}")
         with col_top2:
             file_no = st.text_input("رقم الفايل (File Number) *إلزامي*", key=f"form_file_no_{rc}")
 
@@ -409,7 +409,7 @@ if page == "نموذج تصفية المرشد":
                     break
 
             if not account_no:
-                st.error("⚠️ عذراً، يجب اختيار (رقم الحساب أو رقم التليفون) أولاً!")
+                st.error("⚠️ عذراً، يجب اختيار (رقم الحساب) أولاً!")
             elif not file_no.strip():
                 st.error("⚠️ عذراً، لا يمكن إرسال الطلب. يرجى إدخال (رقم الفايل) أولاً بشكل إلزامي!")
             elif validation_pay_error:
@@ -419,7 +419,6 @@ if page == "نموذج تصفية المرشد":
             else:
                 clean_acc_selected = clean_acc_number(account_no)
                 
-                # جلب اسم المرشد تلقائياً من جدول المرشدين بناءً على رقم الحساب المختار
                 matched_guide_row = guides_df[guides_df[acc_column].apply(clean_acc_number) == clean_acc_selected]
                 if not matched_guide_row.empty:
                     guide_name = str(matched_guide_row[name_column].values[0])
@@ -552,8 +551,8 @@ elif page == "سجلات المرشد":
                 st.session_state.viewing_guide_archive_file = None
                 st.rerun()
 
-            st.markdown(f"### 📄 تفاصيل التصفية المؤرشفة للفايل: {req_row.get('File No', '')} (رقم الحساب: {req_row.get('Account', '')})")
-            st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')}")
+            st.markdown(f"### 📄 تفاصيل التصفية المؤرشفة للفايل: {req_row.get('File No', '')}")
+            st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {req_row.get('Account', '')}")
             st.markdown("---")
 
             st.markdown("#### صور أمر الشغل:")
@@ -720,11 +719,11 @@ elif page == "سجلات المرشد":
             st.session_state.viewing_guide_archive_file = None
             st.rerun()
     else:
-        st.markdown("### 🔑 أدخل رقم الحساب أو رقم التليفون للاطلاع على سجلاتك (خاص بالمرشد)")
+        st.markdown("### 🔑 أدخل رقم الحساب للاطلاع على سجلاتك (خاص بالمرشد)")
         
         account_dropdown_options = [None] + guides_df[acc_column].apply(clean_acc_number).tolist()
         entered_acc = st.selectbox(
-            "اختر رقم الحساب أو رقم التليفون الخاص بك",
+            "اختر رقم الحساب الخاص بك",
             options=account_dropdown_options,
             index=0,
             key="guide_login_acc_select"
@@ -805,7 +804,7 @@ elif page == "إدارة التصفيات":
                     st.rerun()
 
                 st.markdown(f"### 📄 تفاصيل تصفية الفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
-                st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
+                st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {req_row.get('Account', '')}")
                 st.markdown("---")
 
                 # تم جعل شاشة الكروت الحسابية تظهر فوراً وتخفي بقية التفاصيل عند الضغط على "بدء التصفية"
@@ -887,7 +886,6 @@ elif page == "إدارة التصفيات":
                         
                         if shop_tot_inv > 0 or shop_comm_comp > 0 or shop_comm_guid > 0:
                             with st.expander(f"🔍 تفاصيل ومعادلة المحل ({s_i+1})"):
-                                st.write(f"معادلة توزيع الفاتورة للمحل **{shop_sel_name}**:")
                                 st.write(f"إجمالي الفاتورة = {shop_tot_inv} -> عمولة الشركة ({shop_comm_comp}) + عمولة المرشد ({shop_comm_guid})")
 
                         total_shop_comm_guide += shop_comm_guid
@@ -916,7 +914,6 @@ elif page == "إدارة التصفيات":
 
                         if opt_val_item > 0 or opt_comm_guid > 0:
                             with st.expander(f"🔍 تفاصيل ومعادلة الأوبشنال ({o_i+1})"):
-                                st.write(f"معادلة الأوبشنال **{opt_type_name or 'بدون اسم'}**:")
                                 st.write(f"قيمة الأوبشنال = {opt_val_item} -> عمولة المرشد = {opt_comm_guid}")
 
                         total_opt_comm_guide += opt_comm_guid
@@ -1146,17 +1143,17 @@ elif page == "إدارة التصفيات":
 
         else:
             if not sub_df.empty:
-                st.markdown("### 🔍 فلترة وعرض تصفيات المرشدين")
+                st.markdown("### 🔍 فلترة وعرض تصفيات المرشدين حسب رقم الحساب")
                 
-                all_guides_in_subs = sub_df['Guide Name'].dropna().unique().tolist()
-                selected_guide_filter = st.selectbox(
-                    "اختر اسم المرشد لعرض جميع تصفياته وسجلاته",
-                    options=["الكل (جميع المرشدين)"] + all_guides_in_subs
+                all_accs_in_subs = sub_df['Account'].dropna().unique().tolist()
+                selected_acc_filter = st.selectbox(
+                    "اختر رقم حساب المرشد لعرض جميع تصفياته وسجلاته",
+                    options=["الكل (جميع الحسابات)"] + all_accs_in_subs
                 )
 
-                if selected_guide_filter != "الكل (جميع المرشدين)":
-                    filtered_sub_df = sub_df[sub_df['Guide Name'] == selected_guide_filter]
-                    st.info(f"عرض التصفيات الخاصة بالمرشد: **{selected_guide_filter}** (عدد الطلبات: {len(filtered_sub_df)})")
+                if selected_acc_filter != "الكل (جميع الحسابات)":
+                    filtered_sub_df = sub_df[sub_df['Account'].astype(str) == str(selected_acc_filter)]
+                    st.info(f"عرض التصفيات الخاصة برقم الحساب: **{selected_acc_filter}** (عدد الطلبات: {len(filtered_sub_df)})")
                 else:
                     filtered_sub_df = sub_df
 
@@ -1212,13 +1209,13 @@ elif page == "إدارة التصفيات":
                 st.info("لا توجد طلبات جديدة حتى الآن.")
 
             st.markdown("---")
-            st.markdown("### قاعدة بيانات المرشدين (إدارة وتعديل أرقام الحسابات أو التليفونات)")
+            st.markdown("### قاعدة بيانات المرشدين (إدارة وتعديل أرقام الحسابات)")
             st.dataframe(guides_df, use_container_width=True)
 
             col_section_left, col_section_right = st.columns(2, gap="large")
 
             with col_section_left:
-                st.markdown("#### تعديل أو حذف رقم حساب/تليفون مرشد:")
+                st.markdown("#### تعديل أو حذف رقم حساب مرشد:")
                 guide_names_list = guides_df[name_column].astype(str).tolist()
                 selected_guide_to_edit = st.selectbox("اختر اسم المرشد", options=guide_names_list, key="sel_guide_edit")
 
@@ -1226,7 +1223,7 @@ elif page == "إدارة التصفيات":
                     st.session_state.clear_edit_input = False
                     st.session_state.new_acc_val_input = ""
 
-                new_acc_input = st.text_input("رقم الحساب أو التليفون الجديد", key="new_acc_val_input", value="")
+                new_acc_input = st.text_input("رقم الحساب الجديد", key="new_acc_val_input", value="")
 
                 col_act1, col_act2 = st.columns(2)
                 with col_act1:
@@ -1292,7 +1289,7 @@ elif page == "إدارة التصفيات":
                     st.session_state.new_guide_acc_input = ""
 
                 new_g_name = st.text_input("اسم المرشد الجديد", key="new_guide_name_input", value="")
-                new_g_acc = st.text_input("رقم الحساب أو التليفون الجديد", key="new_guide_acc_input", value="")
+                new_g_acc = st.text_input("رقم الحساب الجديد", key="new_guide_acc_input", value="")
 
                 if st.button("➕ إضافة المرشد للقاعدة", type="primary"):
                     st.session_state.confirming_add_guide = {
@@ -1358,8 +1355,8 @@ elif page == "الأرشيف":
                     st.session_state.show_archive_liquidation_cards = False
                     st.rerun()
 
-                st.markdown(f"### 📄 تفاصيل الأرشيف للفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
-                st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
+                st.markdown(f"### 📄 تفاصيل الأرشيف للفايل: {req_row.get('File No', '')}")
+                st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {req_row.get('Account', '')}")
                 st.markdown("---")
 
                 st.markdown("---")
@@ -1710,15 +1707,15 @@ elif page == "الأرشيف":
                         st.warning("⚠️ لا توجد أي عمليات تسجيل أو مبيعات لهذا المحل في الأرشيف حتى الآن.")
                 else:
                     st.markdown("### 🔍 فلترة وعرض الأرشيف حسب رقم الحساب")
-                    all_accounts_in_arch = archive_df['Account'].dropna().unique().tolist()
+                    all_accs_in_arch = archive_df['Account'].dropna().unique().tolist()
                     selected_acc_arch_filter = st.selectbox(
-                        "اختر رقم الحساب لعرض جميع أرشيفه",
-                        options=["الكل (جميع الحسابات)"] + all_accounts_in_arch,
+                        "اختر رقم حساب المرشد لعرض جميع أرشيفه",
+                        options=["الكل (جميع الحسابات)"] + all_accs_in_arch,
                         key="arch_acc_filter"
                     )
 
                     if selected_acc_arch_filter != "الكل (جميع الحسابات)":
-                        filtered_arch_df = archive_df[archive_df['Account'] == selected_acc_arch_filter]
+                        filtered_arch_df = archive_df[archive_df['Account'].astype(str) == str(selected_acc_arch_filter)]
                         st.info(f"عرض الأرشيف الخاص برقم الحساب: **{selected_acc_arch_filter}** (عدد الطلبات: {len(filtered_arch_df)})")
                     else:
                         filtered_arch_df = archive_df
@@ -1765,7 +1762,7 @@ elif page == "الأرشيف":
                                     overwrite_data(ARCHIVE_FILE, archive_df)
                                     st.session_state.confirming_del_archive = None
                                     st.success("تم الحذف من الأرشيف بنجاح.")
-                                    st.rerup()
+                                    st.rerun()
                             with ac_col2:
                                 if st.button("❌ رجوع (إلغاء)", key=f"cancel_del_arch_{idx}", type="primary"):
                                     st.session_state.confirming_del_archive = None
