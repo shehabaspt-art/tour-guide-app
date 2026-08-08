@@ -128,57 +128,6 @@ st.markdown("""
         font-size: 0.95rem !important;
         margin: 0 !important;
     }
-
-    .record-card {
-        background: #ffffff;
-        border: 1px solid #e0e0e0;
-        border-right: 5px solid #28a745;
-        border-radius: 10px;
-        padding: 14px 18px;
-        margin-bottom: 12px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        direction: rtl;
-    }
-    .card-header-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid #f0f0f0;
-        padding-bottom: 8px;
-        margin-bottom: 10px;
-    }
-    .card-id {
-        background: #eef2ff;
-        color: #4f46e5;
-        font-weight: bold;
-        padding: 3px 8px;
-        border-radius: 6px;
-        font-size: 13px;
-    }
-    .card-file {
-        color: #1f2937;
-        font-size: 15px;
-        font-weight: bold;
-    }
-    .card-body-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        color: #4b5563;
-        font-size: 14px;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-    .card-guide {
-        font-weight: 600;
-        color: #1b5e20;
-    }
-    .card-time {
-        direction: ltr;
-        unicode-bidi: embed;
-        color: #6c757d;
-        font-size: 0.9rem;
-    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -212,7 +161,6 @@ with cols_badge[1]:
         </div>
     """, unsafe_allow_html=True)
 
-# تشغيل القائمة الجانبية بشكل دائم دون زر إخفاء
 with st.sidebar:
     st.markdown("""
         <div style="display: flex; align-items: center; margin-top: 10px; margin-bottom: 5px;">
@@ -523,15 +471,24 @@ elif page == "إدارة التصفيات":
         else:
             st.subheader(f"الطلبات الواردة ({len(subs_df)})")
             for idx, row in subs_df.iterrows():
-                with st.expander(f"📁 فايل رقم: {row.get('File No', 'بدون')} | الحساب: {row.get('Account', '')} | التاريخ: {row.get('Timestamp', '')}"):
-                    st.write(f"**رقم الحساب/التليفون:** {row.get('Account', '')}")
-                    st.write(f"**رقم الفايل:** {row.get('File No', '')}")
-                    st.write(f"**العهد (Advances):** {row.get('Advances', 0.0)}")
-                    st.write(f"**التحصيل:** {row.get('Collection', '')}")
-                    st.write(f"**الأوبشنال:** {row.get('Option', '').replace('|||', ' | ')}")
-                    st.write(f"**التذاكر:** {row.get('Tickets', '')}")
-                    st.write(f"**الإكرامية / البارك / الغداء:** إكرامية: {row.get('Tip', 0)} | بارك: {row.get('Park', 0)} | غداء: {row.get('Lunch', 0)}")
-                    st.write(f"**تفاصيل المحلات:** {row.get('Shops Details', '').replace('|||', ' | ')}")
+                file_val = row.get('File No', 'بدون')
+                acc_val = row.get('Account', '')
+                time_val = row.get('Timestamp', '')
+                
+                exp_label = f"📁 فايل رقم: {file_val}  |  الحساب: {acc_val}  |  التاريخ: {time_val}"
+                
+                with st.expander(exp_label):
+                    st.markdown(f"""
+                    * **رقم الفايل:** {file_val}
+                    * **رقم الحساب/التليفون:** {acc_val}
+                    * **التاريخ:** {time_val}
+                    * **العهد (Advances):** {row.get('Advances', 0.0)}
+                    * **التحصيل:** {row.get('Collection', '')}
+                    * **الأوبشنال:** {row.get('Option', '').replace('|||', ' | ')}
+                    * **التذاكر:** {row.get('Tickets', '')}
+                    * **الإكرامية / البارك / الغداء:** إكرامية: {row.get('Tip', 0)} | بارك: {row.get('Park', 0)} | غداء: {row.get('Lunch', 0)}
+                    * **تفاصيل المحلات:** {row.get('Shops Details', '').replace('|||', ' | ')}
+                    """)
                     
                     col_act1, col_act2 = st.columns(2)
                     with col_act1:
