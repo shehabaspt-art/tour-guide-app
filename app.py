@@ -515,6 +515,41 @@ elif page == "إدارة التصفيات":
     password = st.text_input("أدخل كلمة المرور لعرض لوحة الإدارة", type="password", key="mgr_pass")
     if password == "159753":
         st.success("تم تسجيل الدخول بنجاح.")
+        st.markdown("---")
+        
+        subs_df = load_data(SUBMISSIONS_FILE)
+        if subs_df.empty:
+            st.info("𭭑 لا توجد طلبات جديدة حالياً في الانتظار.")
+        else:
+            st.subheader(f"الطلبات الواردة ({len(subs_df)})")
+            for idx, row in subs_df.iterrows():
+                with st.expander(f"📁 فايل رقم: {row.get('File No', 'بدون')} | الحساب: {row.get('Account', '')} | التاريخ: {row.get('Timestamp', '')}"):
+                    st.write(f"**رقم الحساب/التليفون:** {row.get('Account', '')}")
+                    st.write(f"**رقم الفايل:** {row.get('File No', '')}")
+                    st.write(f"**العهد (Advances):** {row.get('Advances', 0.0)}")
+                    st.write(f"**التحصيل:** {row.get('Collection', '')}")
+                    st.write(f"**الأوبشنال:** {row.get('Option', '').replace('|||', ' | ')}")
+                    st.write(f"**التذاكر:** {row.get('Tickets', '')}")
+                    st.write(f"**الإكرامية / البارك / الغداء:** إكرامية: {row.get('Tip', 0)} | بارك: {row.get('Park', 0)} | غداء: {row.get('Lunch', 0)}")
+                    st.write(f"**تفاصيل المحلات:** {row.get('Shops Details', '').replace('|||', ' | ')}")
+                    
+                    col_act1, col_act2 = st.columns(2)
+                    with col_act1:
+                        if st.button("✅ اعتماد الأرشيف ونقل الطلب", key=f"approve_{idx}"):
+                            save_to_file(ARCHIVE_FILE, row.to_dict())
+                            save_to_file(GUIDE_ARCHIVE_FILE, row.to_dict())
+                            subs_df = subs_df.drop(idx)
+                            overwrite_data(SUBMISSIONS_FILE, subs_df)
+                            st.success("تم اعتماد الطلب ونقله بنجاح!")
+                            time.sleep(1)
+                            st.rerun()
+                    with col_act2:
+                        if st.button("❌ حذف الطلب", key=f"delete_{idx}"):
+                            subs_df = subs_df.drop(idx)
+                            overwrite_data(SUBMISSIONS_FILE, subs_df)
+                            st.warning("تم حذف الطلب.")
+                            time.sleep(1)
+                            st.rerun()
 
 elif page == "الأرشيف":
     st.title("📁 أرشيف التصفيات المنتهية")
@@ -522,3 +557,9 @@ elif page == "الأرشيف":
     password_arch = st.text_input("أدخل كلمة المرور لعرض الأرشيف", type="password", key="arch_pass")
     if password_arch == "159753":
         st.success("تم تسجيل الدخول للأرشيف بنجاح.")
+        st.markdown("---")
+        arch_df = load_data(ARCHIVE_FILE)
+        if arch_df.empty:
+            st.info("𭭑 الأرشيف فارغ حالياً.")
+        else:
+            st.dataframe(arch_df, use_container_width=True)
