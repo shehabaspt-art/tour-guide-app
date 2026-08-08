@@ -212,7 +212,6 @@ with cols_badge[1]:
         </div>
     """, unsafe_allow_html=True)
 
-# تشغيل القائمة الجانبية بشكل دائم دون زر إخفاء
 with st.sidebar:
     st.markdown("""
         <div style="display: flex; align-items: center; margin-top: 10px; margin-bottom: 5px;">
@@ -509,6 +508,50 @@ elif page == "إدارة التصفيات":
     password = st.text_input("أدخل كلمة المرور لعرض لوحة الإدارة", type="password", key="mgr_pass")
     if password == "159753":
         st.success("تم تسجيل الدخول بنجاح.")
+        st.markdown("---")
+        
+        subs_df = load_data(SUBMISSIONS_FILE)
+        if subs_df.empty:
+            st.info("𭭑 لا توجد طلبات جديدة حالياً في الانتظار.")
+        else:
+            st.subheader(f"الطلبات الواردة ({len(subs_df)})")
+            for idx, row in subs_df.iterrows():
+                file_val = row.get('File No', 'بدون')
+                acc_val = row.get('Account', '')
+                time_val = row.get('Timestamp', '')
+                
+                exp_label = f"📁 فايل رقم: {file_val}  |  الحساب: {acc_val}  |  التاريخ: {time_val}"
+                
+                with st.expander(exp_label):
+                    st.markdown(f"""
+                    * **رقم الفايل:** {file_val}
+                    * **رقم الحساب/التليفون:** {acc_val}
+                    * **التاريخ:** {time_val}
+                    * **العهد (Advances):** {row.get('Advances', 0.0)}
+                    * **التحصيل:** {row.get('Collection', '')}
+                    * **الأوبشنال:** {row.get('Option', '').replace('|||', ' | ')}
+                    * **التذاكر:** {row.get('Tickets', '')}
+                    * **الإكرامية / البارك / الغداء:** إكرامية: {row.get('Tip', 0)} | بارك: {row.get('Park', 0)} | غداء: {row.get('Lunch', 0)}
+                    * **تفاصيل المحلات:** {row.get('Shops Details', '').replace('|||', ' | ')}
+                    """)
+                    
+                    col_act1, col_act2 = st.columns(2)
+                    with col_act1:
+                        if st.button("✅ اعتماد الأرشيف ونقل الطلب", key=f"approve_{idx}"):
+                            save_to_file(ARCHIVE_FILE, row.to_dict())
+                            save_to_file(GUIDE_ARCHIVE_FILE, row.to_dict())
+                            subs_df = subs_df.drop(idx)
+                            overwrite_data(SUBMISSIONS_FILE, subs_df)
+                            st.success("تم اعتماد الطلب ونقله بنجاح!")
+                            time.sleep(1)
+                            st.rerun()
+                    with col_act2:
+                        if st.button("❌ حذف الطلب", key=f"delete_{idx}"):
+                            subs_df = subs_df.drop(idx)
+                            overwrite_data(SUBMISSIONS_FILE, subs_df)
+                            st.warning("تم حذف الطلب.")
+                            time.sleep(1)
+                            st.rerun()
 
 elif page == "الأرشيف":
     st.title("📁 أرشيف التصفيات المنتهية")
@@ -516,3 +559,9 @@ elif page == "الأرشيف":
     password_arch = st.text_input("أدخل كلمة المرور لعرض الأرشيف", type="password", key="arch_pass")
     if password_arch == "159753":
         st.success("تم تسجيل الدخول للأرشيف بنجاح.")
+        st.markdown("---")
+        arch_df = load_data(ARCHIVE_FILE)
+        if arch_df.empty:
+            st.info("𭭑 الأرشيف فارغ حالياً.")
+        else:
+            st.dataframe(arch_df, use_container_width=True)
