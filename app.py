@@ -253,43 +253,18 @@ with cols_badge[1]:
         </div>
     """, unsafe_allow_html=True)
 
-# إدارة حالة إظهار/إخفاء القائمة الجانبية تماماً بناءً على طلب المستخدم
-if "sidebar_visible" not in st.session_state:
-    st.session_state.sidebar_visible = True
-
-col_toggle_sidebar = st.columns([1, 10])
-with col_toggle_sidebar[0]:
-    if st.button("🌐", help="إظهار/إخفاء القائمة الجانبية"):
-        st.session_state.sidebar_visible = not st.session_state.sidebar_visible
-        st.rerun()
-
-if st.session_state.sidebar_visible:
-    with st.sidebar:
-        st.markdown("""
-            <div style="display: flex; align-items: center; margin-top: 10px; margin-bottom: 5px;">
-                <h2 style='color: #1b5e20; margin: 0; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        page = st.radio(
-            "اختر الصفحة",
-            ["نموذج تصفية المرشد", "سجلات المرشد", "إدارة التصفيات", "الأرشيف"],
-            label_visibility="collapsed"
-        )
-else:
-    # إخفاء القائمة الجانبية بالكامل عبر حقن CSS لتختفي خااااالص
+with st.sidebar:
     st.markdown("""
-        <style>
-        [data-testid="stSidebar"] {
-            display: none !important;
-        }
-        section[data-testid="stSidebar"] {
-            width: 0 !important;
-            display: none !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-    page = "نموذج تصفية المرشد"
+        <div style="display: flex; align-items: center; margin-top: 10px; margin-bottom: 5px;">
+            <h2 style='color: #1b5e20; margin: 0; font-size: 1.2rem;'>🧭 القائمة الرئيسية</h2>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    page = st.radio(
+        "اختر الصفحة",
+        ["نموذج تصفية المرشد", "سجلات المرشد", "إدارة التصفيات", "الأرشيف"],
+        label_visibility="collapsed"
+    )
 
 if page == "نموذج تصفية المرشد":
     st.title("🧭 نموذج تصفية المرشدين")
@@ -747,7 +722,6 @@ elif page == "سجلات المرشد":
     else:
         st.markdown("### 🔑 أدخل رقم الحساب أو رقم التليفون للاطلاع على سجلاتك (خاص بالمرشد)")
         
-        # عرض دروب داون لأرقام الحسابات فقط بدون الأسماء نهائياً بناءً على طلب المستخدم
         account_dropdown_options = [None] + guides_df[acc_column].apply(clean_acc_number).tolist()
         entered_acc = st.selectbox(
             "اختر رقم الحساب أو رقم التليفون الخاص بك",
@@ -1761,7 +1735,7 @@ elif page == "الأرشيف":
                                 <div class="card-body-row">
                                     <div class="card-guide">المرشد: {row.get('Guide Name', '')}</div>
                                     <div class="card-time">التاريخ: {row.get('Timestamp', '')}</div>
-                                القائمة الرئيسية</div>
+                                </div>
                             </div>
                         """, unsafe_allow_html=True)
                         
