@@ -96,13 +96,11 @@ def evaluate_expression(expr_str):
     if not cleaned:
         return 0.0
     try:
-        # السماح بالأرقام وعمليات الحساب الأساسية فقط لأمان التنفيذ
         allowed_chars = set("0123456789+-*/(). ")
         if all(c in allowed_chars for c in cleaned):
             result = float(eval(cleaned))
             return result
         else:
-            # محاولة استخراج أول رقم لو فشلت المعادلة المباشرة
             import re
             nums = re.findall(r"[-+]?\d*\.\d+|\d+", cleaned)
             if nums:
@@ -809,8 +807,8 @@ elif page == "إدارة التصفيات":
                 st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب أو التليفون:** {req_row.get('Account', '')}")
                 st.markdown("---")
 
+                # تم جعل شاشة الكروت الحسابية تظهر فوراً وتخفي بقية التفاصيل عند الضغط على "بدء التصفية"
                 if st.session_state.get("show_liquidation_cards", False):
-                    st.markdown("---")
                     st.markdown("## 🧮 شاشة التصفية الذكية والكروت الحسابية")
                     
                     def parse_val(val_str):
@@ -954,167 +952,169 @@ elif page == "إدارة التصفيات":
                     with res_c3:
                         st.metric(label="💎 الصافي النهائي", value=f"{net_balance:,.2f}", delta=f"{net_balance:,.2f}")
                     st.markdown("---")
-
-                st.markdown("#### صور أمر الشغل:")
-                wo_paths = req_row.get('Work Order Images', '')
-                if pd.notna(wo_paths) and str(wo_paths).strip() != "":
-                    wo_list = str(wo_paths).split(",")
-                    wo_cols = st.columns(min(len(wo_list), 3))
-                    for idx, p in enumerate(wo_list):
-                        if os.path.exists(p):
-                            with wo_cols[idx % 3]:
-                                st.image(p, caption=f"صورة أمر الشغل رقم {idx+1}", width=220)
-                else:
-                    st.info("لا توجد صور لأمر الشغل.")
-
-                st.markdown("---")
                 
-                st.markdown("""
-                    <style>
-                    .report-card {
-                        background-color: #f8f9fa;
-                        border: 1px solid #e9ecef;
-                        border-right: 4px solid #28a745;
-                        padding: 15px;
-                        border-radius: 8px;
-                        margin-bottom: 12px;
-                    }
-                    .report-title {
-                        font-weight: bold;
-                        color: #1b5e20;
-                        margin-bottom: 5px;
-                        font-size: 1.05rem;
-                    }
-                    .report-value {
-                        color: #333333;
-                        font-size: 1.1rem;
-                        font-weight: 500;
-                    }
-                    .sub-item-card {
-                        background-color: #ffffff;
-                        border: 1px solid #d4edda;
-                        border-left: 4px solid #28a745;
-                        padding: 8px 12px;
-                        border-radius: 6px;
-                        margin-top: 6px;
-                        font-size: 1.05rem;
-                        color: #155724;
-                        font-weight: 600;
-                    }
-                    </style>
-                """, unsafe_allow_html=True)
-
-                col_m1, col_m2, col_m3 = st.columns(3)
-                with col_m1:
-                    st.markdown(f"""
-                        <div class="report-card">
-                            <div class="report-title">💰 العهد (Advances)</div>
-                            <div class="report-value">{req_row.get('Advances', 0)}</div>
-                        </div>
-                    """, unsafe_allow_html=True)
-                with col_m2:
-                    st.markdown(f"""
-                        <div class="report-card">
-                            <div class="report-title">📥 التحصيل (Collection)</div>
-                            <div class="report-value">{req_row.get('Collection', 0)}</div>
-                        </div>
-                    """, unsafe_allow_html=True)
-                with col_m3:
-                    st.markdown(f"""
-                        <div class="report-card">
-                            <div class="report-title">🎁 إكرامية (Tip)</div>
-                            <div class="report-value">{req_row.get('Tip', 0)}</div>
-                        </div>
-                    """, unsafe_allow_html=True)
-
-                col_m4, col_m5, col_m6 = st.columns(3)
-                with col_m4:
-                    st.markdown(f"""
-                        <div class="report-card">
-                            <div class="report-title">🅿️ بارك (Park)</div>
-                            <div class="report-value">{req_row.get('Park', 0)}</div>
-                        </div>
-                    """, unsafe_allow_html=True)
-                with col_m5:
-                    st.markdown(f"""
-                        <div class="report-card">
-                            <div class="report-title">🍽️ غداء (Lunch)</div>
-                            <div class="report-value">{req_row.get('Lunch', 0)}</div>
-                        </div>
-                    """, unsafe_allow_html=True)
-                with col_m6:
-                    st.markdown(f"""
-                        <div class="report-card">
-                            <div class="report-title">🎟️ التذاكر (Tickets)</div>
-                            <div class="report-value">{req_row.get('Tickets', 'لا يوجد')}</div>
-                        </div>
-                    """, unsafe_allow_html=True)
-
-                opt_items = parse_items_smart(req_row.get('Option', ''))
-                opt_inner_html = ""
-                if opt_items:
-                    for item in opt_items:
-                        opt_inner_html += f'<div class="sub-item-card">✨ {item}</div>'
+                # إذا لم يتم الضغط على بدء التصفية أو تم الضغط على "عرض" عادي، يتم عرض البيانات التفصيلية التقليدية
                 else:
-                    opt_inner_html = '<div class="report-value" style="color: #6c757d; font-size: 0.95rem;">لا يوجد</div>'
+                    st.markdown("#### صور أمر الشغل:")
+                    wo_paths = req_row.get('Work Order Images', '')
+                    if pd.notna(wo_paths) and str(wo_paths).strip() != "":
+                        wo_list = str(wo_paths).split(",")
+                        wo_cols = st.columns(min(len(wo_list), 3))
+                        for idx, p in enumerate(wo_list):
+                            if os.path.exists(p):
+                                with wo_cols[idx % 3]:
+                                    st.image(p, caption=f"صورة أمر الشغل رقم {idx+1}", width=220)
+                    else:
+                        st.info("لا توجد صور لأمر الشغل.")
 
-                st.markdown(f"""
-                    <div class="report-card" style="border-right-color: #007bff;">
-                        <div class="report-title">✨ الأوبشنال (Optional)</div>
-                        {opt_inner_html}
-                    </div>
-                """, unsafe_allow_html=True)
+                    st.markdown("---")
+                    
+                    st.markdown("""
+                        <style>
+                        .report-card {
+                            background-color: #f8f9fa;
+                            border: 1px solid #e9ecef;
+                            border-right: 4px solid #28a745;
+                            padding: 15px;
+                            border-radius: 8px;
+                            margin-bottom: 12px;
+                        }
+                        .report-title {
+                            font-weight: bold;
+                            color: #1b5e20;
+                            margin-bottom: 5px;
+                            font-size: 1.05rem;
+                        }
+                        .report-value {
+                            color: #333333;
+                            font-size: 1.1rem;
+                            font-weight: 500;
+                        }
+                        .sub-item-card {
+                            background-color: #ffffff;
+                            border: 1px solid #d4edda;
+                            border-left: 4px solid #28a745;
+                            padding: 8px 12px;
+                            border-radius: 6px;
+                            margin-top: 6px;
+                            font-size: 1.05rem;
+                            color: #155724;
+                            font-weight: 600;
+                        }
+                        </style>
+                    """, unsafe_allow_html=True)
 
-                shop_raw = req_row.get('Shops Details', req_row.get('Shop Names', ''))
-                shop_items = parse_items_smart(shop_raw)
-                shop_inner_html = ""
-                if shop_items:
-                    for item in shop_items:
-                        clean_item_text = item.split("[IMG:")[0].strip()
-                        shop_inner_html += f'<div class="sub-item-card" style="border-left-color: #ffc107; color: #856404;">🛍️ {clean_item_text}</div>'
-                else:
-                    shop_inner_html = '<div class="report-value" style="color: #6c757d; font-size: 0.95rem;">لا يوجد</div>'
+                    col_m1, col_m2, col_m3 = st.columns(3)
+                    with col_m1:
+                        st.markdown(f"""
+                            <div class="report-card">
+                                <div class="report-title">💰 العهد (Advances)</div>
+                                <div class="report-value">{req_row.get('Advances', 0)}</div>
+                            </div>
+                        """, unsafe_allow_html=True)
+                    with col_m2:
+                        st.markdown(f"""
+                            <div class="report-card">
+                                <div class="report-title">📥 التحصيل (Collection)</div>
+                                <div class="report-value">{req_row.get('Collection', 0)}</div>
+                            </div>
+                        """, unsafe_allow_html=True)
+                    with col_m3:
+                        st.markdown(f"""
+                            <div class="report-card">
+                                <div class="report-title">🎁 إكرامية (Tip)</div>
+                                <div class="report-value">{req_row.get('Tip', 0)}</div>
+                            </div>
+                        """, unsafe_allow_html=True)
 
-                st.markdown(f"""
-                    <div class="report-card" style="border-right-color: #ffc107;">
-                        <div class="report-title">🛍️ تفاصيل المحلات</div>
-                        {shop_inner_html}
-                    </div>
-                """, unsafe_allow_html=True)
+                    col_m4, col_m5, col_m6 = st.columns(3)
+                    with col_m4:
+                        st.markdown(f"""
+                            <div class="report-card">
+                                <div class="report-title">🅿️ بارك (Park)</div>
+                                <div class="report-value">{req_row.get('Park', 0)}</div>
+                            </div>
+                        """, unsafe_allow_html=True)
+                    with col_m5:
+                        st.markdown(f"""
+                            <div class="report-card">
+                                <div class="report-title">🍽️ غداء (Lunch)</div>
+                                <div class="report-value">{req_row.get('Lunch', 0)}</div>
+                            </div>
+                        """, unsafe_allow_html=True)
+                    with col_m6:
+                        st.markdown(f"""
+                            <div class="report-card">
+                                <div class="report-title">🎟️ التذاكر (Tickets)</div>
+                                <div class="report-value">{req_row.get('Tickets', 'لا يوجد')}</div>
+                            </div>
+                        """, unsafe_allow_html=True)
 
-                if pd.notna(req_row.get('Other Shops', '')) and str(req_row.get('Other Shops', '')).strip() != "":
+                    opt_items = parse_items_smart(req_row.get('Option', ''))
+                    opt_inner_html = ""
+                    if opt_items:
+                        for item in opt_items:
+                            opt_inner_html += f'<div class="sub-item-card">✨ {item}</div>'
+                    else:
+                        opt_inner_html = '<div class="report-value" style="color: #6c757d; font-size: 0.95rem;">لا يوجد</div>'
+
                     st.markdown(f"""
-                        <div class="report-card" style="border-right-color: #17a2b8;">
-                            <div class="report-title">🏪 محلات خارجية</div>
-                            <div class="report-value">{req_row.get('Other Shops', '')}</div>
+                        <div class="report-card" style="border-right-color: #007bff;">
+                            <div class="report-title">✨ الأوبشنال (Optional)</div>
+                            {opt_inner_html}
                         </div>
                     """, unsafe_allow_html=True)
 
-                st.markdown("---")
-                st.markdown("#### صور فواتير الغداء:")
-                l_paths = req_row.get('Lunch Receipt', '')
-                if pd.notna(l_paths) and str(l_paths).strip() != "":
-                    l_list = str(l_paths).split(",")
-                    l_cols = st.columns(min(len(l_list), 3))
-                    for idx, p in enumerate(l_list):
-                        if os.path.exists(p):
-                            with l_cols[idx % 3]:
-                                st.image(p, caption=f"صورة فاتورة الغداء رقم {idx+1}", width=220)
-                else:
-                    st.info("لا توجد صور لفواتير الغداء.")
+                    shop_raw = req_row.get('Shops Details', req_row.get('Shop Names', ''))
+                    shop_items = parse_items_smart(shop_raw)
+                    shop_inner_html = ""
+                    if shop_items:
+                        for item in shop_items:
+                            clean_item_text = item.split("[IMG:")[0].strip()
+                            shop_inner_html += f'<div class="sub-item-card" style="border-left-color: #ffc107; color: #856404;">🛍️ {clean_item_text}</div>'
+                    else:
+                        shop_inner_html = '<div class="report-value" style="color: #6c757d; font-size: 0.95rem;">لا يوجد</div>'
 
-                st.markdown("---")
-                s_paths = req_row.get('Shop Images', '')
-                st.markdown("#### صور فواتير المحلات:")
-                if pd.notna(s_paths) and str(s_paths).strip() != "":
-                    paths_list = str(s_paths).split(",")
-                    s_cols = st.columns(min(len(paths_list), 3))
-                    for idx, p in enumerate(paths_list):
-                        if os.path.exists(p):
-                            with s_cols[idx % 3]:
-                                st.image(p, caption=f"صورة محلات رقم {idx+1}", width=220)
-                else:
-                    st.info("لا توجد صور لفواتير المحلات.")
+                    st.markdown(f"""
+                        <div class="report-card" style="border-right-color: #ffc107;">
+                            <div class="report-title">🛍️ تفاصيل المحلات</div>
+                            {shop_inner_html}
+                        </div>
+                    """, unsafe_allow_html=True)
+
+                    if pd.notna(req_row.get('Other Shops', '')) and str(req_row.get('Other Shops', '')).strip() != "":
+                        st.markdown(f"""
+                            <div class="report-card" style="border-right-color: #17a2b8;">
+                                <div class="report-title">🏪 محلات خارجية</div>
+                                <div class="report-value">{req_row.get('Other Shops', '')}</div>
+                            </div>
+                        """, unsafe_allow_html=True)
+
+                    st.markdown("---")
+                    st.markdown("#### صور فواتير الغداء:")
+                    l_paths = req_row.get('Lunch Receipt', '')
+                    if pd.notna(l_paths) and str(l_paths).strip() != "":
+                        l_list = str(l_paths).split(",")
+                        l_cols = st.columns(min(len(l_list), 3))
+                        for idx, p in enumerate(l_list):
+                            if os.path.exists(p):
+                                with l_cols[idx % 3]:
+                                    st.image(p, caption=f"صورة فاتورة الغداء رقم {idx+1}", width=220)
+                    else:
+                        st.info("لا توجد صور لفواتير الغداء.")
+
+                    st.markdown("---")
+                    s_paths = req_row.get('Shop Images', '')
+                    st.markdown("#### صور فواتير المحلات:")
+                    if pd.notna(s_paths) and str(s_paths).strip() != "":
+                        paths_list = str(s_paths).split(",")
+                        s_cols = st.columns(min(len(paths_list), 3))
+                        for idx, p in enumerate(paths_list):
+                            if os.path.exists(p):
+                                with s_cols[idx % 3]:
+                                    st.image(p, caption=f"صورة محلات رقم {idx+1}", width=220)
+                    else:
+                        st.info("لا توجد صور لفواتير المحلات.")
 
                 st.markdown("---")
                 st.markdown("### اتخاذ القرار بشأن الطلب:")
