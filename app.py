@@ -1193,18 +1193,13 @@ elif page == "إدارة التصفيات":
                         </div>
                     """, unsafe_allow_html=True)
                     
-                    col_actions = st.columns([3, 1, 1, 1])
+                    col_actions = st.columns([3, 1, 1])
                     with col_actions[1]:
                         if st.button("عرض", key=f"view_btn_{idx}", type="primary"):
                             st.session_state.viewing_file = idx
                             st.session_state.show_liquidation_cards = False
                             st.rerun()
                     with col_actions[2]:
-                        if st.button("بدء التصفية", key=f"start_liq_list_btn_{idx}", type="primary"):
-                            st.session_state.viewing_file = idx
-                            st.session_state.show_liquidation_cards = True
-                            st.rerun()
-                    with col_actions[3]:
                         if st.button("🗑️ حذف", key=f"del_sub_btn_{idx}", type="primary"):
                             st.session_state.confirming_del_sub = idx
                             st.rerun()
@@ -1772,18 +1767,13 @@ elif page == "الأرشيف":
                             </div>
                         """, unsafe_allow_html=True)
                         
-                        cols = st.columns([2, 1, 1, 1])
+                        cols = st.columns([3, 1, 1])
                         with cols[1]:
                             if st.button("عرض", key=f"view_arch_btn_{idx}", type="primary"):
                                 st.session_state.viewing_archive_file = idx
                                 st.session_state.show_archive_liquidation_cards = False
                                 st.rerun()
                         with cols[2]:
-                            if st.button("بدء التصفية", key=f"start_arch_liq_list_btn_{idx}", type="primary"):
-                                st.session_state.viewing_archive_file = idx
-                                st.session_state.show_archive_liquidation_cards = True
-                                st.rerun()
-                        with cols[3]:
                             if st.button("🗑️ حذف", key=f"del_arch_btn_{idx}", type="primary"):
                                 st.session_state.confirming_del_archive = idx
                                 st.rerun()
