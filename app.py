@@ -1116,14 +1116,19 @@ elif page == "إدارة التصفيات":
                 with col_btn1:
                     if st.button("✅ تم الأرشفة", type="primary", use_container_width=True):
                         archive_entry = req_row.to_dict()
+                        
+                        # حفظ البيانات في ملف الأرشيف العام
                         save_to_file(ARCHIVE_FILE, archive_entry)
+                        
+                        # نسخ وحفظ البيانات تلقائياً في ملف سجلات المرشد لتظهر في صفحة سجلات المرشد أيضاً
+                        save_to_file(GUIDE_ARCHIVE_FILE, archive_entry)
                         
                         sub_df = sub_df.drop(req_idx).reset_index(drop=True)
                         overwrite_data(SUBMISSIONS_FILE, sub_df)
                         
                         st.session_state.viewing_file = None
                         st.session_state.show_liquidation_cards = False
-                        st.success("✅ تم نقل الطلب للأرشيف بنجاح!")
+                        st.success("✅ تم نقل الطلب للأرشيف وسجلات المرشد بنجاح!")
                         st.rerun()
 
                 with col_btn2:
@@ -1178,7 +1183,6 @@ elif page == "إدارة التصفيات":
                         </div>
                     """, unsafe_allow_html=True)
                     
-                    # تعديل الأزرار هنا لإضافة زر "نقل" بجوار "بدء التصفية"
                     col_actions = st.columns([2, 1, 1, 1, 1])
                     with col_actions[1]:
                         if st.button("عرض", key=f"view_btn_{idx}", type="primary"):
