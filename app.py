@@ -1,4 +1,4 @@
-import streamlit as st
+[cite: 6]import streamlit as st
 import pandas as pd
 import os
 import base64
@@ -559,7 +559,7 @@ elif page == "سجلات المرشد":
             st.markdown(f"### 📄 تفاصيل التصفية المؤرشفة للفايل: {req_row.get('File No', '')}")
             row_acc = req_row.get('Account', '')
             row_gname = get_guide_name_by_account(row_acc)
-            st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {row_acc} | **اسم المرشد:** {row_gname}")
+            st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {row_acc}")
             st.markdown("---")
 
             st.markdown("#### صور أمر الشغل:")
@@ -752,7 +752,6 @@ elif page == "سجلات المرشد":
 
                     for idx, row in matched_guide_records.iterrows():
                         r_acc = row.get('Account', '')
-                        r_gname = get_guide_name_by_account(r_acc)
                         st.markdown(f"""
                             <div class="record-card">
                                 <div class="card-header-row">
@@ -760,7 +759,7 @@ elif page == "سجلات المرشد":
                                     <span class="card-file">الفايل: {row.get('File No', '')}</span>
                                 </div>
                                 <div class="card-body-row">
-                                    <div class="card-guide">رقم الحساب: {r_acc} | المرشد: {r_gname}</div>
+                                    <div class="card-guide">رقم الحساب: {r_acc}</div>
                                     <div class="card-time">التاريخ: {row.get('Timestamp', '')}</div>
                                 </div>
                             </div>
@@ -818,7 +817,6 @@ elif page == "إدارة التصفيات":
                 st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {cur_acc} | **اسم المرشد:** {cur_gname}")
                 st.markdown("---")
 
-                # تم جعل شاشة الكروت الحسابية تظهر فوراً وتخفي بقية التفاصيل عند الضغط على "بدء التصفية"
                 if st.session_state.get("show_liquidation_cards", False):
                     st.markdown("## 🧮 شاشة التصفية الذكية والكروت الحسابية")
                     
@@ -962,7 +960,6 @@ elif page == "إدارة التصفيات":
                         st.metric(label="💎 الصافي النهائي", value=f"{net_balance:,.2f}", delta=f"{net_balance:,.2f}")
                     st.markdown("---")
                 
-                # إذا لم يتم الضغط على بدء التصفية أو تم الضغط على "عرض" عادي، يتم عرض البيانات التفصيلية التقليدية
                 else:
                     st.markdown("#### صور أمر الشغل:")
                     wo_paths = req_row.get('Work Order Images', '')
@@ -1375,7 +1372,6 @@ elif page == "الأرشيف":
                 st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {r_acc} | **اسم المرشد:** {r_gname}")
                 st.markdown("---")
 
-                st.markdown("---")
                 if st.button("🚀 بدء التصفية (عرض تفاصيل الحسابات والكروت)", type="primary", key="start_arch_liquidation_btn"):
                     st.session_state.show_archive_liquidation_cards = True
                 
