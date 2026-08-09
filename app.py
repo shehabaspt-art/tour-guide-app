@@ -283,11 +283,10 @@ if page == "نموذج تصفية المرشد":
         with col_top1:
             guide_options = []
             for _, r in guides_df.iterrows():
-                g_n = str(r[name_column])
                 g_a = clean_acc_number(r[acc_column])
-                guide_options.append(f"{g_n} - {g_a}")
+                guide_options.append(g_a)
             
-            selected_guide_combo = st.selectbox("رقم الحساب (اختر اسم المرشد ورقم الحساب)", options=[None] + guide_options, key=f"form_account_no_{rc}")
+            selected_guide_combo = st.selectbox("رقم الحساب", options=[None] + guide_options, key=f"form_account_no_{rc}")
         with col_top2:
             file_no = st.text_input("رقم الفايل (File Number) *إلزامي*", key=f"form_file_no_{rc}")
 
@@ -413,7 +412,7 @@ if page == "نموذج تصفية المرشد":
                     break
 
             if not selected_guide_combo:
-                st.error("⚠️ عذراً، يجب اختيار (رقم الحساب / المرشد) أولاً!")
+                st.error("⚠️ عذراً، يجب اختيار (رقم الحساب) أولاً!")
             elif not file_no.strip():
                 st.error("⚠️ عذراً، لا يمكن إرسال الطلب. يرجى إدخال (رقم الفايل) أولاً بشكل إلزامي!")
             elif validation_pay_error:
@@ -421,7 +420,7 @@ if page == "نموذج تصفية المرشد":
             elif validation_error:
                 st.error("⚠️ عذراً، نظراً لاختيار طريقة الدفع (كاش)، يجب اختيار (المبلغ) [مع المرشد / مع السواق] بشكل إلزامي!")
             else:
-                clean_acc_selected = clean_acc_number(selected_guide_combo.split(" - ")[-1])
+                clean_acc_selected = clean_acc_number(selected_guide_combo)
                 guide_name = get_guide_name_by_account(clean_acc_selected)
                 
                 cairo_dt = datetime.now(ZoneInfo("Africa/Cairo"))
