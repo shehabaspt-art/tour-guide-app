@@ -718,14 +718,21 @@ elif page == "سجلات المرشد":
         st.markdown("### 🔑 أدخل رقم الحساب للاطلاع على سجلاتك (خاص بالمرشد)")
         
         account_dropdown_options = [None] + guides_df[acc_column].apply(clean_acc_number).tolist()
+        
+        # تحديد الفهارس بشكل صحيح إذا كان هناك حساب محفوظ في الجلسة
+        default_index = 0
+        if st.session_state.guide_login_acc and st.session_state.guide_login_acc in account_dropdown_options:
+            default_index = account_dropdown_options.index(st.session_state.guide_login_acc)
+
         entered_acc = st.selectbox(
             "اختر رقم الحساب الخاص بك",
             options=account_dropdown_options,
-            index=0,
+            index=default_index,
             key="guide_login_acc_select"
         )
         if entered_acc:
             entered_acc = str(entered_acc)
+            st.session_state.guide_login_acc = entered_acc
 
         if entered_acc and entered_acc.strip():
             g_arch_df = load_data(GUIDE_ARCHIVE_FILE)
@@ -1760,7 +1767,6 @@ elif page == "الأرشيف":
                             </div>
                         """, unsafe_allow_html=True)
                         
-                        # تم إزالة زر بدء التصفية وتعديل تقسيم الأعمدة لتوزيع الأزرار المتبقية بشكل متناسق
                         cols = st.columns([1, 1, 1, 1])
                         with cols[1]:
                             if st.button("عرض", key=f"view_arch_btn_{idx}", type="primary"):
@@ -1776,7 +1782,6 @@ elif page == "الأرشيف":
                             if st.button(btn_label, key=f"btn_done_trans_{idx}", type="primary"):
                                 st.session_state[transferred_key] = True
                                 
-                                # نقل التصفية المؤرشفة إلى سجلات المرشد (GUIDE_ARCHIVE_FILE)
                                 guide_arch_data = row.to_dict()
                                 save_to_file(GUIDE_ARCHIVE_FILE, guide_arch_data)
                                 st.success("✅ تمت تصفية ونقل بيانات الفايل لتظهر في صفحة سجلات المرشد بنجاح!")
