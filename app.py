@@ -234,10 +234,20 @@ except:
 name_column = guides_df.columns[0] if len(guides_df.columns) > 0 else "Guide Name"
 acc_column = guides_df.columns[1] if len(guides_df.columns) > 1 else guides_df.columns[0]
 
+# دالة مساعدة للحصول على اسم المرشد من رقم الحساب بناءً على قاعدة البيانات
+def get_guide_name_by_account(acc_val):
+    if not acc_val:
+        return "غير معروف"
+    clean_acc = clean_acc_number(acc_val)
+    matched = guides_df[guides_df[acc_column].apply(clean_acc_number) == clean_acc]
+    if not matched.empty:
+        return str(matched[name_column].values[0])
+    return "غير معروف"
+
 SHOPS_LIST = [
     "وجية بردى", "اخناتون سجاد", "مينا للبرديات", "رويال سجاد", "اولد كايرو",
     "رويال للعطور", "خان الحلو للقطن", "فلور قطن", "طيبة للقطن", "فيلة بازار",
-    "جولدن بيرد", "مملوك", "ريحانة توابل", "كنور توابل", "قصر العطور", "لازوريت", "محلات اخري"
+    "جولدن بيرد", "mملوك", "ريحانة توابل", "كنور توابل", "قصر العطور", "لازوريت", "محلات اخري"
 ]
 
 current_subs_df = load_data(SUBMISSIONS_FILE)
@@ -418,12 +428,7 @@ if page == "نموذج تصفية المرشد":
                 st.error("⚠️ عذراً، نظراً لاختيار طريقة الدفع (كاش)، يجب اختيار (المبلغ) [مع المرشد / مع السواق] بشكل إلزامي!")
             else:
                 clean_acc_selected = clean_acc_number(account_no)
-                
-                matched_guide_row = guides_df[guides_df[acc_column].apply(clean_acc_number) == clean_acc_selected]
-                if not matched_guide_row.empty:
-                    guide_name = str(matched_guide_row[name_column].values[0])
-                else:
-                    guide_name = "غير معروف"
+                guide_name = get_guide_name_by_account(clean_acc_selected)
                 
                 cairo_dt = datetime.now(ZoneInfo("Africa/Cairo"))
                 current_time_str = cairo_dt.strftime('%Y-%m-%d %I:%M %p')
@@ -552,7 +557,9 @@ elif page == "سجلات المرشد":
                 st.rerun()
 
             st.markdown(f"### 📄 تفاصيل التصفية المؤرشفة للفايل: {req_row.get('File No', '')}")
-            st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {req_row.get('Account', '')}")
+            row_acc = req_row.get('Account', '')
+            row_gname = get_guide_name_by_account(row_acc)
+            st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {row_acc} | **اسم المرشد:** {row_gname}")
             st.markdown("---")
 
             st.markdown("#### صور أمر الشغل:")
@@ -744,6 +751,8 @@ elif page == "سجلات المرشد":
                     st.markdown("### 📋 سجلات الأرشيف الخاصة بك")
 
                     for idx, row in matched_guide_records.iterrows():
+                        r_acc = row.get('Account', '')
+                        r_gname = get_guide_name_by_account(r_acc)
                         st.markdown(f"""
                             <div class="record-card">
                                 <div class="card-header-row">
@@ -751,7 +760,7 @@ elif page == "سجلات المرشد":
                                     <span class="card-file">الفايل: {row.get('File No', '')}</span>
                                 </div>
                                 <div class="card-body-row">
-                                    <div class="card-guide">رقم الحساب: {row.get('Account', '')}</div>
+                                    <div class="card-guide">رقم الحساب: {r_acc} | المرشد: {r_gname}</div>
                                     <div class="card-time">التاريخ: {row.get('Timestamp', '')}</div>
                                 </div>
                             </div>
@@ -803,8 +812,10 @@ elif page == "إدارة التصفيات":
                     st.session_state.show_liquidation_cards = False
                     st.rerun()
 
-                st.markdown(f"### 📄 تفاصيل تصفية الفايل: {req_row.get('File No', '')} (المرشد: {req_row.get('Guide Name', '')})")
-                st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {req_row.get('Account', '')}")
+                cur_acc = req_row.get('Account', '')
+                cur_gname = get_guide_name_by_account(cur_acc)
+                st.markdown(f"### 📄 تفاصيل تصفية الفايل: {req_row.get('File No', '')} (المرشد: {cur_gname})")
+                st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {cur_acc} | **اسم المرشد:** {cur_gname}")
                 st.markdown("---")
 
                 # تم جعل شاشة الكروت الحسابية تظهر فوراً وتخفي بقية التفاصيل عند الضغط على "بدء التصفية"
@@ -820,7 +831,7 @@ elif page == "إدارة التصفيات":
                             except:
                                 return 0.0
 
-                    default_guide_name = req_row.get('Guide Name', '')
+                    default_guide_name = cur_gname
                     default_file_no = req_row.get('File No', '')
                     default_park = float(req_row.get('Park', 0.0))
                     default_tip = float(req_row.get('Tip', 0.0))
@@ -1153,13 +1164,16 @@ elif page == "إدارة التصفيات":
 
                 if selected_acc_filter != "الكل (جميع الحسابات)":
                     filtered_sub_df = sub_df[sub_df['Account'].astype(str) == str(selected_acc_filter)]
-                    st.info(f"عرض التصفيات الخاصة برقم الحساب: **{selected_acc_filter}** (عدد الطلبات: {len(filtered_sub_df)})")
+                    sel_g_name = get_guide_name_by_account(selected_acc_filter)
+                    st.info(f"عرض التصفيات الخاصة برقم الحساب: **{selected_acc_filter}** (المرشد: {sel_g_name}) - عدد الطلبات: {len(filtered_sub_df)}")
                 else:
                     filtered_sub_df = sub_df
 
                 st.markdown("### الطلبات الواردة")
 
                 for idx, row in filtered_sub_df.iterrows():
+                    r_acc = row.get('Account', '')
+                    r_gname = get_guide_name_by_account(r_acc)
                     st.markdown(f"""
                         <div class="record-card">
                             <div class="card-header-row">
@@ -1167,7 +1181,7 @@ elif page == "إدارة التصفيات":
                                 <span class="card-file">الفايل: {row.get('File No', '')}</span>
                             </div>
                             <div class="card-body-row">
-                                <div class="card-guide">رقم الحساب: {row.get('Account', '')}</div>
+                                <div class="card-guide">رقم الحساب: {r_acc} | اسم المرشد: {r_gname}</div>
                                 <div class="card-time">التاريخ: {row.get('Timestamp', '')}</div>
                             </div>
                         </div>
@@ -1355,8 +1369,10 @@ elif page == "الأرشيف":
                     st.session_state.show_archive_liquidation_cards = False
                     st.rerun()
 
+                r_acc = req_row.get('Account', '')
+                r_gname = get_guide_name_by_account(r_acc)
                 st.markdown(f"### 📄 تفاصيل الأرشيف للفايل: {req_row.get('File No', '')}")
-                st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {req_row.get('Account', '')}")
+                st.markdown(f"**التاريخ:** {req_row.get('Timestamp', '')} | **رقم الحساب:** {r_acc} | **اسم المرشد:** {r_gname}")
                 st.markdown("---")
 
                 st.markdown("---")
@@ -1376,7 +1392,7 @@ elif page == "الأرشيف":
                             except:
                                 return 0.0
 
-                    default_guide_name = req_row.get('Guide Name', '')
+                    default_guide_name = r_gname
                     default_file_no = req_row.get('File No', '')
                     default_park = float(req_row.get('Park', 0.0))
                     default_tip = float(req_row.get('Tip', 0.0))
@@ -1630,6 +1646,8 @@ elif page == "الأرشيف":
                     
                     if not matched_arch_df.empty:
                         for idx, row in matched_arch_df.iterrows():
+                            r_acc = row.get('Account', '')
+                            r_gname = get_guide_name_by_account(r_acc)
                             shop_detail_raw = str(row.get('Shops Details', ''))
                             shop_items_list = parse_items_smart(shop_detail_raw)
                             
@@ -1665,7 +1683,7 @@ elif page == "الأرشيف":
                                         <span class="card-file">الفايل: {row.get('File No', '')}</span>
                                     </div>
                                     <div class="card-body-row">
-                                        <div class="card-guide">رقم الحساب: {row.get('Account', '')}</div>
+                                        <div class="card-guide">رقم الحساب: {r_acc} | اسم المرشد: {r_gname}</div>
                                         <div class="card-time">التاريخ: {row.get('Timestamp', '')}</div>
                                     </div>
                                 </div>
@@ -1716,7 +1734,8 @@ elif page == "الأرشيف":
 
                     if selected_acc_arch_filter != "الكل (جميع الحسابات)":
                         filtered_arch_df = archive_df[archive_df['Account'].astype(str) == str(selected_acc_arch_filter)]
-                        st.info(f"عرض الأرشيف الخاص برقم الحساب: **{selected_acc_arch_filter}** (عدد الطلبات: {len(filtered_arch_df)})")
+                        sel_g_name = get_guide_name_by_account(selected_acc_arch_filter)
+                        st.info(f"عرض الأرشيف الخاص برقم الحساب: **{selected_acc_arch_filter}** (المرشد: {sel_g_name}) - عدد الطلبات: {len(filtered_arch_df)}")
                     else:
                         filtered_arch_df = archive_df
 
@@ -1724,6 +1743,8 @@ elif page == "الأرشيف":
                     st.markdown("### سجلات الأرشيف")
 
                     for idx, row in filtered_arch_df.iterrows():
+                        r_acc = row.get('Account', '')
+                        r_gname = get_guide_name_by_account(r_acc)
                         st.markdown(f"""
                             <div class="record-card">
                                 <div class="card-header-row">
@@ -1731,7 +1752,7 @@ elif page == "الأرشيف":
                                     <span class="card-file">الفايل: {row.get('File No', '')}</span>
                                 </div>
                                 <div class="card-body-row">
-                                    <div class="card-guide">رقم الحساب: {row.get('Account', '')}</div>
+                                    <div class="card-guide">رقم الحساب: {r_acc} | اسم المرشد: {r_gname}</div>
                                     <div class="card-time">التاريخ: {row.get('Timestamp', '')}</div>
                                 </div>
                             </div>
