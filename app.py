@@ -281,8 +281,7 @@ if page == "نموذج تصفية المرشد":
         
         col_top1, col_top2 = st.columns(2)
         with col_top1:
-            account_options = [None] + guides_df[acc_column].apply(clean_acc_number).tolist()
-            account_no = st.selectbox("رقم الحساب", options=account_options, index=0, key=f"form_account_no_{rc}")
+            account_no = st.text_input("رقم الحساب", key=f"form_account_no_{rc}")
         with col_top2:
             file_no = st.text_input("رقم الفايل (File Number) *إلزامي*", key=f"form_file_no_{rc}")
 
@@ -407,8 +406,8 @@ if page == "نموذج تصفية المرشد":
                     validation_error = True
                     break
 
-            if not account_no:
-                st.error("⚠️ عذراً، يجب اختيار (رقم الحساب) أولاً!")
+            if not account_no.strip():
+                st.error("⚠️ عذراً، يجب إدخال (رقم الحساب) أولاً!")
             elif not file_no.strip():
                 st.error("⚠️ عذراً، لا يمكن إرسال الطلب. يرجى إدخال (رقم الفايل) أولاً بشكل إلزامي!")
             elif validation_pay_error:
@@ -717,12 +716,10 @@ elif page == "سجلات المرشد":
     else:
         st.markdown("### 🔑 أدخل رقم الحساب للاطلاع على سجلاتك (خاص بالمرشد)")
         
-        account_dropdown_options = [None] + guides_df[acc_column].apply(clean_acc_number).tolist()
-        entered_acc = st.selectbox(
-            "اختر رقم الحساب الخاص بك",
-            options=account_dropdown_options,
-            index=0,
-            key="guide_login_acc_select"
+        entered_acc = st.text_input(
+            "أدخل رقم الحساب أو رقم التليفون الخاص بك",
+            value=st.session_state.get("guide_login_acc", ""),
+            key="guide_login_acc_input"
         )
         if entered_acc:
             entered_acc = str(entered_acc)
@@ -1760,7 +1757,6 @@ elif page == "الأرشيف":
                             </div>
                         """, unsafe_allow_html=True)
                         
-                        # تم إزالة زر بدء التصفية وتعديل تقسيم الأعمدة لتوزيع الأزرار المتبقية بشكل متناسق
                         cols = st.columns([1, 1, 1, 1])
                         with cols[1]:
                             if st.button("عرض", key=f"view_arch_btn_{idx}", type="primary"):
@@ -1776,7 +1772,6 @@ elif page == "الأرشيف":
                             if st.button(btn_label, key=f"btn_done_trans_{idx}", type="primary"):
                                 st.session_state[transferred_key] = True
                                 
-                                # نقل التصفية المؤرشفة إلى سجلات المرشد (GUIDE_ARCHIVE_FILE)
                                 guide_arch_data = row.to_dict()
                                 save_to_file(GUIDE_ARCHIVE_FILE, guide_arch_data)
                                 st.success("✅ تمت تصفية ونقل بيانات الفايل لتظهر في صفحة سجلات المرشد بنجاح!")
@@ -1790,7 +1785,7 @@ elif page == "الأرشيف":
                             st.warning(f"⚠️ تأكيد حذف طلب الأرشيف للفايل رقم ({row.get('File No', '')})؟")
                             ac_col1, ac_col2 = st.columns(2)
                             with ac_col1:
-                                if st.button("✔️ تأكيد الحذف النهائي", key=f"confirm_del_arch_{idx}", type="primary"):
+                                if st.button("✔️ تأكيد الحذف النهائي", key=f, type="primary"):
                                     archive_df = archive_df.drop(idx).reset_index(drop=True)
                                     overwrite_data(ARCHIVE_FILE, archive_df)
                                     st.session_state.confirming_del_archive = None
