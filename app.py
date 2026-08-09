@@ -23,15 +23,6 @@ ARCHIVE_FILE = "archive.xlsx"
 GUIDES_FILE = "guides.xlsx"
 GUIDE_ARCHIVE_FILE = "guide_archive.xlsx"
 
-# حذف التصفيات والبيانات القديمة في سجلات المرشد والبدء بنظافة
-if os.path.exists(GUIDE_ARCHIVE_FILE):
-    try:
-        df_temp = pd.read_excel(GUIDE_ARCHIVE_FILE)
-        empty_df = pd.DataFrame(columns=df_temp.columns)
-        empty_df.to_excel(GUIDE_ARCHIVE_FILE, index=False)
-    except:
-        os.remove(GUIDE_ARCHIVE_FILE)
-
 def get_current_logo():
     fixed_logo_path = "sun_2.png"
     if os.path.exists(fixed_logo_path):
@@ -88,7 +79,6 @@ def parse_items_smart(raw_text):
         
     return [p.strip() for p in parts if p.strip()]
 
-# دالة آمنة لحساب المعادلات النصية مثل "100+200*2"
 def evaluate_expression(expr_str):
     if not expr_str or pd.isna(expr_str):
         return 0.0
@@ -234,7 +224,6 @@ except:
 name_column = guides_df.columns[0] if len(guides_df.columns) > 0 else "Guide Name"
 acc_column = guides_df.columns[1] if len(guides_df.columns) > 1 else guides_df.columns[0]
 
-# دالة مساعدة للحصول على اسم المرشد من رقم الحساب بناءً على قاعدة البيانات
 def get_guide_name_by_account(acc_val):
     if not acc_val:
         return "غير معروف"
@@ -1153,7 +1142,6 @@ elif page == "إدارة التصفيات":
             if not sub_df.empty:
                 st.markdown("### 🔍 فلترة وعرض تصفيات المرشدين حسب باسم المرشد")
                 
-                # استخراج أسامي المرشدين المتاحة في الطلبات الحالية بناءً على رقم الحساب الموجود في كل صف
                 unique_accs_in_subs = sub_df['Account'].dropna().unique().tolist()
                 guide_name_options_map = {}
                 for acc in unique_accs_in_subs:
@@ -1193,13 +1181,18 @@ elif page == "إدارة التصفيات":
                         </div>
                     """, unsafe_allow_html=True)
                     
-                    col_actions = st.columns([3, 1, 1])
+                    col_actions = st.columns([3, 1, 1, 1])
                     with col_actions[1]:
                         if st.button("عرض", key=f"view_btn_{idx}", type="primary"):
                             st.session_state.viewing_file = idx
                             st.session_state.show_liquidation_cards = False
                             st.rerun()
                     with col_actions[2]:
+                        if st.button("بدء التصفية", key=f"start_liq_list_btn_{idx}", type="primary"):
+                            st.session_state.viewing_file = idx
+                            st.session_state.show_liquidation_cards = True
+                            st.rerun()
+                    with col_actions[3]:
                         if st.button("🗑️ حذف", key=f"del_sub_btn_{idx}", type="primary"):
                             st.session_state.confirming_del_sub = idx
                             st.rerun()
@@ -1767,13 +1760,33 @@ elif page == "الأرشيف":
                             </div>
                         """, unsafe_allow_html=True)
                         
-                        cols = st.columns([3, 1, 1])
+                        # تم إضافة زر "تم" / "تم النقل" بجانب زر التصفية
+                        cols = st.columns([1, 1, 1, 1, 1])
                         with cols[1]:
                             if st.button("عرض", key=f"view_arch_btn_{idx}", type="primary"):
                                 st.session_state.viewing_archive_file = idx
                                 st.session_state.show_archive_liquidation_cards = False
                                 st.rerun()
                         with cols[2]:
+                            if st.button("بدء التصفية", key=f"start_arch_liq_list_btn_{idx}", type="primary"):
+                                st.session_state.viewing_archive_file = idx
+                                st.session_state.show_archive_liquidation_cards = True
+                                st.rerun()
+                        with cols[3]:
+                            transferred_key = f"transferred_status_{idx}"
+                            if transferred_key not in st.session_state:
+                                st.session_state[transferred_key] = False
+                            
+                            btn_label = "تم النقل" if st.session_state[transferred_key] else "تم"
+                            if st.button(btn_label, key=f"btn_done_trans_{idx}", type="primary"):
+                                st.session_state[transferred_key] = True
+                                
+                                # نقل التصفية المؤرشفة إلى سجلات المرشد (GUIDE_ARCHIVE_FILE)
+                                guide_arch_data = row.to_dict()
+                                save_to_file(GUIDE_ARCHIVE_FILE, guide_arch_data)
+                                st.success("✅ تمت تصفية ونقل بيانات الفايل لتظهر في صفحة سجلات المرشد بنجاح!")
+                                st.rerun()
+                        with cols[4]:
                             if st.button("🗑️ حذف", key=f"del_arch_btn_{idx}", type="primary"):
                                 st.session_state.confirming_del_archive = idx
                                 st.rerun()
