@@ -1178,7 +1178,8 @@ elif page == "إدارة التصفيات":
                         </div>
                     """, unsafe_allow_html=True)
                     
-                    col_actions = st.columns([3, 1, 1, 1])
+                    # تعديل الأزرار هنا لإضافة زر "نقل" بجوار "بدء التصفية"
+                    col_actions = st.columns([2, 1, 1, 1, 1])
                     with col_actions[1]:
                         if st.button("عرض", key=f"view_btn_{idx}", type="primary"):
                             st.session_state.viewing_file = idx
@@ -1190,6 +1191,13 @@ elif page == "إدارة التصفيات":
                             st.session_state.show_liquidation_cards = True
                             st.rerun()
                     with col_actions[3]:
+                        if st.button("🚚 نقل", key=f"transfer_guide_arch_btn_{idx}", type="primary"):
+                            guide_arch_data = row.to_dict()
+                            save_to_file(GUIDE_ARCHIVE_FILE, guide_arch_data)
+                            st.success("✅ تمت تصفية ونقل بيانات الفايل لتظهر في صفحة سجلات المرشد بنجاح!")
+                            time.sleep(1)
+                            st.rerun()
+                    with col_actions[4]:
                         if st.button("🗑️ حذف", key=f"del_sub_btn_{idx}", type="primary"):
                             st.session_state.confirming_del_sub = idx
                             st.rerun()
@@ -1785,7 +1793,7 @@ elif page == "الأرشيف":
                             st.warning(f"⚠️ تأكيد حذف طلب الأرشيف للفايل رقم ({row.get('File No', '')})؟")
                             ac_col1, ac_col2 = st.columns(2)
                             with ac_col1:
-                                if st.button("✔️ تأكيد الحذف النهائي", key=f, type="primary"):
+                                if st.button("✔️ تأكيد الحذف النهائي", key=f"confirm_del_arch_{idx}", type="primary"):
                                     archive_df = archive_df.drop(idx).reset_index(drop=True)
                                     overwrite_data(ARCHIVE_FILE, archive_df)
                                     st.session_state.confirming_del_archive = None
