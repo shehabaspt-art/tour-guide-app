@@ -1125,9 +1125,11 @@ elif page == "إدارة التصفيات":
                     if st.button("✅ تم الأرشفة", type="primary", use_container_width=True):
                         archive_entry = req_row.to_dict()
                         
+                        # حفظ التصفية في الأرشيف وفي سجلات المرشد معاً
                         save_to_file(ARCHIVE_FILE, archive_entry)
                         save_to_file(GUIDE_ARCHIVE_FILE, archive_entry)
                         
+                        # حذف الطلب من الطلبات الواردة
                         sub_df = sub_df.drop(req_idx).reset_index(drop=True)
                         overwrite_data(SUBMISSIONS_FILE, sub_df)
                         
