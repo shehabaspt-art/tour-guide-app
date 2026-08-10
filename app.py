@@ -1634,6 +1634,7 @@ elif page == "الأرشيف":
                     if not matched_arch_df.empty:
                         for idx, row in matched_arch_df.iterrows():
                             r_acc = row.get('Account', '')
+                            r_gname = get_guide_name_by_account(r_acc)
                             shop_detail_raw = str(row.get('Shops Details', ''))
                             shop_items_list = parse_items_smart(shop_detail_raw)
                             
@@ -1669,7 +1670,7 @@ elif page == "الأرشيف":
                                         <span class="card-file">الفايل: {row.get('File No', '')}</span>
                                     </div>
                                     <div class="card-body-row">
-                                        <div class="card-guide">رقم الحساب: {r_acc}</div>
+                                        <div class="card-guide">اسم المرشد: {r_gname} | رقم الحساب: {r_acc}</div>
                                         <div class="card-time">التاريخ: {row.get('Timestamp', '')}</div>
                                     </div>
                                 </div>
@@ -1730,6 +1731,7 @@ elif page == "الأرشيف":
 
                     for idx, row in filtered_arch_df.iterrows():
                         r_acc = row.get('Account', '')
+                        r_gname = get_guide_name_by_account(r_acc)
                         st.markdown(f"""
                             <div class="record-card">
                                 <div class="card-header-row">
@@ -1737,7 +1739,7 @@ elif page == "الأرشيف":
                                     <span class="card-file">الفايل: {row.get('File No', '')}</span>
                                 </div>
                                 <div class="card-body-row">
-                                    <div class="card-guide">رقم الحساب: {r_acc}</div>
+                                    <div class="card-guide">اسم المرشد: {r_gname} | رقم الحساب: {r_acc}</div>
                                     <div class="card-time">التاريخ: {row.get('Timestamp', '')}</div>
                                 </div>
                             </div>
