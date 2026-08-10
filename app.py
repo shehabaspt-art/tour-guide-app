@@ -1123,9 +1123,7 @@ elif page == "إدارة التصفيات":
                 
                 with col_btn1:
                     if st.button("✅ تم الأرشفة", type="primary", use_container_width=True):
-                        # تحديث بيانات السجل بالبيانات المعدلة من الكروت الحسابية إن وجدت
                         if st.session_state.get("show_liquidation_cards", False):
-                            # استخراج القيم المحدثة من الكروت وتخزينها في الدكشنري قبل الأرشفة
                             updated_row = req_row.to_dict()
                             updated_row['Park'] = st.session_state.get(f"lk_park_{req_idx}", req_row.get('Park', 0.0))
                             updated_row['Tip'] = st.session_state.get(f"lk_tip_{req_idx}", req_row.get('Tip', 0.0))
