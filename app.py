@@ -108,7 +108,6 @@ if current_logo_path:
 
 st.markdown("""
     <style>
-    /* إخفاء شريط الأدوات العلوي بالكامل (Header Toolbar) */
     header {visibility: hidden !important;}
     
     div.stFormSubmitButton > button, div.stButton > button {
@@ -1147,18 +1146,24 @@ elif page == "إدارة التصفيات":
 
         else:
             if not sub_df.empty:
-                st.markdown("### 🔍 فلترة وعرض تصفيات المرشدين حسب رقم الحساب أو البحث الحر")
+                st.markdown("### 🔍 فلترة وعرض تصفيات المرشدين حسب اسم المرشد")
                 
-                entered_search_acc = st.text_input(
-                    "بحث برقم الحساب أو رقم التليفون",
-                    key="mgr_search_acc_input"
+                # تعديل الفلتر ليصبحselectbox أو text_input للبحث بأسم المرشد
+                all_guide_names = sorted(list(set(guides_df[name_column].astype(str).tolist())))
+                selected_filter_guide_name = st.selectbox(
+                    "اختر اسم المرشد للفلترة (أو اتركها الكل)",
+                    options=["الكل (جميع المرشدين)"] + all_guide_names,
+                    key="mgr_search_guide_name_select"
                 )
 
-                if entered_search_acc and entered_search_acc.strip():
-                    clean_target_acc = clean_acc_number(entered_search_acc)
+                if selected_filter_guide_name != "الكل (جميع المرشدين)":
+                    # جلب حسابات هذا المرشد لتصفية الجدول بناءً عليها
+                    matched_g_rows = guides_df[guides_df[name_column].astype(str) == selected_filter_guide_name]
+                    matched_accs = [clean_acc_number(acc) for acc in matched_g_rows[acc_column].tolist()]
+                    
                     sub_df['Account'] = sub_df['Account'].apply(clean_acc_number)
-                    filtered_sub_df = sub_df[sub_df['Account'] == clean_target_acc]
-                    st.info(f"عرض التصفيات الخاصة برقم الحساب: **{clean_target_acc}** - عدد الطلبات: {len(filtered_sub_df)}")
+                    filtered_sub_df = sub_df[sub_df['Account'].isin(matched_accs)]
+                    st.info(f"عرض التصفيات الخاصة بالمرشد: **{selected_filter_guide_name}** - عدد الطلبات: {len(filtered_sub_df)}")
                 else:
                     filtered_sub_df = sub_df
 
@@ -1166,6 +1171,7 @@ elif page == "إدارة التصفيات":
 
                 for idx, row in filtered_sub_df.iterrows():
                     r_acc = row.get('Account', '')
+                    r_gname = get_guide_name_by_account(r_acc)
                     st.markdown(f"""
                         <div class="record-card">
                             <div class="card-header-row">
@@ -1173,7 +1179,7 @@ elif page == "إدارة التصفيات":
                                 <span class="card-file">الفايل: {row.get('File No', '')}</span>
                             </div>
                             <div class="card-body-row">
-                                <div class="card-guide">رقم الحساب: {r_acc}</div>
+                                <div class="card-guide">اسم المرشد: {r_gname} | رقم الحساب: {r_acc}</div>
                                 <div class="card-time">التاريخ: {row.get('Timestamp', '')}</div>
                             </div>
                         </div>
@@ -1711,18 +1717,22 @@ elif page == "الأرشيف":
                     else:
                         st.warning("⚠️ لا توجد أي عمليات تسجيل أو مبيعات لهذا المحل في الأرشيف حتى الآن.")
                 else:
-                    st.markdown("### 🔍 فلترة وعرض الأرشيف حسب رقم الحساب أو البحث الحر")
+                    st.markdown("### 🔍 فلترة وعرض الأرشيف حسب اسم المرشد")
                     
-                    entered_arch_search = st.text_input(
-                        "بحث برقم الحساب أو رقم التليفون في الأرشيف",
-                        key="arch_search_input"
+                    all_guide_names_arch = sorted(list(set(guides_df[name_column].astype(str).tolist())))
+                    selected_arch_guide_name = st.selectbox(
+                        "اختر اسم المرشد للفلترة في الأرشيف (أو اتركها الكل)",
+                        options=["الكل (جميع المرشدين)"] + all_guide_names_arch,
+                        key="arch_search_guide_name_select"
                     )
 
-                    if entered_arch_search and entered_arch_search.strip():
-                        clean_arch_target = clean_acc_number(entered_arch_search)
+                    if selected_arch_guide_name != "الكل (جميع المرشدين)":
+                        matched_g_rows_arch = guides_df[guides_df[name_column].astype(str) == selected_arch_guide_name]
+                        matched_accs_arch = [clean_acc_number(acc) for acc in matched_g_rows_arch[acc_column].tolist()]
+                        
                         archive_df['Account'] = archive_df['Account'].apply(clean_acc_number)
-                        filtered_arch_df = archive_df[archive_df['Account'] == clean_arch_target]
-                        st.info(f"عرض الأرشيف برقم الحساب: **{clean_arch_target}** - عدد الطلبات: {len(filtered_arch_df)}")
+                        filtered_arch_df = archive_df[archive_df['Account'].isin(matched_accs_arch)]
+                        st.info(f"عرض الأرشيف للمرشد: **{selected_arch_guide_name}** - عدد الطلبات: {len(filtered_arch_df)}")
                     else:
                         filtered_arch_df = archive_df
 
