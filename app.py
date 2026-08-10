@@ -1381,7 +1381,7 @@ elif page == "الأرشيف":
                 
                 if st.session_state.get("show_archive_liquidation_cards", False):
                     st.markdown("---")
-                    st.markdown("## 🧮 شاشة التصفية الذكية والكروت الحسابية (الأرشيف)")
+                    st.markdown("## 🧮 شاشة التصفية الذكية والكروت الحسابية (الأرشيف - عرض فقط 🔒)")
                     
                     def parse_val(val_str):
                         try:
@@ -1415,42 +1415,42 @@ elif page == "الأرشيف":
                             default_opt_collection += float(numbers_found[0])
                     default_opt_collection_str = str(default_opt_collection)
 
-                    st.markdown("### 📋 كروت البيانات الأساسية")
+                    st.markdown("### 📋 كروت البيانات الأساسية (عرض فقط)")
                     c_k1, c_k2, c_k3, c_k4 = st.columns(4)
                     with c_k1:
-                        card_guide_name = st.text_input("اسم المرشد", value=default_guide_name, key=f"arch_lk_gname_{req_idx}")
+                        st.text_input("اسم المرشد", value=default_guide_name, disabled=True, key=f"arch_lk_gname_{req_idx}")
                     with c_k2:
-                        card_file_no = st.text_input("رقم الفايل", value=default_file_no, key=f"arch_lk_fno_{req_idx}")
+                        st.text_input("رقم الفايل", value=default_file_no, disabled=True, key=f"arch_lk_fno_{req_idx}")
                     with c_k3:
-                        card_guidance_val = st.number_input("قيمة الارشاد", min_value=0.0, value=0.0, step=10.0, key=f"arch_lk_guidance_{req_idx}")
+                        st.number_input("قيمة الارشاد", value=0.0, disabled=True, key=f"arch_lk_guidance_{req_idx}")
                     with c_k4:
-                        card_park = st.number_input("باركات", min_value=0.0, value=default_park, step=10.0, key=f"arch_lk_park_{req_idx}")
+                        st.number_input("باركات", value=default_park, disabled=True, key=f"arch_lk_park_{req_idx}")
 
                     c_k5, c_k6, c_k7, c_k8 = st.columns(4)
                     with c_k5:
-                        card_tip = st.number_input("إكراميات", min_value=0.0, value=default_tip, step=10.0, key=f"arch_lk_tip_{req_idx}")
+                        st.number_input("إكراميات", value=default_tip, disabled=True, key=f"arch_lk_tip_{req_idx}")
                     with c_k6:
-                        card_lunch = st.number_input("غداء", min_value=0.0, value=default_lunch, step=10.0, key=f"arch_lk_lunch_{req_idx}")
+                        st.number_input("غداء", value=default_lunch, disabled=True, key=f"arch_lk_lunch_{req_idx}")
                     with c_k7:
-                        card_tickets = st.number_input("تذاكر", min_value=0.0, value=default_tickets, step=10.0, key=f"arch_lk_tickets_{req_idx}")
+                        st.number_input("تذاكر", value=default_tickets, disabled=True, key=f"arch_lk_tickets_{req_idx}")
                     with c_k8:
-                        card_guide_commission = st.number_input("عمولة المرشد", min_value=0.0, value=0.0, step=10.0, key=f"arch_lk_guide_comm_{req_idx}")
+                        st.number_input("عمولة المرشد", value=0.0, disabled=True, key=f"arch_lk_guide_comm_{req_idx}")
 
                     st.markdown("---")
-                    total_revenue = card_guidance_val + card_park + card_tip + card_lunch + card_tickets + card_guide_commission
+                    total_revenue = default_park + default_tip + default_lunch + default_tickets
 
-                    st.markdown("### 💰 كروت العهد والتحصيلات")
+                    st.markdown("### 💰 كروت العهد والتحصيلات (عرض فقط)")
                     cc_col1, cc_col2, cc_col3 = st.columns(3)
                     with cc_col1:
-                        card_advances = st.number_input("عهدة", min_value=0.0, value=advances_val, step=10.0, key=f"arch_lk_adv_{req_idx}")
+                        st.number_input("عهدة", value=advances_val, disabled=True, key=f"arch_lk_adv_{req_idx}")
                     with cc_col2:
-                        collec_expr = st.text_input("تحصيلات", value=default_collection_str, key=f"arch_lk_collec_{req_idx}")
-                        card_collections = evaluate_expression(collec_expr)
+                        st.text_input("تحصيلات", value=default_collection_str, disabled=True, key=f"arch_lk_collec_{req_idx}")
+                        card_collections = evaluate_expression(default_collection_str)
                     with cc_col3:
-                        opt_collec_expr = st.text_input("تحصيلات الأوبشنال", value=default_opt_collection_str, key=f"arch_lk_opt_collec_{req_idx}")
-                        card_opt_collections = evaluate_expression(opt_collec_expr)
+                        st.text_input("تحصيلات الأوبشنال", value=default_opt_collection_str, disabled=True, key=f"arch_lk_opt_collec_{req_idx}")
+                        card_opt_collections = evaluate_expression(default_opt_collection_str)
 
-                    total_dues = card_advances + card_collections + card_opt_collections
+                    total_dues = advances_val + card_collections + card_opt_collections
                     net_balance = total_revenue - total_dues
 
                     st.markdown("---")
@@ -1818,3 +1818,4 @@ elif page == "الأرشيف":
     else:
         if password_arch != "":
             st.error("❌ كلمة المرور غير صحيحة!")
+```[cite: 11]
