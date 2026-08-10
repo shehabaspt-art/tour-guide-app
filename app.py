@@ -1185,7 +1185,6 @@ elif page == "إدارة التصفيات":
                         </div>
                     """, unsafe_allow_html=True)
                     
-                    # تم تعديل الأعمدة وإزالة زر النقل
                     col_actions = st.columns([2, 1, 1, 1])
                     with col_actions[1]:
                         if st.button("عرض", key=f"view_btn_{idx}", type="primary"):
