@@ -108,6 +108,9 @@ if current_logo_path:
 
 st.markdown("""
     <style>
+    /* إخفاء شريط الأدوات العلوي بالكامل (Header Toolbar) */
+    header {visibility: hidden !important;}
+    
     div.stFormSubmitButton > button, div.stButton > button {
         border-radius: 8px !important;
         background-color: #28a745 !important;
